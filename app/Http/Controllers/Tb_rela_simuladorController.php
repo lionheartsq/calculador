@@ -8,27 +8,45 @@ use App\Tb_detallado_simulador;
 use App\Tb_precios_venta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_rela_simuladorController extends Controller
 {
     //
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->id;
             # Modelo::join('tablaqueseune',basicamente un on)
             $productos = Tb_rela_simulador::join('tb_producto','tb_rela_simulador.idProducto','=','tb_producto.id')
-            ->select('tb_rela_simulador.id','tb_rela_simulador.unidades','tb_rela_simulador.tiempo','tb_producto.producto','tb_producto.referencia','tb_producto.descripcion')
-            ->where('tb_rela_simulador.idSimulacion', '=', $identificador)->get();
+            ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
+            ->select('tb_rela_simulador.id','tb_rela_simulador.unidades','tb_rela_simulador.tiempo','tb_producto.producto',
+            'tb_producto.referencia','tb_producto.descripcion')
+            ->where('tb_rela_simulador.idSimulador', '=', $identificador)->get(); //para revisar 24-02-2022
             return ['productos' => $productos];
     }
 
     public function productos()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
         $posibles = DB::table('tb_producto')
-        ->select('id as idProducto','producto')
+        ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+        ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
+        ->select('tb_producto.id as idProducto','producto')
         ->get();
 
         return ['posibles' => $posibles];
@@ -36,11 +54,19 @@ class Tb_rela_simuladorController extends Controller
 
     public function posibles(Request $request) //esta funcion no estoy seguro porque la hice pero no esta funcionando bien
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->id;
 
         $posibles = DB::table('tb_producto')
-        ->select('id as idProducto','producto')
+        ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+        ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
+        ->select('tb_producto.id as idProducto','producto')
         ->whereNotIn('id', DB::table('tb_rela_simulacion')->select('idProducto')->where('idSimulacion', '=', $identificador))
         ->get();
 
@@ -49,9 +75,16 @@ class Tb_rela_simuladorController extends Controller
 
     public function posiblesPrecios(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
         $posibles = DB::table('tb_precios_venta')
+        ->where('tb_precios_venta.idEmpresa','=',$idEmpresa)
         ->select('id','idProducto','detalle as producto')
         ->get();
 
@@ -60,6 +93,12 @@ class Tb_rela_simuladorController extends Controller
 
     public function listar(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -68,6 +107,7 @@ class Tb_rela_simuladorController extends Controller
         if ($buscar=='') {
             $productos = Tb_rela_simulador::join('tb_producto','tb_rela_simulador.idProducto','=','tb_producto.id')
             ->join('tb_precios_venta','tb_rela_simulador.idPrecio','=','tb_precios_venta.id')
+            ->where('tb_precios_venta.idEmpresa','=',$idEmpresa)
             ->select('tb_rela_simulador.id','tb_rela_simulador.unidades','tb_rela_simulador.idPrecio','tb_precios_venta.preciodeventa',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion')
             ->where('tb_rela_simulador.idSimulador', '=', $identificador)
@@ -76,6 +116,7 @@ class Tb_rela_simuladorController extends Controller
         else if($criterio=='producto'){
             $productos = Tb_rela_simulador::join('tb_producto','tb_rela_simulador.idProducto','=','tb_producto.id')
             ->join('tb_precios_venta','tb_rela_simulador.idPrecio','=','tb_precios_venta.id')
+            ->where('tb_precios_venta.idEmpresa','=',$idEmpresa)
             ->select('tb_rela_simulador.id','tb_rela_simulador.unidades','tb_rela_simulador.idPrecio','tb_precios_venta.preciodeventa',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion')
             ->where([
@@ -87,6 +128,7 @@ class Tb_rela_simuladorController extends Controller
         else if($criterio=='referencia'){
             $productos = Tb_rela_simulador::join('tb_producto','tb_rela_simulador.idProducto','=','tb_producto.id')
             ->join('tb_precios_venta','tb_rela_simulador.idPrecio','=','tb_precios_venta.id')
+            ->where('tb_precios_venta.idEmpresa','=',$idEmpresa)
             ->select('tb_rela_simulador.id','tb_rela_simulador.unidades','tb_rela_simulador.idPrecio','tb_precios_venta.preciodeventa',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion')
             ->where([
@@ -99,6 +141,7 @@ class Tb_rela_simuladorController extends Controller
             # code...
             $productos = Tb_rela_simulador::join('tb_producto','tb_rela_simulador.idProducto','=','tb_producto.id')
             ->join('tb_precios_venta','tb_rela_simulador.idPrecio','=','tb_precios_venta.id')
+            ->where('tb_precios_venta.idEmpresa','=',$idEmpresa)
             ->select('tb_rela_simulador.id','tb_rela_simulador.unidades','tb_rela_simulador.idPrecio','tb_precios_venta.preciodeventa',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion')
             ->where([
@@ -123,10 +166,17 @@ class Tb_rela_simuladorController extends Controller
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $idPrecio=$request->idRelacion;
 
         $productos = Tb_precios_venta::where('id','=',$idPrecio)
+        ->where('tb_precios_venta.idEmpresa','=',$idEmpresa)
         ->select('idProducto')->get();
         foreach($productos as $producto){
             $nombrep = $producto->idProducto;

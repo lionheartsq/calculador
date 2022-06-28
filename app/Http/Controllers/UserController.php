@@ -7,6 +7,7 @@ use App\Tb_rol;
 use App\Tb_usuario_tiene_rol;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -21,12 +22,19 @@ class UserController extends Controller
         $buscar= $request->buscar;
         $criterio= $request->criterio;
 
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if ($buscar=='') {
             $usuarios = User::join("tb_usuario_tiene_rol","tb_usuario_tiene_rol.idUser","=","users.id")
             ->leftJoin('tb_rol',function($join){
                 $join->on('tb_usuario_tiene_rol.idRol','=','tb_rol.id');
             })
             ->select('users.id','users.name','users.email','users.estado','tb_rol.id as idRol','tb_rol.rol','tb_rol.estado as estado_rol','tb_usuario_tiene_rol.id as idexRol')
+            ->where('tb_usuario_tiene_rol.idEmpresa','=',$idEmpresa)
             ->orderBy('users.id','desc')->paginate(5);
         }
         else if($criterio=='name'){
@@ -35,6 +43,7 @@ class UserController extends Controller
                 $join->on('tb_usuario_tiene_rol.idRol','=','tb_rol.id');
             })
             ->select('users.id','users.name','users.email','users.estado','tb_rol.id as idRol','tb_rol.rol','tb_rol.estado as estado_rol','tb_usuario_tiene_rol.id as idexRol')
+            ->where('tb_usuario_tiene_rol.idEmpresa','=',$idEmpresa)
             ->where('users.name', 'like', '%'. $buscar . '%')
             ->orderBy('users.id','desc')->paginate(5);
         }
@@ -44,6 +53,7 @@ class UserController extends Controller
                 $join->on('tb_usuario_tiene_rol.idRol','=','tb_rol.id');
             })
             ->select('users.id','users.name','users.email','users.estado','tb_rol.id as idRol','tb_rol.rol','tb_rol.estado as estado_rol','tb_usuario_tiene_rol.id as idexRol')
+            ->where('tb_usuario_tiene_rol.idEmpresa','=',$idEmpresa)
             ->where('tb_rol.rol', 'like', '%'. $buscar . '%')
             ->orderBy('users.id','desc')->paginate(5);
         }
@@ -53,6 +63,7 @@ class UserController extends Controller
                 $join->on('tb_usuario_tiene_rol.idRol','=','tb_rol.id');
             })
             ->select('users.id','users.name','users.email','users.estado','tb_rol.id as idRol','tb_rol.rol','tb_rol.estado as estado_rol','tb_usuario_tiene_rol.id as idexRol')
+            ->where('tb_rol.rol', 'like', '%'. $buscar . '%')
             ->where('users.email', 'like', '%'. $buscar . '%')
             ->orderBy('users.id','desc')->paginate(5);
         }
@@ -62,6 +73,7 @@ class UserController extends Controller
                     $join->on('tb_usuario_tiene_rol.idRol','=','tb_rol.id');
                 })
                 ->select('users.id','users.name','users.email','users.estado','tb_rol.id as idRol','tb_rol.rol','tb_rol.estado as estado_rol','tb_usuario_tiene_rol.id as idexRol')
+                ->where('tb_rol.rol', 'like', '%'. $buscar . '%')
                 ->where('users.id', 'like', '%'. $buscar . '%')
                 ->orderBy('users.id','desc')->paginate(5);
         }
@@ -88,9 +100,15 @@ class UserController extends Controller
         $users->password=bcrypt($request->email);
         $users->save();
         $idtabla=DB::getPdo()->lastInsertId();
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+           $idEmpresa=$empresa['id'];
+        }
+        //cambios multiempresa
         $usersrela=new Tb_usuario_tiene_rol();
         $usersrela->idUser=$idtabla;
         $usersrela->idRol=$request->idRol;
+        $usersrela->idEmpresa=$idEmpresa; //cambios multiempresa
         $usersrela->save();
     }
 

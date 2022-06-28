@@ -23,6 +23,7 @@ class CreateTbRentabilidadTable extends Migration
             $table->float('margenoperacional');
             $table->float('margenneto');
             $table->string('detalle', 255);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

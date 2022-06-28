@@ -29,7 +29,7 @@
                                         <select class="form-control col-md-3" v-model="criterio">
                                         <option value="producto">Producto</option>
                                         <option value="coleccion">Coleccion</option>
-                                        <option value="area">Area</option>
+                                        <!-- <option value="area">Area</option> -->
                                         </select>
                                         <input type="text" v-model="buscar" @keyup.enter="listarProducto(1,buscar,criterio)" class="form-control" placeholder="Texto a buscar">
                                         <button type="submit" @click="listarProducto(1,buscar,criterio)" class="btn btn-primary"><i class="fa fa-search"></i> Buscar</button>
@@ -46,7 +46,7 @@
                                         <th>Foto</th>
                                         <th>Descripcion</th>
                                         <th>Coleccion</th>
-                                        <th>Area</th>
+                                        <!-- <th>Area</th> -->
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
@@ -75,7 +75,7 @@
                                         <td><a class="cursor" v-on:click="showLightbox(`img/avatars/${producto.foto}`)">Ver producto</a></td>
                                         <td v-text="producto.descripcion"></td>
                                         <td v-text="producto.coleccion"></td>
-                                        <td v-text="producto.area"></td>
+                                        <!-- <td v-text="producto.area"></td> -->
                                         <td>
                                             <div v-if="producto.estado">
                                             <span class="badge badge-success">Activo</span>
@@ -130,6 +130,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <!--
                                         <div class="col-md-6">
                                             <div class="form-group row">
                                                 <label class="col-md-3 form-control-label" for="text-input">Area</label>
@@ -141,6 +142,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        -->
                                    </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
@@ -191,6 +193,18 @@
                                             <span class="help-block">(*) Ingrese la descripcion</span>
                                         </div>
                                     </div>
+
+                                    <div class="form-group row">
+                                        <label class="col-md-3 form-control-label" for="text-input">Presentación</label>
+                                            <div class="col-md-9">
+                                                <select class="form-control" v-model="presentacion">
+                                                    <option value="0" disabled> Seleccione presentación</option>
+                                                    <option value="4">Unidad</option>
+                                                    <option value="5">Par</option>
+                                                </select>
+                                            </div>
+                                    </div>
+
                                     <div class="form-group row div-error" v-show="errorProducto">
                                         <div class="text-center text-error">
                                             <div v-for="error in errorMensaje" :key="error" v-text="error"></div>
@@ -231,7 +245,7 @@
                 coleccion:'',
                 referencia:'',
                 arrayColeccion:[],
-                idArea:0,
+                idArea:1,
                 area:'',
                 arrayArea:[],
                 modal : 0,
@@ -336,13 +350,13 @@
                },
              subirFoto(e){ // subir un nuevo archivo o imagen
               let file = e.target.files[0];
-                let reader = new FileReader();  
+                let reader = new FileReader();
 
                 if(file['size'] < 2111775)
                 {
                     reader.onloadend = (file) => {
                      this.foto = reader.result;
-                    }              
+                    }
                      reader.readAsDataURL(file);
                       reader.onload = e => {
                      this.fotoCarga = e.target.result;
@@ -370,7 +384,8 @@
                     'descripcion': this.descripcion,
                     'idColeccion': this.idColeccion,
                     'idArea': this.idArea,
-                    'capacidadMensual': this.capacidadMensual
+                    'capacidadMensual': this.capacidadMensual,
+                    'presentacion': this.presentacion
                     //'dato': this.dato
                 }).then(function (response) {
                 me.cerrarModal();

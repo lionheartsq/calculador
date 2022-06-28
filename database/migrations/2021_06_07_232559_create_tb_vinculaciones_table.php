@@ -24,6 +24,7 @@ class CreateTbVinculacionesTable extends Migration
             $table->foreignId('idEmpleado')->constrained('tb_empleado');
             $table->foreignId('idNivelArl')->constrained('tb_niveles_riesgo');
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

@@ -21,7 +21,8 @@ class Tb_clientesSeeder extends Seeder
             'direccion'   => 'Indeterminado',
             'telefono'    => '22222',
             'correo'      => 'correo@correo.co',
-            'estado'      => '1'
+            'estado'      => '1',
+            'idEmpresa' => '1'
         ]);
     }
 }

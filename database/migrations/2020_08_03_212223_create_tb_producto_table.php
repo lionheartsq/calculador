@@ -21,6 +21,7 @@ class CreateTbProductoTable extends Migration
             $table->string('descripcion', 255);
             $table->foreignId('idColeccion')->constrained('tb_coleccion');
             $table->foreignId('idArea')->constrained('tb_area');
+            $table->integer('presentacion');
             $table->boolean('estado')->default(1);
             //$table->timestamps();
         });

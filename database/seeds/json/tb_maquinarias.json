@@ -1,6 +1,3 @@
 [
-    {"id":"1","maquinaria":"Pegadora","valor":"1200000","tiempoDeVidaUtil":"12","depreciacionAnual":"100000","depreciacionMensual":"8333","fecha":"2020-10-28","estado":"1"},
-    {"id":"2","maquinaria":"Terminadora","valor":"800000","tiempoDeVidaUtil":"12","depreciacionAnual":"66667","depreciacionMensual":"5556","fecha":"2020-10-28","estado":"1"},
-    {"id":"3","maquinaria":"Horno","valor":"1400000","tiempoDeVidaUtil":"12","depreciacionAnual":"116667","depreciacionMensual":"9722","fecha":"2020-10-28","estado":"1"},
-    {"id":"4","maquinaria":"Compresor","valor":"1200000","tiempoDeVidaUtil":"12","depreciacionAnual":"100000","depreciacionMensual":"8333","fecha":"2020-10-28","estado":"1"}
+
 ]

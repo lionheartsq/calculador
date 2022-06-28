@@ -62,6 +62,24 @@ class DatabaseSeeder extends Seeder
 //-------------------------------------------------------------------//
         //primero vacia la tabla y luego la llena ojo
         $this->truncateTables([
+            'tb_tipo_nomina'
+        ]);
+
+        //funcion principal que llama cada seeder
+        $this->call(Tb_tipo_nominaSeeder::class);
+//-------------------------------------------------------------------//
+//-------------------------------------------------------------------//
+        //primero vacia la tabla y luego la llena ojo
+        $this->truncateTables([
+            'tb_configuracion_basica'
+        ]);
+
+        //funcion principal que llama cada seeder
+        $this->call(Tb_configuracion_basicaSeeder::class);
+//-------------------------------------------------------------------//
+//-------------------------------------------------------------------//
+        //primero vacia la tabla y luego la llena ojo
+        $this->truncateTables([
             'tb_proveedores'
         ]);
 
@@ -173,15 +191,6 @@ class DatabaseSeeder extends Seeder
 
         //funcion principal que llama cada seeder
         $this->call(Tb_riesgo_adicionalSeeder::class);
-//-------------------------------------------------------------------//
-//-------------------------------------------------------------------//
-        //primero vacia la tabla y luego la llena ojo
-        $this->truncateTables([
-            'tb_tipo_nomina'
-        ]);
-
-        //funcion principal que llama cada seeder
-        $this->call(Tb_tipo_nominaSeeder::class);
 //-------------------------------------------------------------------//
 //-------------------------------------------------------------------//
         //primero vacia la tabla y luego la llena ojo
@@ -338,6 +347,10 @@ class DatabaseSeeder extends Seeder
         ]);
         $this->call(Tb_materia_prima_productoSeeder::class);
 
+        $this->truncateTables([
+            'tb_vista_personalizada'
+        ]);
+        $this->call(Tb_vista_personalizadaSeeder::class);
         /*
         $this->truncateTables([
             'tb_simulacion'

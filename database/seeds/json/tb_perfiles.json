@@ -1,15 +1,4 @@
 [
-    {"id":"1","perfil":"Diseñador","idProceso":"1","valorMinuto":"0","estado":"1"},
-    {"id":"2","perfil":"Tecnologo En Diseño ","idProceso":"1","valorMinuto":"0","estado":"1"},
-    {"id":"3","perfil":"Técnico En Modelaje","idProceso":"1","valorMinuto":"0","estado":"1"},
-    {"id":"4","perfil":"Modelista","idProceso":"1","valorMinuto":"0","estado":"1"},
-    {"id":"5","perfil":"Almacenista","idProceso":"2","valorMinuto":"0","estado":"1"},
-    {"id":"6","perfil":"Cortador","idProceso":"2","valorMinuto":"225","estado":"1"},
-    {"id":"7","perfil":"Desbastador","idProceso":"2","valorMinuto":"113","estado":"1"},
-    {"id":"8","perfil":"Montador","idProceso":"3","valorMinuto":"225","estado":"1"},
-    {"id":"9","perfil":"Solador","idProceso":"4","valorMinuto":"281","estado":"1"},
-    {"id":"10","perfil":"Emplantillador","idProceso":"5","valorMinuto":"113","estado":"1"},
-    {"id":"11","perfil":"Armador","idProceso":"6","valorMinuto":"124","estado":"1"},
-    {"id":"12","perfil":"Costurero","idProceso":"7","valorMinuto":"124","estado":"1"}
+
 ]
 

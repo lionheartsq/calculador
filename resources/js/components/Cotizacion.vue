@@ -331,7 +331,7 @@
                 //console.log(event.target.value);
                 this.identificadorProducto=event.target.value;
                 let me=this;
-                var url='/cotizacioncliente/precioproductos?producto='+this.identificadorProducto;
+                var url='/cotizacioncliente/precioproductos/'+this.identificadorProducto;
                 console.log('Url Seguimiento Valor de producto');
                 console.log(url);
                 console.log(me.identificadorProducto);

@@ -22,6 +22,7 @@ class CreateTbClientesTable extends Migration
             $table->bigInteger('telefono');
             $table->string('correo',255);
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
            // $table->timestamps();
         });
     }

@@ -20,6 +20,7 @@ class CreateTbOrdenEntradaTable extends Migration
             $table->float('cantidad');
             $table->foreignId('idProduccion')->constrained('tb_orden_produccion');
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

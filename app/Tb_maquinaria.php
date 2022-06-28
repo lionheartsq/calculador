@@ -8,7 +8,7 @@ class Tb_maquinaria extends Model
 {
     protected $table = 'tb_maquinaria';
 
-    protected $fillable = ['maquina','valor','tiempoDeVidaUtil','depreciacionAnual','depreciacionMensual','fecha'];
+    protected $fillable = ['maquina','valor','tiempoDeVidaUtil','depreciacionAnual','depreciacionMensual','fecha','idEmpresa'];
 
     public $timestamps = false;
 }

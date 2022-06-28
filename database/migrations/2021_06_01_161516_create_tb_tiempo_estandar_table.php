@@ -26,6 +26,7 @@ class CreateTbTiempoEstandarTable extends Migration
             $table->float('factorPds',8, 3);
             $table->float('tiempoEstandar',8, 3);
             $table->boolean('estado')->default(1);//1 true en proceso, 0 false finalizado
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

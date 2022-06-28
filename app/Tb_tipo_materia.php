@@ -8,7 +8,7 @@ class Tb_tipo_materia extends Model
 {
     protected $table = 'tb_tipo_materia';
 
-    protected $fillable = ['tipoMateria','estado'];
+    protected $fillable = ['tipoMateria','estado','idEmpresa'];
 
     public $timestamps = false;
 }

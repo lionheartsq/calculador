@@ -21,6 +21,7 @@ class CreateTbDetalleInventarioTable extends Migration
             $table->integer('cantidadActual')->nullable();
             $table->integer('diferencia')->nullable();
             $table->string('observacion')->nullable();
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             $table->foreignId('idInventario')->constrained('tb_inventario');
             //$table->timestamps();
         });

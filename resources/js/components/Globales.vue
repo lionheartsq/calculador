@@ -87,8 +87,9 @@
                                     </tr>
                                 </tbody>
                             </table>
-                                <button type="button" class="btn btn-success" @click="guardarDatos()">Guardar</button>
-                                <button v-if="id==1" type="button" class="btn btn-primary" @click="actualizarDatos(nombre,direccion,telefono,cajaCompensacion,arl,nivelRiesgo,idTipoNomina)">Actualizar</button>
+                                <input type="hidden" v-model="id">
+                                <!-- <button type="button" class="btn btn-success" @click="guardarDatos()">Guardar</button> -->
+                                <button type="button" class="btn btn-primary" @click="actualizarDatos(id,nombre,direccion,telefono,cajaCompensacion,arl,nivelRiesgo,idTipoNomina)">Actualizar</button>
                             </form>
                             </div>
                         </div>
@@ -110,7 +111,7 @@
          },
         data(){
             return{
-                id : 1,
+                id : '',
                 identificador:0,
                 nombre : '',
                 direccion : '',
@@ -136,6 +137,7 @@
                 // Make a request for a user with a given ID
                 axios.get(url).then(function (response) {
                 var respuesta=response.data;
+                me.id=respuesta.id;
                 me.nombre=respuesta.nombre;
                 me.direccion=respuesta.direccion;
                 me.telefono=respuesta.telefono;
@@ -234,7 +236,7 @@
                     console.log(error);
                 });
             },
-            actualizarDatos(nombre,direccion,telefono,cajaCompensacion,arl,nivelRiesgo,idTipoNomina){
+            actualizarDatos(id,nombre,direccion,telefono,cajaCompensacion,arl,nivelRiesgo,idTipoNomina){
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success'
@@ -243,7 +245,7 @@
                 })
                 let me=this;
                 axios.post('/configuracion/actualizar',{
-                    'id':1,
+                    'id': this.id,
                     'nombre' : this.nombre,
                     'direccion' : this.direccion,
                     'telefono' : this.telefono,

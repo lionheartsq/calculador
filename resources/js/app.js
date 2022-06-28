@@ -120,7 +120,6 @@ Vue.component('unidades', require('./components/Unidades.vue').default);
 Vue.component('usuarios', require('./components/Usuarios.vue').default);
 Vue.component('manual', require('./components/Manual.vue').default);
 Vue.component('cartilla', require('./components/Cartilla.vue').default);
-Vue.component('cartilla2', require('./components/Cartilla2.vue').default);
 Vue.component('cartilladigital', require('./components/CartillaDigital.vue').default);
 Vue.component('videotutoriales', require('./components/Videos.vue').default);
 Vue.component('tiempoestandar', require('./components/TiempoEstandar.vue').default);
@@ -145,6 +144,8 @@ Vue.component('rotacioncartera', require('./components/Rotacioncartera.vue').def
 Vue.component('hojadecostossimuladorfinanciero', require('./components/HojaDeCostosSimuladorFinanciero.vue').default);
 Vue.component('simuladorfinanciero', require('./components/SimuladorFinanciero.vue').default);
 Vue.component('productossimuladorfinanciero', require('./components/ProductosSimuladorFinanciero.vue').default);
+
+Vue.component('vistapersonalizada', require('./components/VistaPersonalizada.vue').default);
 
 Vue.component('pruebas', require('./components/Pruebas.vue').default);
 /**

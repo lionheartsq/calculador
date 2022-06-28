@@ -1,21 +1,3 @@
 [
-    {"id":"1","idPerfil":"6","tiempo":"1.00","precio":"2806","tipoPago":"5","idHoja":"1"},
-    {"id":"2","idPerfil":"7","tiempo":"1.00","precio":"420","tipoPago":"5","idHoja":"1"},
-    {"id":"3","idPerfil":"11","tiempo":"1.00","precio":"3507","tipoPago":"5","idHoja":"1"},
-    {"id":"4","idPerfil":"12","tiempo":"1.00","precio":"2455","tipoPago":"5","idHoja":"1"},
-    {"id":"5","idPerfil":"9","tiempo":"1.00","precio":"4209","tipoPago":"5","idHoja":"1"},
-    {"id":"6","idPerfil":"10","tiempo":"1.00","precio":"1122","tipoPago":"5","idHoja":"1"},
-    {"id":"7","idPerfil":"6","tiempo":"1.00","precio":"731","tipoPago":"3","idHoja":"2"},
-    {"id":"8","idPerfil":"11","tiempo":"1.00","precio":"1462","tipoPago":"3","idHoja":"2"},
-    {"id":"9","idPerfil":"12","tiempo":"1.00","precio":"731","tipoPago":"3","idHoja":"2"},
-    {"id":"10","idPerfil":"9","tiempo":"1.00","precio":"2011","tipoPago":"3","idHoja":"2"},
-    {"id":"11","idPerfil":"10","tiempo":"1.00","precio":"731","tipoPago":"3","idHoja":"2"},
-    {"id":"12","idPerfil":"11","tiempo":"2.00","precio":"25000","tipoPago":"1","idHoja":"3"},
-    {"id":"13","idPerfil":"6","tiempo":"11.95","precio":"225","tipoPago":"1","idHoja":"4"},
-    {"id":"14","idPerfil":"7","tiempo":"11.95","precio":"113","tipoPago":"1","idHoja":"4"},
-    {"id":"15","idPerfil":"11","tiempo":"17.92","precio":"124","tipoPago":"1","idHoja":"4"},
-    {"id":"16","idPerfil":"12","tiempo":"17.92","precio":"124","tipoPago":"1","idHoja":"4"},
-    {"id":"17","idPerfil":"8","tiempo":"11.95","precio":"225","tipoPago":"1","idHoja":"4"},
-    {"id":"18","idPerfil":"9","tiempo":"23.89","precio":"281","tipoPago":"1","idHoja":"4"},
-    {"id":"19","idPerfil":"10","tiempo":"5.97","precio":"113","tipoPago":"1","idHoja":"4"}
+
 ]

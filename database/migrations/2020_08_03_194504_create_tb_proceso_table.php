@@ -18,6 +18,7 @@ class CreateTbProcesoTable extends Migration
             $table->string('proceso', 255);
             $table->foreignId('idArea')->constrained('tb_area');
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

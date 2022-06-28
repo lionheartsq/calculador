@@ -1,7 +1,7 @@
 [
-    {"id":"1","concepto":"Sueldo Administrador","valor":"2805312","estado":"1"},
-    {"id":"2","concepto":"Sueldo representante legal","valor":"2343002","estado":"1"},
-    {"id":"3","concepto":"Seguros","valor":"1098063","estado":"1"},
-    {"id":"4","concepto":"Arriendo","valor":"750000","estado":"1"},
-    {"id":"5","concepto":"Servicios públicos","valor":"400000","estado":"1"}
+    {"id":"1","concepto":"Sueldo Administrador","valor":"2805312","estado":"1","idEmpresa":"1"},
+    {"id":"2","concepto":"Sueldo representante legal","valor":"2343002","estado":"1","idEmpresa":"1"},
+    {"id":"3","concepto":"Seguros","valor":"1098063","estado":"1","idEmpresa":"1"},
+    {"id":"4","concepto":"Arriendo","valor":"750000","estado":"1","idEmpresa":"1"},
+    {"id":"5","concepto":"Servicios públicos","valor":"400000","estado":"1","idEmpresa":"1"}
 ]

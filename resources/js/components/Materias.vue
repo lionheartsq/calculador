@@ -3,14 +3,14 @@
                 <!-- Breadcrumb -->
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">Home</li>
-                    <li class="breadcrumb-item active">Materias</li>
+                    <li class="breadcrumb-item active">Clasificación</li>
                 </ol>
                 <div class="container-fluid">
                     <!-- Ejemplo de tabla Listado -->
 
                     <div class="card">
                         <div class="card-header">
-                            <i class="fa fa-align-justify"></i> Materias &nbsp;
+                            <i class="fa fa-align-justify"></i> Clasificación &nbsp;
                             <button type="button" @click="abrirModal('tipoMateria','crear')" class="btn btn-secondary">
                                 <i class="icon-plus"></i>&nbsp;Nuevo
                             </button>
@@ -21,7 +21,7 @@
                                     <div class="input-group">
                                         <select class="form-control col-md-3" v-model="criterio">
                                         <option value="id">Id</option>    
-                                        <option value="tipoMateria">Materia</option>
+                                        <option value="tipoMateria">Clasificación</option>
                                         </select>
                                         <input type="text" v-model="buscar" @keyup.enter="listarMateria(1,buscar,criterio)" class="form-control" placeholder="Texto a buscar">
                                         <button type="submit" @click="listarMateria(1,buscar,criterio)" class="btn btn-primary"><i class="fa fa-search"></i> Buscar</button>
@@ -34,7 +34,7 @@
                                     <tr>
                                         <th>Opciones</th>
                                         <th>Id</th>
-                                        <th>Materia</th>
+                                        <th>Clasificación</th>
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
@@ -103,7 +103,7 @@
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
                                         <div class="col-md-9">
                                             <input type="text" v-model="tipoMateria" class="form-control" placeholder="Nombre de materia">
-                                            <span class="help-block">(*) Ingrese el nombre de la materia</span>
+                                            <span class="help-block">(*) Ingrese el nombre de la clasificación</span>
                                         </div>
                                     </div>
 
@@ -277,7 +277,7 @@
                     }).then(function (response) {
                     me.listarMateria(1,'','tipoMateria');
                     swalWithBootstrapButtons.fire(
-                    'Materia desactivada!'
+                    'Clasificación desactivada!'
                     )
                     }).catch(function (error) {
                         console.log(error);
@@ -300,7 +300,7 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar esta Materia?',
+                title: 'Quiere activar esta Clasificación?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -314,7 +314,7 @@
                     }).then(function (response) {
                     me.listarMateria(1,'','tipoMateria');
                     swalWithBootstrapButtons.fire(
-                    'Materia activada!'
+                    'Clasificación activada!'
                     )
                     }).catch(function (error) {
                         console.log(error);
@@ -331,7 +331,7 @@
                 this.errorMateria=0;
                 this.errorMensaje=[];
 
-                if (!this.tipoMateria) this.errorMensaje.push("El nombre de la materia no puede estar vacio");
+                if (!this.tipoMateria) this.errorMensaje.push("El nombre de la clasificación no puede estar vacio");
                 if (this.errorMensaje.length) this.errorMateria=1;
 
                 return this.errorMateria;
@@ -353,7 +353,7 @@
                         case 'crear':{
                             this.modal=1;
                             this.tipoMateria='';
-                            this.tituloModal='Crear nueva materia';
+                            this.tituloModal='Crear nueva Clasificación';
                             this.tipoAccion= 1;
                             break;
                         }

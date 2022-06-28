@@ -12,6 +12,7 @@ use App\Tb_porcentaje_riesgo;
 use App\Tb_eps;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_empleadoController extends Controller
 {
@@ -22,6 +23,12 @@ class Tb_empleadoController extends Controller
      */
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -34,6 +41,7 @@ class Tb_empleadoController extends Controller
             ->leftJoin('tb_area',function($join){
                 $join->on('tb_proceso.idArea','=','tb_area.id');
             })
+            ->where('tb_empleado.idEmpresa','=',$idEmpresa)
             ->select('tb_empleado.id','tb_empleado.documento','tb_empleado.nombre','tb_empleado.apellido','tb_empleado.direccion','tb_empleado.telefono',
             'tb_empleado.correo','tb_empleado.idPerfil','tb_empleado.genero','tb_empleado.estado as estado','tb_perfil.perfil','tb_perfil.idProceso',
             'tb_proceso.proceso','tb_proceso.idArea','tb_area.area','tb_empleado.tipoSangre','tb_empleado.enfermedades')
@@ -45,6 +53,7 @@ class Tb_empleadoController extends Controller
             ->leftJoin('tb_area',function($join){
                 $join->on('tb_proceso.idArea','=','tb_area.id');
             })
+            ->where('tb_empleado.idEmpresa','=',$idEmpresa)
             ->select('tb_empleado.id','tb_empleado.documento','tb_empleado.nombre','tb_empleado.apellido','tb_empleado.direccion','tb_empleado.telefono',
             'tb_empleado.correo','tb_empleado.idPerfil','tb_empleado.genero','tb_empleado.estado as estado','tb_perfil.perfil','tb_perfil.idProceso',
             'tb_proceso.proceso','tb_proceso.idArea','tb_area.area','tb_empleado.tipoSangre','tb_empleado.enfermedades')
@@ -57,6 +66,7 @@ class Tb_empleadoController extends Controller
             ->leftJoin('tb_area',function($join){
                 $join->on('tb_proceso.idArea','=','tb_area.id');
             })
+            ->where('tb_empleado.idEmpresa','=',$idEmpresa)
             ->select('tb_empleado.id','tb_empleado.documento','tb_empleado.nombre','tb_empleado.apellido','tb_empleado.direccion','tb_empleado.telefono',
             'tb_empleado.correo','tb_empleado.idPerfil','tb_empleado.genero','tb_empleado.estado as estado','tb_perfil.perfil','tb_perfil.idProceso',
             'tb_proceso.proceso','tb_proceso.idArea','tb_area.area','tb_empleado.tipoSangre','tb_empleado.enfermedades')
@@ -98,7 +108,14 @@ class Tb_empleadoController extends Controller
         }
 
     public function selectEmpleado(){
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $empleados = Tb_empleado::where('estado','=','1')
+        ->where('tb_empleado.idEmpresa','=',$idEmpresa)
         ->select('id as idEmpleado','empleado')->orderBy('empleado','asc')->get();
 
         return ['empleados' => $empleados];
@@ -116,9 +133,16 @@ class Tb_empleadoController extends Controller
         return ['pensiones' => $pensiones];
     }
     public function detalleEmpleado(Request $request){
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $buscar= $request->id;
         $detalleempleados = Tb_empleado::join("tb_eps","tb_empleado.idEps","=","tb_eps.id")
         ->join("tb_administradora_pensiones","tb_empleado.idPensiones","=","tb_administradora_pensiones.id")
+        ->where('tb_empleado.idEmpresa','=',$idEmpresa)
         ->where('tb_empleado.id','=',$buscar)
         ->select('tb_empleado.id as id','tb_empleado.nombre','tb_empleado.apellido','tb_empleado.direccion','tb_empleado.telefono','tb_empleado.correo',
         'tb_empleado.contacto','tb_empleado.telefonocontacto','tb_empleado.genero','tb_empleado.idEps','tb_empleado.idPensiones','tb_empleado.idEps',
@@ -127,9 +151,16 @@ class Tb_empleadoController extends Controller
         return ['detalleempleados' => $detalleempleados];
     }
     public function vinculacionEmpleado(Request $request){
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $buscar= $request->id;
         $detalleempleados = Tb_empleado::join("tb_vinculaciones","tb_empleado.id","=","tb_vinculaciones.idEmpleado")
         ->join("tb_porcentaje_riesgo","tb_vinculaciones.idNivelArl","=","tb_porcentaje_riesgo.id")
+        ->where('tb_empleado.idEmpresa','=',$idEmpresa)
         ->where('tb_empleado.id','=',$buscar)
         ->where('tb_vinculaciones.estado','=','1')
         ->select('tb_empleado.id as id','tb_empleado.nombre','tb_empleado.apellido','tb_empleado.direccion','tb_vinculaciones.tipocontrato',
@@ -139,7 +170,12 @@ class Tb_empleadoController extends Controller
     }
     public function store(Request $request)
     {
-        //
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $tb_empleado = new Tb_empleado();
         $tb_empleado->documento=$request->documento;
@@ -156,6 +192,7 @@ class Tb_empleadoController extends Controller
         $tb_empleado->idPensiones=$request->idPensiones;
         $tb_empleado->tipoSangre=$request->tipoSangre;
         $tb_empleado->enfermedades=$request->enfermedades;
+        $tb_empleado->idEmpresa=$idEmpresa;
         $tb_empleado->save();
     }
 

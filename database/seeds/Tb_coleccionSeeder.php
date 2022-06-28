@@ -18,7 +18,8 @@ class Tb_coleccionSeeder extends Seeder
                 //'id' => $item->IdRol,
                 'coleccion' => $item->coleccion,
                 'referencia' => $item->referencia,
-                'estado' => $item->estado
+                'estado' => $item->estado,
+                'idEmpresa' => $item->idEmpresa
             ));
             }
         /*

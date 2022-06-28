@@ -504,7 +504,7 @@ import detallekardexalmacen from '../components/DetalleKardexAlmacen';
                 //console.log(event.target.value);
                 this.identificadorProveedor=event.target.value;
                 let me=this;
-                var url='/kardexalmacen/factura?proveedor='+this.identificadorProveedor;
+                var url='/kardexalmacen/factura/'+this.identificadorProveedor;
                 axios.get(url).then(function (response) {
                 var respuesta=response.data;
                 me.arrayFactura=respuesta.materiales;
@@ -518,8 +518,9 @@ import detallekardexalmacen from '../components/DetalleKardexAlmacen';
             materialFactura(event){
                 //console.log(event.target.value);
                 this.identificadorFactura=event.target.value;
+                console.log(this.identificadorFactura);
                 let me=this;
-                var url='/kardexalmacen/materialfactura?factura='+this.identificadorFactura;
+                var url='/kardexalmacen/materialfactura/'+this.identificadorFactura;
                 axios.get(url).then(function (response) {
                 var respuesta=response.data;
                 me.arrayMateriaFactura=respuesta.materiales;

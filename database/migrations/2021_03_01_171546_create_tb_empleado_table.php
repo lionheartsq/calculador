@@ -31,6 +31,7 @@ class CreateTbEmpleadoTable extends Migration
             $table->string('tipoSangre');
             $table->string('enfermedades');
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
            // $table->timestamps();
         });
     }

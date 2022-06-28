@@ -17,6 +17,7 @@ class CreateTbTipoMateriaTable extends Migration
             $table->id();
             $table->string('tipoMateria', 255);
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

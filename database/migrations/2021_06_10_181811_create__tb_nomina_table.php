@@ -20,6 +20,7 @@ class CreateTbNominaTable extends Migration
             $table->integer('tipo');
             $table->string('observacion',255);
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
         });
     }
 

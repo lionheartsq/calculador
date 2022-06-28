@@ -17,6 +17,7 @@ use App\Tb_materia_prima_producto_simula;
 use App\Tb_concepto_cif_simula;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class Tb_simulacionController extends Controller
@@ -24,15 +25,23 @@ class Tb_simulacionController extends Controller
     //
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
 
         if ($buscar=='') {
-            $simulaciones = Tb_simulacion::orderBy('id','desc')->paginate(5);
+            $simulaciones = Tb_simulacion::where('tb_simulacion.idEmpresa','=',$idEmpresa)
+            ->orderBy('id','desc')->paginate(5);
         }
         else {
-            $simulaciones = Tb_simulacion::where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
+            $simulaciones = Tb_simulacion::where('tb_simulacion.idEmpresa','=',$idEmpresa)
+            ->where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
         }
 
         return [
@@ -50,11 +59,18 @@ class Tb_simulacionController extends Controller
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $tb_simulacion=new Tb_simulacion();
         $tb_simulacion->descripcion=$request->detalle;
         $tb_simulacion->fecha=$request->fecha;
         $tb_simulacion->tipoCif=$request->tipoCif;
+        $tb_simulacion->idEmpresa=$idEmpresa;
         $tb_simulacion->save();
     }
 
@@ -70,6 +86,12 @@ class Tb_simulacionController extends Controller
 
     public function estado(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $idSimulacion= $request->id;
         $acumuladomaquinariasimula=0;
@@ -81,6 +103,7 @@ class Tb_simulacionController extends Controller
         $querymaq = DB::raw("(CASE WHEN SUM(tb_maquinaria.depreciacionMensual) IS NULL THEN 0
         ELSE SUM(tb_maquinaria.depreciacionMensual) END) as acumuladomaquinaria");
         $totales = DB::table('tb_maquinaria')
+        ->where('tb_maquinaria.idEmpresa','=',$idEmpresa)
         ->select($querymaq)
         ->get();
         foreach($totales as $totalg){
@@ -206,6 +229,12 @@ public function cifTiempos($identificador)
 //---------------------------------------------------------------------------------------------------------------------------------//
 public function unitarioTotal(Request $request)
 {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
     $identificador= $request->identificador;
     $simulacion= $request->simulacion;
 
@@ -215,14 +244,24 @@ public function unitarioTotal(Request $request)
     $acumuladomo = 0;
 
     $productos = Tb_producto::where('id','=',$identificador)
-    ->select('producto','referencia','foto')->get();
+    ->select('producto','referencia','foto','presentacion')->get();
     foreach($productos as $producto){
         $nombrep = $producto->producto;
         $referenciap = $producto->referencia;
         $fotop = $producto->foto;
+        $presentacion = $producto->presentacion;
+
+        if($presentacion==4){
+            $presentacion="unidad";
+        }
+        elseif($presentacion==5){
+            $presentacion="par";
         }
 
-    $simulate = Tb_simulacion::where('id','=',$simulacion)
+        }
+
+    $simulate = Tb_simulacion::where('tb_simulacion.id','=',$simulacion)
+    ->where('tb_simulacion.idEmpresa','=',$idEmpresa)
     ->select('descripcion')
     ->get();
     foreach($simulate as $simula){
@@ -340,6 +379,7 @@ public function unitarioTotal(Request $request)
         'nombrep'             => $nombrep,
         'referenciap'         => $referenciap,
         'fotop'               => $fotop,
+        'presentacion'        => $presentacion,
         'simuladet'           => $simuladet,
         'costopar'            => $total,
         'totalvariable'       => $acumuladocalculo,
@@ -351,6 +391,12 @@ public function unitarioTotal(Request $request)
 //------------------------------------------------------------------------------------------------------//
 public function hojaDetalle(Request $request)
 {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
     $identificador= $request->identificador;
     $simulacion= $request->simulacion;
 
@@ -358,6 +404,7 @@ public function hojaDetalle(Request $request)
     ->leftJoin('tb_unidad_base',function($join){
         $join->on('tb_gestion_materia_prima.idUnidadBase','=','tb_unidad_base.id');
     })
+    ->where('tb_gestion_materia_prima.idEmpresa','=',$idEmpresa)
     ->select('tb_gestion_materia_prima.gestionMateria','tb_materia_prima_producto_simula.tipoDeCosto',
     DB::raw('ROUND((tb_materia_prima_producto_simula.cantidad*tb_materia_prima_producto_simula.precio),0) as subtotal'))
     ->where([
@@ -373,6 +420,7 @@ public function hojaDetalle(Request $request)
     ->leftJoin('tb_area',function($join){
         $join->on('tb_proceso.idArea','=','tb_area.id');
     })
+    ->where('tb_area.idEmpresa','=',$idEmpresa)
     ->select('tb_perfil.perfil','tb_proceso.proceso',DB::raw('ROUND((tb_mano_de_obra_producto_simula.tiempo*tb_mano_de_obra_producto_simula.precio),0) as subtotal'))
     ->where([
         ['tb_mano_de_obra_producto_simula.idProducto','=',$identificador],
@@ -410,7 +458,8 @@ $acumuladocift = 0;
 
 # Modelo::join('tablaqueseune',basicamente un on)
 $productos = Tb_producto::join('tb_hoja_de_costo','tb_producto.id','=','tb_hoja_de_costo.idProducto')
-->select('tb_producto.producto as producto','tb_producto.referencia as referencia','tb_producto.foto as foto','tb_hoja_de_costo.capacidadMensual as capacidadMensual')
+->select('tb_producto.producto as producto','tb_producto.referencia as referencia','tb_producto.foto as foto','tb_producto.presentacion as presentacion',
+'tb_hoja_de_costo.capacidadMensual as capacidadMensual')
 ->where('tb_producto.id','=',$identificador)
 ->get();
 
@@ -418,7 +467,16 @@ foreach($productos as $producto){
 $nombrep = $producto->producto;
 $referenciap = $producto->referencia;
 $fotop = $producto->foto;
+$presentacion = $producto->presentacion;
 $unidadesprod = $producto->capacidadMensual;
+
+if($presentacion==4){
+    $presentacion="unidad";
+}
+elseif($presentacion==5){
+    $presentacion="par";
+}
+
 }
 
 //directa
@@ -503,6 +561,7 @@ return [
 'nombrep'             => $nombrep,
 'referenciap'         => $referenciap,
 'fotop'               => $fotop,
+'presentacion'        => $presentacion,
 'costopar'            => $total
 ];
 

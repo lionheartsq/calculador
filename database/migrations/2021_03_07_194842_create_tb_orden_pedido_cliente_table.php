@@ -20,6 +20,7 @@ class CreateTbOrdenPedidoClienteTable extends Migration
             $table->foreignId('idCliente')->constrained('tb_clientes');
             $table->string('observacion',255);
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

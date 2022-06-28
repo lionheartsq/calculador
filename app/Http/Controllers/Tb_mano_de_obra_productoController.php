@@ -7,6 +7,7 @@ use App\Tb_proceso;
 use App\Tb_perfil;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_mano_de_obra_productoController extends Controller
 {
@@ -110,11 +111,20 @@ class Tb_mano_de_obra_productoController extends Controller
     }
 
     public function selectRelacionPerfil($id){
-        $perfilrelaciones = tb_perfil::where([
-                    ['estado','=','1'],
-                    ['idProceso','=',$id],
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
+        $perfilrelaciones = tb_perfil::join("tb_proceso","tb_perfil.idProceso","=","tb_proceso.id")
+                ->join("tb_area","tb_proceso.idArea","=","tb_area.id")
+                ->where('tb_area.idEmpresa','=',$idEmpresa)
+                ->where([
+                    ['tb_perfil.estado','=','1'],
+                    ['tb_perfil.idProceso','=',$id],
                 ])
-                ->select('id as idPerfil','perfil','valorMinuto as valor')
+                ->select('tb_perfil.id as idPerfil','tb_perfil.perfil','tb_perfil.valorMinuto as valor')
                 ->orderBy('perfil','asc')->get();
                 return ['perfilrelaciones' => $perfilrelaciones];
         }

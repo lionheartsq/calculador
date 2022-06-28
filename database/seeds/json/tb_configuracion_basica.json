@@ -1,0 +1,6 @@
+[
+    {"id":"1","nombre":"Sena","direccion":"Kilometro 6 Autopista a Floridablanca 50-33","nit":"123456",
+    "telefono":"5461500","representante":"Prueba Uno","cajaCompensacion":"1","arl":"1","nivelRiesgo":"1","idTipoNomina":"4"},
+    {"id":"2","nombre":"Prueba","direccion":"Avenida siempreviva","nit":"12345","telefono":"5461500",
+    "representante":"Prueba Dos","cajaCompensacion":"1","arl":"1","nivelRiesgo":"1","idTipoNomina":"4"}
+]

@@ -22,6 +22,7 @@ class CreateTbProveedoresTable extends Migration
             $table->string('direccion',255);
             $table->string('correo',255);
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

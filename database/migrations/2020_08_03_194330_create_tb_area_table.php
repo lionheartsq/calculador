@@ -17,6 +17,7 @@ class CreateTbAreaTable extends Migration
             $table->id();
             $table->string('area', 255);
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

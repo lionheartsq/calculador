@@ -12,12 +12,18 @@ use App\Tb_vinculaciones;
 use App\Tb_factores_nomina;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Auth;
 class Tb_novedadesController extends Controller
 {
     //
     public function index(Request $request)
     {
+    //cambios multiempresa
+    foreach (Auth::user()->empresas as $empresa){
+        $idEmpresa=$empresa['id'];
+     }
+    //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -26,6 +32,7 @@ class Tb_novedadesController extends Controller
         if ($buscar=='') {
             $novedades = Tb_novedades::join("tb_empleado","tb_novedades.idEmpleado","=","tb_empleado.id")
             ->join("tb_nomina","tb_novedades.idNomina","=","tb_nomina.id")
+            ->where('tb_novedades.idEmpresa','=',$idEmpresa)
             ->select('tb_novedades.id','tb_novedades.fechaNovedad','tb_novedades.concepto','tb_novedades.valor','tb_novedades.cantidad','tb_novedades.unitario',
             'tb_novedades.observacion','tb_novedades.tipologia','tb_novedades.idEmpleado','tb_novedades.idNomina','tb_nomina.fechaInicio','tb_nomina.fechaFin',
             'tb_nomina.estado',DB::raw("CONCAT(tb_empleado.nombre,'  ',tb_empleado.apellido) AS empleado"))
@@ -35,6 +42,7 @@ class Tb_novedadesController extends Controller
         else {
             $novedades = Tb_novedades::join("tb_empleado","tb_novedades.idEmpleado","=","tb_empleado.id")
             ->join("tb_nomina","tb_novedades.idNomina","=","tb_nomina.id")
+            ->where('tb_novedades.idEmpresa','=',$idEmpresa)
             ->select('tb_novedades.id','tb_novedades.fechaNovedad','tb_novedades.concepto','tb_novedades.valor','tb_novedades.cantidad','tb_novedades.unitario',
             'tb_novedades.observacion','tb_novedades.tipologia','tb_novedades.idEmpleado','tb_novedades.idNomina','tb_nomina.fechaInicio','tb_nomina.fechaFin',
             'tb_nomina.estado',DB::raw("CONCAT(tb_empleado.nombre,'  ',tb_empleado.apellido) AS empleado"))
@@ -57,6 +65,12 @@ class Tb_novedadesController extends Controller
     }
     public function index2(Request $request)
     {
+    //cambios multiempresa
+    foreach (Auth::user()->empresas as $empresa){
+        $idEmpresa=$empresa['id'];
+     }
+    //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -65,6 +79,7 @@ class Tb_novedadesController extends Controller
         if ($buscar=='') {
             $novedades = Tb_novedades::join("tb_empleado","tb_novedades.idEmpleado","=","tb_empleado.id")
             ->join("tb_nomina","tb_novedades.idNomina","=","tb_nomina.id")
+            ->where('tb_novedades.idEmpresa','=',$idEmpresa)
             ->select('tb_novedades.id','tb_novedades.fechaNovedad','tb_novedades.concepto','tb_novedades.valor','tb_novedades.cantidad','tb_novedades.unitario',
             'tb_novedades.observacion','tb_novedades.tipologia','tb_novedades.idEmpleado','tb_novedades.idNomina','tb_nomina.fechaInicio','tb_nomina.fechaFin',
             'tb_nomina.estado',DB::raw("CONCAT(tb_empleado.nombre,'  ',tb_empleado.apellido) AS empleado"))
@@ -74,6 +89,7 @@ class Tb_novedadesController extends Controller
         else {
             $novedades = Tb_novedades::join("tb_empleado","tb_novedades.idEmpleado","=","tb_empleado.id")
             ->join("tb_nomina","tb_novedades.idNomina","=","tb_nomina.id")
+            ->where('tb_novedades.idEmpresa','=',$idEmpresa)
             ->select('tb_novedades.id','tb_novedades.fechaNovedad','tb_novedades.concepto','tb_novedades.valor','tb_novedades.cantidad','tb_novedades.unitario',
             'tb_novedades.observacion','tb_novedades.tipologia','tb_novedades.idEmpleado','tb_novedades.idNomina','tb_nomina.fechaInicio','tb_nomina.fechaFin',
             'tb_nomina.estado',DB::raw("CONCAT(tb_empleado.nombre,'  ',tb_empleado.apellido) AS empleado"))
@@ -96,12 +112,19 @@ class Tb_novedadesController extends Controller
     }
     public function detallado(Request $request)
     {
+    //cambios multiempresa
+    foreach (Auth::user()->empresas as $empresa){
+        $idEmpresa=$empresa['id'];
+     }
+    //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $idEmpleado= $request->idEmpleado;
         $idNomina= $request->idNomina;
 
             $novedades = Tb_novedades::join("tb_empleado","tb_novedades.idEmpleado","=","tb_empleado.id")
             ->join("tb_nomina","tb_novedades.idNomina","=","tb_nomina.id")
+            ->where('tb_novedades.idEmpresa','=',$idEmpresa)
             ->select('tb_novedades.id','tb_novedades.fechaNovedad','tb_novedades.concepto','tb_novedades.valor','tb_novedades.cantidad','tb_novedades.unitario',
             'tb_novedades.observacion','tb_novedades.tipologia','tb_novedades.idEmpleado','tb_novedades.idNomina','tb_nomina.fechaInicio','tb_nomina.fechaFin',
             'tb_nomina.estado',DB::raw("CONCAT(tb_empleado.nombre,'  ',tb_empleado.apellido) AS empleado"))
@@ -114,9 +137,17 @@ class Tb_novedadesController extends Controller
              ];
     }
     public function selectEmpleado(Request $request){
+    //cambios multiempresa
+    foreach (Auth::user()->empresas as $empresa){
+        $idEmpresa=$empresa['id'];
+     }
+    //cambios multiempresa
+
         $identificador= $request->identificador;
 
-        $extra = Tb_nomina::where('tb_nomina.id','=',$identificador)->get();
+        $extra = Tb_nomina::where('tb_nomina.id','=',$identificador)
+        ->where('tb_nomina.idEmpresa','=',$idEmpresa)
+        ->get();
 
         foreach($extra as $extrar){
             $tipoNomina = $extrar->tipo;
@@ -132,9 +163,17 @@ class Tb_novedadesController extends Controller
     }
 
     public function selectTipologia(Request $request){
+    //cambios multiempresa
+    foreach (Auth::user()->empresas as $empresa){
+        $idEmpresa=$empresa['id'];
+     }
+    //cambios multiempresa
+
         $identificador= $request->identificador;
 
-        $extra = Tb_nomina::where('tb_nomina.id','=',$identificador)->get();
+        $extra = Tb_nomina::where('tb_nomina.id','=',$identificador)
+        ->where('tb_nomina.idEmpresa','=',$idEmpresa)
+        ->get();
 
         foreach($extra as $extrar){
             $tipoNomina = $extrar->tipo;
@@ -176,11 +215,18 @@ class Tb_novedadesController extends Controller
     }
 
     public function store(Request $request){
+    //cambios multiempresa
+    foreach (Auth::user()->empresas as $empresa){
+        $idEmpresa=$empresa['id'];
+     }
+    //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
         $fechaValidacion=$request->fechaNovedad;
 
         $nominas = Tb_nomina::select('tb_nomina.id','tb_nomina.tipo')
+        ->where('tb_nomina.idEmpresa','=',$idEmpresa)
         ->where('tb_nomina.id','=',$request->idNomina)->get();
 
 
@@ -218,18 +264,25 @@ class Tb_novedadesController extends Controller
         $tb_novedades->tipologia=$tipologia;
         $tb_novedades->idEmpleado=$request->idEmpleado;
         $tb_novedades->idNomina=$request->idNomina;
+        $tb_novedades->idEmpresa=$idEmpresa;
         //$tb_novedades->idNomina=$request->idNomina;
         $tb_novedades->save();
     }
 
     public function selectSalario(Request $request)//tipo sueldo
     {
+    //cambios multiempresa
+    foreach (Auth::user()->empresas as $empresa){
+        $idEmpresa=$empresa['id'];
+     }
+    //cambios multiempresa
 
         $idEmpleado=$request->identificador;
         $tipoSal='';
         $baseSal='';
 
         $salarios = Tb_vinculaciones::first()
+        ->where('tb_nomina.idEmpresa','=',$idEmpresa)
         ->where('tb_vinculaciones.estado','=','1')
         ->where('tb_vinculaciones.idEmpleado','=',$idEmpleado)
         ->orderByDesc('tb_vinculaciones.id')

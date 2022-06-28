@@ -1,6 +1,3 @@
 [
-  {"id":"1","documento":"12345","idPerfil":"9","nombre":"Lucas","apellido":"Vargas","direccion":"Calle 2 # 1-17","genero":"1","telefono":"3158572686","correo":"a@a.a","contacto":"Asdsf","telefonocontacto":"3158572686","idEps":"1","idPensiones":"1","tipoSangre":"A","enfermedades":"Ninguna","estado":"1"},
-  {"id":"2","documento":"23456","idPerfil":"6","nombre":"Juan","apellido":"Gomez","direccion":"Calle 2 # 1-17","genero":"1","telefono":"3158572686","correo":"juanvargas@gmail.com","contacto":"adfg","telefonocontacto":"3158572686","idEps":"2","idPensiones":"2","tipoSangre":"B","enfermedades":"enfermedades no","estado":"1"},
-  {"id":"3","documento":"34567","idPerfil":"11","nombre":"Roberto","apellido":"Buitrago","direccion":"Calle 2 # 1-17","genero":"1","telefono":"3158572686","correo":"mafeflorez@gmail.com","contacto":"ghfdsa","telefonocontacto":"3158572686","idEps":"5","idPensiones":"4","tipoSangre":"o","enfermedades":"enfermedades no","estado":"1"},
-  {"id":"4","documento":"789","idPerfil":"8","nombre":"Empleado","apellido":"Destajo","direccion":"Calle 1C # 6-77 Casa 685 Paseo Cataluña","genero":"1","telefono":"8486","correo":"a@a.a","contacto":"gfds","telefonocontacto":"852","idEps":"7","idPensiones":"5","tipoSangre":"A","enfermedades":"no","estado":"1"}
+
 ]

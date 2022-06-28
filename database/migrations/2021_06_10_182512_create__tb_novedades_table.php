@@ -24,6 +24,7 @@ class CreateTbNovedadesTable extends Migration
             $table->boolean('tipologia')->default(1);
             $table->foreignId('idEmpleado')->constrained('tb_empleado');
             $table->foreignId('idNomina')->constrained('tb_nomina');
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
         });
     }
 

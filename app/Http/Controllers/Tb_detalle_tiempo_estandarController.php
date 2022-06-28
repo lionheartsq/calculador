@@ -22,6 +22,7 @@ use App\Tb_espera;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Storage;
 
 
@@ -53,7 +54,7 @@ class Tb_detalle_tiempo_estandarController extends Controller
     public function guardarciclos(Request $request)
      {
          //if(!$request->ajax()) return redirect('/');
-        
+
          //\Log::debug(var_dump($request));
          $tb_ciclos=new Tb_ciclos();
          $tb_ciclos->tiempo=$request->tiempo;
@@ -68,20 +69,27 @@ class Tb_detalle_tiempo_estandarController extends Controller
          $tiempos = DB::table('tb_ciclos')
          ->where('tb_ciclos.idTiempoEstandar','=',$request->idTiempoEstandar)
          ->avg('tiempo');
-         
+
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
          $tiempo_estandar= Tb_tiempo_estandar::find($request->idTiempoEstandar);
          /*Storage::put('file.txt', 'tiempoElemental:'.$tiempo_estandar->tiempoElemental.',numPiezas:'.$tiempo_estandar->numeroPiezas.
          ',piezasPar:'.$tiempo_estandar->piezasPar);*/
          $tiempo_estandar->numeroPiezas=intval($piezas);
          $tiempo_estandar->tiempoElemental=floatval($tiempos);
          $tiempoPiezas=$tiempo_estandar->tiempoPiezas;
-         if($tiempo_estandar->numeroPiezas != 0){     
-            $tiempoPiezas=(($tiempo_estandar->tiempoElemental/60)/$tiempo_estandar->numeroPiezas)*$tiempo_estandar->piezasPar;  
+         if($tiempo_estandar->numeroPiezas != 0){
+            $tiempoPiezas=(($tiempo_estandar->tiempoElemental/60)/$tiempo_estandar->numeroPiezas)*$tiempo_estandar->piezasPar;
          }
-         else{     
+         else{
             $tiempoPiezas = 1;
          }
-         $tiempo_estandar->tiempoPiezas=$tiempoPiezas;  
+         $tiempo_estandar->tiempoPiezas=$tiempoPiezas;
+         $tiempo_estandar->idEmpresa=$idEmpresa;
          $tiempo_estandar->save();
      }
     // Aca termina la tabla de ciclos
@@ -98,7 +106,7 @@ class Tb_detalle_tiempo_estandarController extends Controller
         //\Log::debug(var_dump($westinghouse));
         return ['westinghouse' =>  $westinghouse];
     }
-    
+
     public function habilidad()
     {
         $habilidades = Tb_calificacion_habilidades::select('tb_calificacion_habilidades.id','tb_calificacion_habilidades.rango','tb_calificacion_habilidades.porcentaje',
@@ -141,7 +149,7 @@ class Tb_detalle_tiempo_estandarController extends Controller
          $tb_westing_house->idConsistencia=$request->idConsistencia;
          $tb_westing_house->idTiempoEstandar=$request->idTiempoEstandar;
          $tb_westing_house->save();
-         
+
          $habilidad=Tb_calificacion_habilidades::findOrFail($request->idHabilidad);
          $esfuerzos=Tb_calificacion_esfuerzo::findOrFail($request->idEsfuerzo);
          $condicion=Tb_calificacion_condiciones::findOrFail($request->idCondiciones);
@@ -157,7 +165,7 @@ class Tb_detalle_tiempo_estandarController extends Controller
 
      // Aca comienza las pds
      public function listarpds(Request $request)
-     {   
+     {
          //if(!$request->ajax()) return redirect('/');
          $id=$request->id;
          $pds = Tb_pds::where('idTiempoEstandar','=',$id)
@@ -225,7 +233,7 @@ class Tb_detalle_tiempo_estandarController extends Controller
          ->where('rangoMin', '<=', $valorEspera)
          ->where('rangoMax', '>=', $valorEspera)
          ->first();
-         $tb_pds->idEspera=$esperap->id;   
+         $tb_pds->idEspera=$esperap->id;
          $tb_pds->save();
 
          $valor=$tiempo_estandar->tiempoPiezas*$tiempo_estandar->factorValoracion;
@@ -236,9 +244,9 @@ class Tb_detalle_tiempo_estandarController extends Controller
          ->where('rangoMin', '<=', $valor)
          ->where('rangoMax', '>=', $valor)
          ->first();
-         $tb_pds->idMonotonia=$monotonia->id;   
+         $tb_pds->idMonotonia=$monotonia->id;
          $tb_pds->save();
-          
+
          //tiempo espera/tiempo ciclos= *100
 
          $esfuerzom=Tb_esfuerzo_mental::findOrFail($request->idEsfuerzoMental);
@@ -252,7 +260,7 @@ class Tb_detalle_tiempo_estandarController extends Controller
          //= ( ( (em+ef) * espera) + (personales) + (suplementarios)+ (monotonia) )/1+1
          /*Storage::put('file.txt', 'em:'.$esfuerzom->porcentaje.',ef:'.$esfuerzof->porcentaje.',esp:'.$esperas->factor.',pers:'.
          $personal->porcentajeHombre.',supl:'.$suplementario->porcentaje.',monot:'.$monoto->porcentaje);*/
-         $factorPds=(( ((($esfuerzom->porcentaje/100.0)+($esfuerzof->porcentaje/100.0)) * $esperas->factor) + 
+         $factorPds=(( ((($esfuerzom->porcentaje/100.0)+($esfuerzof->porcentaje/100.0)) * $esperas->factor) +
          (($empleado->genero==1)?($personal->porcentajeHombre/100.0):($personal->porcentajeMujer/100.0)) +
          ($suplementario->porcentaje/100.0) + ($monoto->porcentaje/100.0))/1)+1;
          $tiempo_estandar=Tb_tiempo_estandar::findOrFail($request->idTiempoEstandar);
@@ -261,15 +269,22 @@ class Tb_detalle_tiempo_estandarController extends Controller
          $tiempo_estandar->save();
      }
      // Aca termina las pds
-      
+
      // Aca comienza el detalle del tiempo estandar
     public function listardetalle(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $id=$request->id;
         $detalles = Tb_tiempo_estandar::join('tb_empleado','tb_tiempo_estandar.idEmpleado','=','tb_empleado.id')
         ->join('tb_perfil','tb_empleado.idPerfil','=','tb_perfil.id')
         ->join('tb_proceso','tb_perfil.idProceso','=','tb_proceso.id')
+        ->where('tb_tiempo_estandar.idEmpresa','=',$idEmpresa)
         ->select('tb_tiempo_estandar.fecha','tb_tiempo_estandar.idEmpleado','tb_tiempo_estandar.tiempoElemental',
         'tb_tiempo_estandar.tiempoNormal','tb_tiempo_estandar.factorPds','tb_tiempo_estandar.tiempoEstandar','tb_tiempo_estandar.numeroPiezas',
         'tb_tiempo_estandar.piezasPar','tb_tiempo_estandar.tiempoPiezas','tb_tiempo_estandar.factorValoracion','tb_empleado.nombre as idEmpleado',

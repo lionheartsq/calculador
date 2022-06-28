@@ -5,20 +5,30 @@ namespace App\Http\Controllers;
 use App\Tb_tipo_materia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_tipo_materiaController extends Controller
 {
     public function index(Request $request)
     {
-        if(!$request->ajax()) return redirect('/');
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
+        //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
 
         if ($buscar=='') {
-            $materias = Tb_tipo_materia::orderBy('id','desc')->paginate(5);
+            $materias = Tb_tipo_materia::orderBy('id','desc')
+            ->where('tb_tipo_materia.idEmpresa','=',$idEmpresa)
+            ->paginate(5);
         }
         else {
-            $materias = Tb_tipo_materia::where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
+            $materias = Tb_tipo_materia::where('tb_tipo_materia.idEmpresa','=',$idEmpresa)
+            ->where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
         }
 
         return [
@@ -35,8 +45,15 @@ class Tb_tipo_materiaController extends Controller
     }
 
     public function selectMateria(Request $request){
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
-        $materias = Tb_tipo_materia::where('estado','=','1')
+        $materias = Tb_tipo_materia::where('tb_tipo_materia.idEmpresa','=',$idEmpresa)
+        ->where('estado','=','1')
         ->select('id','tipoMateria')->orderBy('tipoMateria','asc')->get();
 
         return ['materias' => $materias];
@@ -44,9 +61,16 @@ class Tb_tipo_materiaController extends Controller
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $tb_tipo_materia=new Tb_tipo_materia();
         $tb_tipo_materia->tipoMateria=$request->tipoMateria;
+        $tb_tipo_materia->idEmpresa=$idEmpresa;
         $tb_tipo_materia->save();
     }
 

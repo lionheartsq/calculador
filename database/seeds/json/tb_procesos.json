@@ -1,10 +1,3 @@
 [
-    {"id":"1","proceso":"Diseño","idArea":"1","estado":"1"},
-    {"id":"2","proceso":"Corte","idArea":"1","estado":"1"},
-    {"id":"3","proceso":"Montaje","idArea":"1","estado":"1"},
-    {"id":"4","proceso":"Soladura","idArea":"1","estado":"1"},
-    {"id":"5","proceso":"Emplantillado","idArea":"1","estado":"1"},
-    {"id":"6","proceso":"Armado","idArea":"1","estado":"1"},
-    {"id":"7","proceso":"Costura","idArea":"1","estado":"1"},
-    {"id":"8","proceso":"Desbaste","idArea":"1","estado":"1"}
+
 ]

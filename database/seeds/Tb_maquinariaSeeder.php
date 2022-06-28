@@ -22,7 +22,8 @@ class Tb_maquinariaSeeder extends Seeder
                 'depreciacionAnual' => $item->depreciacionAnual,
                 'depreciacionMensual' => $item->depreciacionMensual,
                 'fecha' => $item->fecha,
-                'estado' => $item->estado
+                'estado' => $item->estado,
+                'idEmpresa' => $item->idEmpresa
             ));
             }
         /*

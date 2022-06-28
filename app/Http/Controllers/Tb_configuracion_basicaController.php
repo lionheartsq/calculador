@@ -12,17 +12,25 @@ use App\Tb_niveles_riesgo;
 use App\Tb_configuracion_basica;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_configuracion_basicaController extends Controller
 {
     //
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
-        $configuracion = Tb_configuracion_basica::where('id','=',1)
+        $configuracion = Tb_configuracion_basica::where('id','=',$idEmpresa)
         ->select('id','nombre','direccion','telefono','cajaCompensacion','arl','nivelRiesgo','idTipoNomina')->get();
 
         foreach($configuracion as $c){
+            $id = $c->id;
             $nombre = $c->nombre;
             $direccion = $c->direccion;
             $telefono = $c->telefono;
@@ -32,7 +40,8 @@ class Tb_configuracion_basicaController extends Controller
             $idTipoNomina = $c->idTipoNomina;
         }
 
-        return ['nombre' => $nombre,
+        return ['id' => $id,
+        'nombre' => $nombre,
         'direccion' => $direccion,
         'telefono' => $telefono,
         'cajaCompensacion' => $cajaCompensacion,
@@ -117,23 +126,9 @@ class Tb_configuracion_basicaController extends Controller
         }
 
     }
-    public function update(Request $request)
-    {
-        if(!$request->ajax()) return redirect('/');
-        $tb_configuracion_basica=Tb_configuracion_basica::findOrFail($request->id);
-        $tb_configuracion_basica->nombre=$request->nombre;
-        $tb_configuracion_basica->direccion=$request->direccion;
-        $tb_configuracion_basica->telefono=$request->telefono;
-        $tb_configuracion_basica->cajaCompensacion=$request->cajaCompensacion;
-        $tb_configuracion_basica->arl=$request->arl;
-        $tb_configuracion_basica->nivelRiesgo=$request->nivelRiesgo;
-        $tb_configuracion_basica->idTipoNomina=$request->idTipoNomina;
-        $tb_configuracion_basica->save();
-    }
     public function actualizar(Request $request)
     {
         //if(!$request->ajax()) return redirect('/');
-        $tb_configuracion_basica=Tb_configuracion_basica::findOrFail($request->id);
         $tb_configuracion_basica=Tb_configuracion_basica::findOrFail($request->id);
         $tb_configuracion_basica->nombre=$request->nombre;
         $tb_configuracion_basica->direccion=$request->direccion;

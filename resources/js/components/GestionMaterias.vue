@@ -22,7 +22,7 @@
                                         <select class="form-control col-md-3" v-model="criterio">
                                         <option value="gestionMateria">Nombre</option>
                                         <option value="unidadBase">Unidad base</option>
-                                        <option value="tipoMateria">Tipo Materia</option>
+                                        <option value="tipoMateria">Clasificación</option>
                                         </select>
                                         <input type="text" v-model="buscar" @keyup.enter="listarGestionMateria(1,buscar,criterio)" class="form-control" placeholder="Texto a buscar">
                                         <button type="submit" @click="listarGestionMateria(1,buscar,criterio)" class="btn btn-primary"><i class="fa fa-search"></i> Buscar</button>
@@ -37,7 +37,7 @@
                                         <th>Nombre</th>
                                         <th>Unidad Base</th>
                                         <th>Precio Base</th>
-                                        <th>Tipo Materia</th>
+                                        <th>Clasificación</th>
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
@@ -111,8 +111,8 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="gestionMateria" class="form-control" placeholder="Nombre de gestión">
-                                            <span class="help-block">(*) Ingrese el nombre de la gestión</span>
+                                            <input type="text" v-model="gestionMateria" class="form-control" placeholder="Nombre de materia">
+                                            <span class="help-block">(*) Ingrese el nombre de la materia</span>
                                         </div>
                                     </div>
 
@@ -135,10 +135,10 @@
                                     </div>
 
                                     <div class="form-group row">
-                                        <label class="col-md-3 form-control-label" for="text-input">Tipo Materia</label>
+                                        <label class="col-md-3 form-control-label" for="text-input">Clasificación</label>
                                         <div class="col-md-9">
                                             <select class="form-control" v-model="idTipoMateria">
-                                                <option value="0" disabled>Seleccione el tipo de material</option>
+                                                <option value="0" disabled>Seleccione el tipo de clasificación</option>
                                                 <option v-for="tipomateria in arrayTipoMateria" :key="tipomateria.idTipoMateria" :value="tipomateria.idTipoMateria" v-text="tipomateria.tipoMateria"></option>
                                             </select>
                                         </div>

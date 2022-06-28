@@ -9,7 +9,7 @@ class Tb_vinculaciones extends Model
     //
     protected $table = 'tb_vinculaciones';
 
-    protected $fillable = ['tipoVinculacion','salarioBasicoMensual','fechaInicio','tiempoContrato','fechaFin','idEmpleado','idNivelArl','idEps','idPensiones','estado'];
+    protected $fillable = ['tipoVinculacion','salarioBasicoMensual','fechaInicio','tiempoContrato','fechaFin','idEmpleado','idNivelArl','idEps','idPensiones','estado','idEmpresa'];
 
     public $timestamps = false;
 }

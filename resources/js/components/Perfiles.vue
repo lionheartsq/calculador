@@ -37,7 +37,7 @@
                                         <th>Perfil</th>
                                         <th>Valor Minuto</th>
                                         <th>Proceso</th>
-                                        <th>Area</th>
+                                        <!-- <th>Area</th> -->
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
@@ -64,7 +64,7 @@
                                         <td v-text="perfil.perfil"></td>
                                         <td v-text="perfil.valorMinuto"></td>
                                         <td v-text="perfil.proceso"></td>
-                                        <td v-text="perfil.area"></td>
+                                        <!-- <td v-text="perfil.area"></td> -->
                                         <td>
                                             <div v-if="perfil.estado">
                                             <span class="badge badge-success">Activo</span>
@@ -107,6 +107,7 @@
                             </div>
                             <div class="modal-body">
                                 <form action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+                                    <!--
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Area</label>
                                         <div class="col-md-9">
@@ -116,6 +117,7 @@
                                             </select>
                                         </div>
                                     </div>
+                                    -->
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Proceso</label>
                                         <div class="col-md-9">
@@ -171,7 +173,7 @@
                 valorMinuto:0,
                 estado:'',
                 arrayPerfil : [],
-                idArea:0,
+                idArea:1,
                 area:'',
                 arrayArea:[],
                 idProceso:0,
@@ -448,6 +450,7 @@
         mounted() {
             this.listarPerfil(1,this.buscar,this.criterio);
             this.selectArea();
+            this.selectRelacion(1);
         }
     }
 </script>

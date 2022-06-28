@@ -18,7 +18,8 @@ class Tb_nominaSeeder extends Seeder
             'fechaFin' => '2100-01-01',
             'tipo' => '1',
             'observacion' => 'Nómina de prueba',
-            'estado' => '1'
+            'estado' => '1',
+            'idEmpresa' => '1'
         ]);
     }
 }

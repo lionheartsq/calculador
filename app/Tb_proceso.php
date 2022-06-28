@@ -8,7 +8,7 @@ class Tb_proceso extends Model
 {
     protected $table = 'tb_proceso';
 
-    protected $fillable = ['proceso','idArea','estado'];
+    protected $fillable = ['proceso','idArea','estado','idEmpresa'];
 
     public $timestamps = false;
 

@@ -1,8 +1,0 @@
-[
-    {"id":"1","idProducto":"4","unidades":"1200","tiempo":"1.50","idSimulacion":"1"},
-    {"id":"2","idProducto":"5","unidades":"400","tiempo":"3.78","idSimulacion":"1"},
-    {"id":"3","idProducto":"6","unidades":"500","tiempo":"0.75","idSimulacion":"1"},
-    {"id":"4","idProducto":"4","unidades":"1200","tiempo":"1.25","idSimulacion":"2"},
-    {"id":"5","idProducto":"5","unidades":"400","tiempo":"2.50","idSimulacion":"2"},
-    {"id":"6","idProducto":"6","unidades":"500","tiempo":"0.17","idSimulacion":"2"}
-]

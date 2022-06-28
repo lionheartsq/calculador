@@ -18,6 +18,7 @@ class CreateTbColeccionTable extends Migration
             $table->string('coleccion', 255);
             $table->string('referencia', 255);
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

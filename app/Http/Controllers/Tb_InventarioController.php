@@ -10,12 +10,19 @@ use App\Tb_empleado;
 use App\Tb_detalle_inventario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_inventarioController extends Controller
 {
      //
      public function index(Request $request)
      {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
          //if(!$request->ajax()) return redirect('/');
          $buscar= $request->buscar;
          $criterio= $request->criterio;
@@ -23,12 +30,14 @@ class Tb_inventarioController extends Controller
          if ($buscar=='') {
              # Modelo::join('tablaqueseune',basicamente un on)
              $inventarios = Tb_inventario::join('tb_empleado','tb_inventario.idEmpleado','=','tb_empleado.id')
+             ->where('tb_inventario.idEmpresa','=',$idEmpresa)
              ->select('tb_inventario.id','tb_inventario.fecha','tb_inventario.idEmpleado','tb_inventario.estado',
              DB::raw('CONCAT(tb_empleado.nombre," ",tb_empleado.apellido," - ",tb_empleado.documento) as nombreEmpleado'))
              ->orderBy('tb_inventario.id','asc')->paginate(5);
          }
          else {
              $inventarios = Tb_inventario::join('tb_empleado','tb_inventario.idEmpleado','=','tb_empleado.id')
+             ->where('tb_inventario.idEmpresa','=',$idEmpresa)
              ->select('tb_inventario.id','tb_inventario.fecha','tb_inventario.idEmpleado','tb_inventario.estado',
              DB::raw('CONCAT(tb_empleado.nombre," ",tb_empleado.apellido," - ",tb_empleado.documento) as nombreEmpleado'))
             ->where('tb_inventario.'.$criterio, 'like', '%'. $buscar . '%')
@@ -49,11 +58,18 @@ class Tb_inventarioController extends Controller
      }
      public function store(Request $request)
      {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
          //if(!$request->ajax()) return redirect('/');
 
          $tb_inventario=new Tb_inventario();
          $tb_inventario->fecha=$request->fecha;
          $tb_inventario->idEmpleado=$request->idEmpleado;
+         $tb_inventario->idEmpresa=$idEmpresa;
          $tb_inventario->save();
         /*
          $detalles = Tb_kardex_almacen::join('tb_gestion_materia_prima','tb_kardex_almacen.idGestionMateria','=','tb_gestion_materia_prima.id')
@@ -65,6 +81,7 @@ class Tb_inventarioController extends Controller
          */
 
         $detalles = Tb_kardex_almacen::join('tb_gestion_materia_prima','tb_kardex_almacen.idGestionMateria','=','tb_gestion_materia_prima.id')
+        ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
         ->select('tb_kardex_almacen.idGestionMateria','tb_gestion_materia_prima.gestionMateria as producto','tb_gestion_materia_prima.idUnidadBase',
         'tb_gestion_materia_prima.id','tb_kardex_almacen.cantidadSaldos')
         ->orderBy('tb_gestion_materia_prima.gestionMateria','asc')
@@ -78,6 +95,7 @@ class Tb_inventarioController extends Controller
              $obj_detalle->idProducto=$detalle->idGestionMateria;
              $obj_detalle->cantidadSistema=$detalle->cantidadSaldos;
              $obj_detalle->unidadBase=$detalle->idUnidadBase;
+             $obj_detalle->idEmpresa=$idEmpresa;
              $obj_detalle->save();
          }
          /*echo var_dump($detalles);*/
@@ -92,7 +110,14 @@ class Tb_inventarioController extends Controller
      }
     public function empleados()
     {
-        $empleados = Tb_empleado::select('tb_empleado.id','tb_empleado.nombre','tb_empleado.apellido',
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
+        $empleados = Tb_empleado::where('tb_empleado.idEmpresa','=',$idEmpresa)
+        ->select('tb_empleado.id','tb_empleado.nombre','tb_empleado.apellido',
         'tb_empleado.documento',
         DB::raw('CONCAT(tb_empleado.nombre," ",tb_empleado.apellido," - ",tb_empleado.documento) as nombreEmpleado'))
         ->get();

@@ -23,6 +23,7 @@ class CreateTbEndeudamientoTable extends Migration
             $table->float('leverage');
             $table->float('cortoplazo');
             $table->string('detalle', 255);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

@@ -25,6 +25,7 @@ class CreateTbRotacioncarteraTable extends Migration
             $table->float('promediosaldos');
             $table->float('rotacioncartera');
             $table->string('detalle', 255);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

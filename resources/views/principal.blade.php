@@ -31,6 +31,13 @@
         </button>
         <ul class="nav navbar-nav d-md-down-none">
             <li class="nav-item px-3">
+                <a class="nav-link" href="#">
+                    @foreach (Auth::user()->empresas as $empresa)
+                    <b>{{$empresa['nombre']}}</b>
+                @endforeach
+                </a>
+            </li>
+            <li class="nav-item px-3">
                 <a class="nav-link" href="#">Escritorio</a>
             </li>
             <li class="nav-item px-3">
@@ -48,12 +55,36 @@
                         <strong>Notificaciones</strong>
                     </div>
                     <a class="dropdown-item" href="#">
-                        <i class="fa fa-envelope-o"></i> Ingresos
-                        <span class="badge badge-success">3</span>
+                        <i class="fa fa-envelope-o"></i> Empresa
+                        <span class="badge badge-success">
+                            @foreach (Auth::user()->empresas as $empresa)
+                                {{$empresa['nombre']}}
+                            @endforeach
+                        </span>
                     </a>
                     <a class="dropdown-item" href="#">
-                        <i class="fa fa-tasks"></i> Ventas
-                        <span class="badge badge-danger">2</span>
+                        <i class="fa fa-tasks"></i> Id Empresa
+                        <span class="badge badge-danger">
+                            @foreach (Auth::user()->empresas as $empresa)
+                                {{$empresa['id']}}
+                            @endforeach
+                        </span>
+                    </a>
+                    {{--
+                    <a class="dropdown-item" href="#">
+                        <i class="fa fa-tasks"></i> Escritorio
+                        <span class="badge badge-danger">
+                            {{Auth::user()->vistas['escritorio']}}
+                        </span>
+                    </a>
+                    --}}
+                    <a class="dropdown-item" href="#">
+                        <i class="fa fa-tasks"></i>
+                        <span class="badge badge-danger">
+                            @foreach (Auth::user()->roles as $rol)
+                                {{$rol['rol']}}
+                            @endforeach
+                        </span>
                     </a>
                 </div>
             </li>
@@ -67,6 +98,9 @@
                     <div class="dropdown-header text-center">
                         <strong>Cuenta</strong>
                     </div>
+                <a class="dropdown-item" @click="menu=98" href="#">
+                <i class="fa fa-eye"></i> Vista personalizada</a>
+
                 <a class="dropdown-item" href="{{route('logout')}}"
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fa fa-lock"></i> Cerrar sesión</a>

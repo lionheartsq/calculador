@@ -22,6 +22,7 @@ class CreateTbLiquidezTable extends Migration
             $table->integer('inventario')->unsigned();
             $table->float('pruebaacida');
             $table->string('detalle', 255);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

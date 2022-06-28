@@ -17,6 +17,7 @@ class CreateTbUsuarioTieneRolTable extends Migration
             $table->id();
             $table->foreignId('idUser')->constrained('users');
             $table->foreignId('idRol')->constrained('tb_rol');
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->boolean('estado')->default(1);
             //$table->timestamps();
         });

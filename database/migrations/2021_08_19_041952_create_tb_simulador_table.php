@@ -20,6 +20,7 @@ class CreateTbSimuladorTable extends Migration
             $table->date('fecha');
             $table->integer('gastosfijos')->unsigned();
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

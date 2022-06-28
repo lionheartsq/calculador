@@ -15,6 +15,7 @@ use App\Tb_materia_prima_producto_simulador;
 use App\Tb_concepto_cif_simulador;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class Tb_simuladorController extends Controller
@@ -22,15 +23,23 @@ class Tb_simuladorController extends Controller
     //
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
 
         if ($buscar=='') {
-            $simulaciones = Tb_simulador::orderBy('id','desc')->paginate(5);
+            $simulaciones = Tb_simulador::where('tb_simulador.idEmpresa','=',$idEmpresa)
+            ->orderBy('id','desc')->paginate(5);
         }
         else {
-            $simulaciones = Tb_simulador::where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
+            $simulaciones = Tb_simulador::where('tb_simulador.idEmpresa','=',$idEmpresa)
+            ->where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
         }
 
         return [
@@ -48,11 +57,18 @@ class Tb_simuladorController extends Controller
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $Tb_simulador=new Tb_simulador();
         $Tb_simulador->descripcion=$request->detalle;
         $Tb_simulador->gastosfijos=$request->gastosfijos;
         $Tb_simulador->fecha=$request->fecha;
+        $Tb_simulador->idEmpresa=$idEmpresa;
         $Tb_simulador->save();
     }
 
@@ -69,6 +85,12 @@ class Tb_simuladorController extends Controller
 
     public function estado(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $idSimulacion= $request->id;
         $acumuladomaquinariasimula=0;
@@ -92,7 +114,9 @@ class Tb_simuladorController extends Controller
         $tb_concepto_cif_simulador0->idSimulacion=$idSimulacion;
         $tb_concepto_cif_simulador0->save();
 
-        $conceptoscif = DB::table('tb_concepto_cif')->where('tb_concepto_cif.estado', '=', '1')->get();
+        $conceptoscif = DB::table('tb_concepto_cif')
+        ->where('tb_concepto_cif.idEmpresa','=',$idEmpresa)
+        ->where('tb_concepto_cif.estado', '=', '1')->get();
         foreach ($conceptoscif as $conceptocif) {
             $concepto=$conceptocif->concepto;
             $valor=$conceptocif->valor;
@@ -188,7 +212,8 @@ class Tb_simuladorController extends Controller
 
                 $porcentajeparticipacion=($unidadesglobal/$acumuladounidades)*100;
 
-                $productospreciosglobal = Tb_precios_venta::where('id','=',$idPrecioglobal)
+                $productospreciosglobal = Tb_precios_venta::where('tb_precios_venta.idEmpresa','=',$idEmpresa)
+                ->where('id','=',$idPrecioglobal)
                 ->select('costo','cifunitario','porcentaje','costosfijos','materiaprima','manodeobradirecta','preciodeventa','detalle')->get();
                 foreach($productospreciosglobal as $productopreciosglobal){
                     $productomateriaprima = $productopreciosglobal->materiaprima;
@@ -218,7 +243,8 @@ class Tb_simuladorController extends Controller
                 $unidadesSimulador = $productosimulador->unidades;
                 $idPrecioSimulador = $productosimulador->idPrecio;
 // hasta este punto saco los productos de la simulacion y uno a uno voy a calcularles los valores de materia mano cif porcentaje de las tablas nuevas
-                $productosprecios = Tb_precios_venta::where('id','=',$idPrecioSimulador)
+                $productosprecios = Tb_precios_venta::where('tb_precios_venta.idEmpresa','=',$idEmpresa)
+                ->where('id','=',$idPrecioSimulador)
                 ->select('costo','cifunitario','porcentaje','costosfijos','materiaprima','manodeobradirecta','preciodeventa','detalle')->get();
                 foreach($productosprecios as $productoprecios){
                     $productocosto = $productoprecios->costo;

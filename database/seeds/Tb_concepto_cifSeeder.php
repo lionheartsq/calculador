@@ -18,7 +18,8 @@ class Tb_concepto_cifSeeder extends Seeder
                 //'id' => $item->IdRol,
                 'concepto' => $item->concepto,
                 'valor' => $item->valor,
-                'estado' => $item->estado
+                'estado' => $item->estado,
+                'idEmpresa' => $item->idEmpresa
             ));
             }
     }

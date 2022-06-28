@@ -21,6 +21,7 @@ class CreateTbOrdenProduccion extends Migration
             $table->float('cantidad');
             $table->boolean('estado')->default(1);
             $table->foreignId('idOrdenPedido')->constrained('tb_orden_pedido_cliente');
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
         });
     }
 

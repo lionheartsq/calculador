@@ -18,6 +18,7 @@ class CreateTbConceptoCifTable extends Migration
             $table->string('concepto', 255);
             $table->integer('valor');
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

@@ -1,13 +1,17 @@
 <div class="sidebar">
     <nav class="sidebar-nav">
         <ul class="nav">
+            @if(Auth::user()->vistas['escritorio'])
             <li @click="menu=14" class="nav-item">
                 <a class="nav-link active" href="#"><i class="icon-speedometer"></i> <b>Escritorio</b></a>
             </li>
+            @endif
             <!--
             <li class="nav-title" style="color:#ff671b">
                 Mantenimiento
-            </li>-->
+            </li>
+            -->
+            @if(Auth::user()->vistas['documentacion'])
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-settings"></i> <b>Documentación</b></a>
                 <ul class="nav-dropdown-items">
@@ -20,23 +24,24 @@
                     <li @click="menu=29" class="nav-item">
                         <a class="nav-link" href="#"><i class="icon-book-open"></i> Cartilla práctica de costos versión digital</a>
                     </li>
-                    <li @click="menu=42" class="nav-item">
-                        <a class="nav-link" href="#"><i class="icon-book-open"></i> Revista Gestión Empresarial Manufactura pdf</a>
-                    </li>
                     <li @click="menu=30" class="nav-item">
                         <a class="nav-link" href="#"><i class="icon-book-open"></i> Video Tutoriales</a>
                     </li>
                 </ul>
             </li>
+            @endif
+            @if(Auth::user()->vistas['administracion'])
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-settings"></i> <b>Administración</b></a>
                 <ul class="nav-dropdown-items">
                     <li @click="menu=17" class="nav-item">
                         <a class="nav-link" href="#"><i class="icon-book-open"></i> Configuración</a>
                     </li>
+                    {{--
                     <li @click="menu=1" class="nav-item">
                         <a class="nav-link" href="#"><i class="icon-book-open"></i> Areas</a>
                     </li>
+                    --}}
                     <li @click="menu=2" class="nav-item">
                         <a class="nav-link" href="#"><i class="icon-book-open"></i> Procesos</a>
                     </li>
@@ -45,6 +50,8 @@
                     </li>
                 </ul>
             </li>
+            @endif
+            @if(Auth::user()->vistas['conceptosCif'])
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-folder"></i> <b>Conceptos cif</b></a>
                 <ul class="nav-dropdown-items">
@@ -56,6 +63,8 @@
                     </li>
                 </ul>
             </li>
+            @endif
+            @if(Auth::user()->vistas['materiales'])
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-wrench"></i> <b>Materiales</b></a>
                 <ul class="nav-dropdown-items">
@@ -70,6 +79,8 @@
                     </li>
                 </ul>
             </li>
+            @endif
+            @if(Auth::user()->vistas['productos'])
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-basket"></i> <b>Productos</b></a>
                 <ul class="nav-dropdown-items">
@@ -87,6 +98,8 @@
                     </li>
                 </ul>
             </li>
+            @endif
+            @if(Auth::user()->vistas['produccion'])
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-docs"></i> <b>Producción</b></a>
                 <ul class="nav-dropdown-items">
@@ -98,6 +111,8 @@
                     </li>
                 </ul>
             </li>
+            @endif
+            @if(Auth::user()->vistas['kardex'])
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-folder-alt"></i> <b>Kárdex</b></a>
                 <ul class="nav-dropdown-items">
@@ -112,6 +127,8 @@
                     </li>
                 </ul>
             </li>
+            @endif
+            @if(Auth::user()->vistas['manoDeObra'])
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-folder-alt"></i> <b>Mano de Obra</b></a>
                 <ul class="nav-dropdown-items">
@@ -120,6 +137,8 @@
                     </li>
                 </ul>
             </li>
+            @endif
+            @if(Auth::user()->vistas['personas'])
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-user"></i> <b>Personas</b></a>
                 <ul class="nav-dropdown-items">
@@ -140,6 +159,8 @@
                     </li>
                 </ul>
             </li>
+            @endif
+            @if(Auth::user()->vistas['nomina'])
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-settings"></i> <b>Nómina</b></a>
                 <ul class="nav-dropdown-items">
@@ -151,6 +172,8 @@
                     </li>
                 </ul>
             </li>
+            @endif
+            @if(Auth::user()->vistas['gestionFinanciera'])
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-basket"></i> <b>Gestión financiera</b></a>
                 <ul class="nav-dropdown-items">
@@ -193,9 +216,9 @@
                             </li>
                         </ul>
                     </li>
-
                 </ul>
             </li>
+            @endif
         </ul>
     </nav>
     <button class="sidebar-minimizer brand-minimizer" type="button"></button>

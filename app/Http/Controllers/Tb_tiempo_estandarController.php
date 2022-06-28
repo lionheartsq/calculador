@@ -10,6 +10,7 @@ use App\Tb_proceso;
 use App\Tb_tiempo_estandar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_tiempo_estandarController extends Controller
 {
@@ -20,6 +21,12 @@ class Tb_tiempo_estandarController extends Controller
      */
      public function index(Request $request)
      {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
          //if(!$request->ajax()) return redirect('/');
          $buscar= $request->buscar;
          $criterio= $request->criterio;
@@ -28,6 +35,7 @@ class Tb_tiempo_estandarController extends Controller
              # Modelo::join('tablaqueseune',basicamente un on)
              $tiempoestandar = Tb_tiempo_estandar::join('tb_empleado','tb_tiempo_estandar.idEmpleado','=','tb_empleado.id')
              ->join('tb_perfil','tb_empleado.idPerfil','=','tb_perfil.id')
+             ->where('tb_tiempo_estandar.idEmpresa','=',$idEmpresa)
              ->select('tb_tiempo_estandar.id','tb_tiempo_estandar.fecha','tb_tiempo_estandar.idEmpleado','tb_tiempo_estandar.estado',
              DB::raw('CONCAT(tb_empleado.nombre," ",tb_empleado.apellido," - ",tb_empleado.documento) as nombreEmpleado'))
              ->orderBy('tb_tiempo_estandar.id','desc')->paginate(5);
@@ -35,6 +43,7 @@ class Tb_tiempo_estandarController extends Controller
          else {
             $tiempoestandar = Tb_tiempo_estandar::join('tb_empleado','tb_tiempo_estandar.idEmpleado','=','tb_empleado.id')
              ->join('tb_perfil','tb_empleado.idPerfil','=','tb_perfil.id')
+             ->where('tb_tiempo_estandar.idEmpresa','=',$idEmpresa)
              ->select('tb_tiempo_estandar.id','tb_tiempo_estandar.fecha','tb_tiempo_estandar.idEmpleado','tb_tiempo_estandar.estado',
              DB::raw('CONCAT(tb_empleado.nombre," ",tb_empleado.apellido," - ",tb_empleado.documento) as nombreEmpleado'))
             ->where('tb_tiempo_estandar.'.$criterio, 'like', '%'. $buscar . '%')
@@ -55,6 +64,12 @@ class Tb_tiempo_estandarController extends Controller
 
      public function store(Request $request)
      {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
          //if(!$request->ajax()) return redirect('/');
          $tb_tiempo_estandar=new Tb_tiempo_estandar();
          $tb_tiempo_estandar->fecha=$request->fecha;
@@ -68,7 +83,8 @@ class Tb_tiempo_estandarController extends Controller
          $tb_tiempo_estandar->tiempoPiezas=0;
          $tb_tiempo_estandar->factorValoracion=0;
          $tb_tiempo_estandar->estado=1;
-         $tb_tiempo_estandar->save(); 
+         $tb_tiempo_estandar->idEmpresa=$idEmpresa;
+         $tb_tiempo_estandar->save();
 
          $tb_westing_house = new Tb_westing_house();
          $tb_westing_house->idHabilidad=1;
@@ -91,7 +107,14 @@ class Tb_tiempo_estandarController extends Controller
      }
      public function empleados()
     {
-        $empleados = Tb_empleado::select('tb_empleado.id','tb_empleado.nombre','tb_empleado.apellido',
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
+        $empleados = Tb_empleado::where('tb_empleado.idEmpresa','=',$idEmpresa)
+        ->select('tb_empleado.id','tb_empleado.nombre','tb_empleado.apellido',
         'tb_empleado.documento',
         DB::raw('CONCAT(tb_empleado.nombre," ",tb_empleado.apellido," - ",tb_empleado.documento) as nombreEmpleado'))
         ->get();

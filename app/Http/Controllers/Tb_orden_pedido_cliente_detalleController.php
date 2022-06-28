@@ -7,16 +7,25 @@ use App\Tb_orden_produccion_detalle;
 use App\Tb_producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_orden_pedido_cliente_detalleController extends Controller
 {
     //
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->id;
             # Modelo::join('tablaqueseune',basicamente un on)
             $productos = Tb_orden_pedido_cliente_detalle::join('tb_producto','tb_orden_pedido_cliente_detalle.idProducto','=','tb_producto.id')
+            ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
             ->select('tb_orden_pedido_cliente_detalle.id','tb_orden_pedido_cliente_detalle.idProducto','tb_orden_pedido_cliente_detalle.cantidad',
             'tb_orden_pedido_cliente_detalle.precioCosto','tb_orden_pedido_cliente_detalle.precioVenta','tb_orden_pedido_cliente_detalle.estado',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion','tb_producto.foto')
@@ -26,12 +35,20 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
 
     public function posibles(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->id;
 
         $posibles = DB::table('tb_producto')
-        ->select('id as idProducto','producto')
-        ->whereNotIn('id', DB::table('tb_orden_pedido_cliente_detalle')->select('idProducto')->where('idOrdenPedido', '=', $identificador))
+        ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+        ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
+        ->select('tb_producto.id as idProducto','producto')
+        ->whereNotIn('tb_producto.id', DB::table('tb_orden_pedido_cliente_detalle')->select('idProducto')->where('idOrdenPedido', '=', $identificador))
         ->get();
 
         return ['posibles' => $posibles];
@@ -39,6 +56,12 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
 
     public function listar(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -46,6 +69,8 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
 
         if ($buscar=='') {
             $productos = Tb_orden_pedido_cliente_detalle::join('tb_producto','tb_orden_pedido_cliente_detalle.idProducto','=','tb_producto.id')
+            ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
             ->select('tb_orden_pedido_cliente_detalle.id as idRegistro','tb_orden_pedido_cliente_detalle.idProducto','tb_orden_pedido_cliente_detalle.cantidad',
             'tb_orden_pedido_cliente_detalle.precioCosto','tb_orden_pedido_cliente_detalle.precioVenta','tb_orden_pedido_cliente_detalle.estado',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion','tb_producto.foto')
@@ -54,6 +79,8 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
         }
         else if($criterio=='producto'){
             $productos = Tb_orden_pedido_cliente_detalle::join('tb_producto','tb_orden_pedido_cliente_detalle.idProducto','=','tb_producto.id')
+            ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
             ->select('tb_orden_pedido_cliente_detalle.id as idRegistro','tb_orden_pedido_cliente_detalle.idProducto','tb_orden_pedido_cliente_detalle.cantidad',
             'tb_orden_pedido_cliente_detalle.precioCosto','tb_orden_pedido_cliente_detalle.precioVenta','tb_orden_pedido_cliente_detalle.estado',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion','tb_producto.foto')
@@ -65,6 +92,8 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
         }
         else if($criterio=='referencia'){
             $productos = Tb_orden_pedido_cliente_detalle::join('tb_producto','tb_orden_pedido_cliente_detalle.idProducto','=','tb_producto.id')
+            ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
             ->select('tb_orden_pedido_cliente_detalle.id as idRegistro','tb_orden_pedido_cliente_detalle.idProducto','tb_orden_pedido_cliente_detalle.cantidad',
             'tb_orden_pedido_cliente_detalle.precioCosto','tb_orden_pedido_cliente_detalle.precioVenta','tb_orden_pedido_cliente_detalle.estado',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion','tb_producto.foto')
@@ -77,6 +106,8 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
         else {
             # code...
             $productos = Tb_orden_pedido_cliente_detalle::join('tb_producto','tb_orden_pedido_cliente_detalle.idProducto','=','tb_producto.id')
+            ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
             ->select('tb_orden_pedido_cliente_detalle.id as idRegistro','tb_orden_pedido_cliente_detalle.idProducto','tb_orden_pedido_cliente_detalle.cantidad',
             'tb_orden_pedido_cliente_detalle.precioCosto','tb_orden_pedido_cliente_detalle.precioVenta','tb_orden_pedido_cliente_detalle.estado',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion','tb_producto.foto')
@@ -102,6 +133,12 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $identificador=$request->idProducto;
 
         $total = 0;
@@ -114,6 +151,8 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
 
         # Modelo::join('tablaqueseune',basicamente un on)
         $productos = Tb_producto::join('tb_hoja_de_costo','tb_producto.id','=','tb_hoja_de_costo.idProducto')
+        ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+        ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
         ->select('tb_producto.producto as producto','tb_producto.referencia as referencia','tb_producto.foto as foto','tb_hoja_de_costo.capacidadMensual as capacidadMensual')
         ->where('tb_producto.id','=',$identificador)
         ->get();
@@ -204,6 +243,12 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
 
     public function costo(Request $request)
         {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $identificador=$request->idProducto;
 
         $total = 0;
@@ -216,6 +261,8 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
 
         # Modelo::join('tablaqueseune',basicamente un on)
         $productos = Tb_producto::join('tb_hoja_de_costo','tb_producto.id','=','tb_hoja_de_costo.idProducto')
+        ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+        ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
         ->select('tb_producto.producto as producto','tb_producto.referencia as referencia','tb_producto.foto as foto','tb_hoja_de_costo.capacidadMensual as capacidadMensual')
         ->where('tb_producto.id','=',$identificador)
         ->get();
@@ -299,6 +346,12 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
 
     public function listarPendientes(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->identificador;
 /**/
@@ -306,6 +359,8 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
             ->join("tb_unidad_base", "tb_gestion_materia_prima.idUnidadBase", "=", "tb_unidad_base.id")
             ->join("tb_orden_produccion", "tb_orden_produccion.id", "=", "tb_orden_produccion_detalle.idOrdenProduccion")
             ->join("tb_producto", "tb_orden_produccion.idProducto", "=", "tb_producto.id")
+            ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
             ->whereRaw('tb_orden_produccion.idOrdenPedido='.$identificador.
             ' and (tb_orden_produccion_detalle.cantidadRequerida-tb_orden_produccion_detalle.cantidadEntregada)>0')
             ->select('tb_orden_produccion_detalle.id','tb_orden_produccion_detalle.idGestionMateria','tb_orden_produccion_detalle.cantidadRequerida',
@@ -330,6 +385,12 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
     }
     public function listarSobrantes(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->identificador;
 
@@ -338,6 +399,8 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
             ->join("tb_unidad_base", "tb_gestion_materia_prima.idUnidadBase", "=", "tb_unidad_base.id")
             ->join("tb_orden_produccion", "tb_orden_produccion.id", "=", "tb_orden_produccion_detalle.idOrdenProduccion")
             ->join("tb_producto", "tb_orden_produccion.idProducto", "=", "tb_producto.id")
+            ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
             ->whereRaw('tb_orden_produccion.idOrdenPedido='.$identificador.
             ' and (tb_orden_produccion_detalle.cantidadEntregada-tb_orden_produccion_detalle.cantidadRequerida)>0')
             ->select('tb_orden_produccion_detalle.id','tb_orden_produccion_detalle.cantidadRequerida','tb_orden_produccion_detalle.cantidadEntregada',
@@ -360,6 +423,12 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
     }
     public function listarCompletos(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->identificador;
 
@@ -368,6 +437,8 @@ class Tb_orden_pedido_cliente_detalleController extends Controller
             ->join("tb_unidad_base", "tb_gestion_materia_prima.idUnidadBase", "=", "tb_unidad_base.id")
             ->join("tb_orden_produccion", "tb_orden_produccion.id", "=", "tb_orden_produccion_detalle.idOrdenProduccion")
             ->join("tb_producto", "tb_orden_produccion.idProducto", "=", "tb_producto.id")
+            ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
             ->whereRaw('tb_orden_produccion.idOrdenPedido='.$identificador.
             ' and (tb_orden_produccion_detalle.cantidadRequerida-tb_orden_produccion_detalle.cantidadEntregada)=0')
             ->select('tb_orden_produccion_detalle.id','tb_orden_produccion_detalle.cantidadRequerida','tb_orden_produccion_detalle.cantidadEntregada',

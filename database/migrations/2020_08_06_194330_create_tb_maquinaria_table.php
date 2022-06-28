@@ -22,6 +22,7 @@ class CreateTbMaquinariaTable extends Migration
             $table->integer('depreciacionMensual');
             $table->date('fecha');
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

@@ -18,6 +18,7 @@ class Tb_areaSeeder extends Seeder
             Tb_area::create(array(
                 //'id' => $item->IdArea,
                 'area' => $item->Area,
+                'idEmpresa' => $item->idEmpresa
             ));
             }
         /*

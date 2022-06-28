@@ -5,20 +5,31 @@ namespace App\Http\Controllers;
 use App\Tb_maquinaria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_maquinariaController extends Controller
 {
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
 
         if ($buscar=='') {
-            $maquinarias = Tb_maquinaria::orderBy('id','desc')->paginate(5);
+            $maquinarias = Tb_maquinaria::orderBy('id','desc')
+            ->where('tb_maquinaria.idEmpresa','=',$idEmpresa)
+            ->paginate(5);
         }
         else {
-            $maquinarias = Tb_maquinaria::where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
+            $maquinarias = Tb_maquinaria::where($criterio, 'like', '%'. $buscar . '%')
+            ->where('tb_maquinaria.idEmpresa','=',$idEmpresa)
+            ->orderBy('id','desc')->paginate(5);
         }
 
         return [
@@ -35,7 +46,14 @@ class Tb_maquinariaController extends Controller
     }
 
     public function selectMaquinaria(){
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $maquinarias = Tb_maquinaria::where('estado','=','1')
+        ->where('tb_maquinaria.idEmpresa','=',$idEmpresa)
         ->select('id as idMaquinaria','maquinaria')->orderBy('maquinaria','asc')->get();
 
         return ['maquinarias' => $maquinarias];
@@ -43,6 +61,12 @@ class Tb_maquinariaController extends Controller
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $tb_maquinaria=new Tb_maquinaria();
         $tb_maquinaria->maquinaria=$request->maquinaria;
@@ -51,6 +75,7 @@ class Tb_maquinariaController extends Controller
         $tb_maquinaria->depreciacionAnual=$request->depreciacionAnual;
         $tb_maquinaria->depreciacionMensual=$request->depreciacionMensual;
         $tb_maquinaria->fecha=$request->fecha;
+        $tb_maquinaria->idEmpresa=$idEmpresa;
         $tb_maquinaria->save();
     }
 

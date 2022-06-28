@@ -169,8 +169,8 @@
         <rentabilidad></rentabilidad>
     </template>
 
-    <template v-if="menu==42">
-        <cartilla2></cartilla2>
+    <template v-if="menu==98">
+        <vistapersonalizada></vistapersonalizada>
     </template>
 
     <template v-if="menu==99">

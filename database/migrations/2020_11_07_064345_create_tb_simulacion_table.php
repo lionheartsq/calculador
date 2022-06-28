@@ -19,6 +19,7 @@ class CreateTbSimulacionTable extends Migration
             $table->date('fecha');
             $table->integer('tipoCif')->unsigned();
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

@@ -8,11 +8,18 @@ use App\Tb_empleado;
 use App\Tb_orden_produccion_detalle;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_kardex_almacenController extends Controller
 {
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -21,6 +28,7 @@ class Tb_kardex_almacenController extends Controller
             # Modelo::join('tablaqueseune',basicamente un on)
             $productos = Tb_kardex_almacen::join('tb_gestion_materia_prima','tb_kardex_almacen.idGestionMateria','=','tb_gestion_materia_prima.id')
             ->join('tb_unidad_base','tb_gestion_materia_prima.idUnidadBase','=','tb_unidad_base.id')
+            ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
             ->select('tb_kardex_almacen.id','tb_kardex_almacen.fecha','tb_kardex_almacen.detalle','tb_kardex_almacen.cantidad','tb_unidad_base.unidadBase',
             'tb_kardex_almacen.precio','tb_kardex_almacen.cantidadSaldos','tb_kardex_almacen.precioSaldos','tb_kardex_almacen.idGestionMateria',
             'tb_kardex_almacen.tipologia','tb_kardex_almacen.idDocumentos','tb_gestion_materia_prima.gestionMateria as producto','tb_gestion_materia_prima.idUnidadBase',
@@ -31,6 +39,7 @@ class Tb_kardex_almacenController extends Controller
         }
         else {
             $productos = Tb_kardex_almacen::join('tb_gestion_materia_prima','tb_kardex_almacen.idGestionMateria','=','tb_gestion_materia_prima.id')
+            ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
             ->select('tb_kardex_almacen.id','tb_kardex_almacen.fecha','tb_kardex_almacen.detalle','tb_kardex_almacen.cantidad',
             'tb_kardex_almacen.precio','tb_kardex_almacen.cantidadSaldos','tb_kardex_almacen.precioSaldos','tb_kardex_almacen.idGestionMateria',
             'tb_kardex_almacen.tipologia','tb_kardex_almacen.idDocumentos','tb_gestion_materia_prima.gestionMateria as producto','tb_gestion_materia_prima.idUnidadBase',
@@ -57,9 +66,16 @@ class Tb_kardex_almacenController extends Controller
     {
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->identificador;
- /**/
+
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
             $productos = Tb_kardex_almacen::join('tb_gestion_materia_prima','tb_kardex_almacen.idGestionMateria','=','tb_gestion_materia_prima.id')
             ->join('tb_empleado','tb_kardex_almacen.idEmpleado','=','tb_empleado.id')
+            ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
             ->select('tb_kardex_almacen.id as idMateria','tb_kardex_almacen.fecha','tb_kardex_almacen.detalle','tb_kardex_almacen.cantidad',
             'tb_kardex_almacen.precio',DB::raw('ROUND(tb_kardex_almacen.cantidad * tb_kardex_almacen.precio) as preciototal'),
             'tb_kardex_almacen.cantidadSaldos','tb_kardex_almacen.precioSaldos','tb_kardex_almacen.idGestionMateria','tb_empleado.id as idEmpleado',
@@ -84,9 +100,16 @@ class Tb_kardex_almacenController extends Controller
     }
     public function producto(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->identificador;
-        $nombreproducto = Tb_gestion_materia_prima::where('tb_gestion_materia_prima.id', '=', $identificador)
+        $nombreproducto = Tb_gestion_materia_prima::where('tb_gestion_materia_prima.idEmpresa','=',$idEmpresa)
+        ->where('tb_gestion_materia_prima.id', '=', $identificador)
         ->select('tb_gestion_materia_prima.id','tb_gestion_materia_prima.gestionMateria as producto')
         ->orderBy('tb_gestion_materia_prima.gestionMateria','asc')
         ->get();
@@ -95,8 +118,15 @@ class Tb_kardex_almacenController extends Controller
     }
     public function general()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
-        $materias = Tb_gestion_materia_prima::where('estado','=','1')
+        $materias = Tb_gestion_materia_prima::where('tb_gestion_materia_prima.idEmpresa','=',$idEmpresa)
+            ->where('tb_gestion_materia_prima.estado','=','1')
             ->select('tb_gestion_materia_prima.id as idMateria','tb_gestion_materia_prima.gestionMateria as materia')
             ->orderBy('tb_gestion_materia_prima.gestionMateria','asc')
             ->get();
@@ -105,10 +135,27 @@ class Tb_kardex_almacenController extends Controller
     }
     public function ordenes() //PARA TRAER DATOS ACORDE
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $ordenes = DB::table('tb_orden_produccion')
         ->select('tb_orden_produccion.id','tb_orden_produccion.consecutivo','tb_orden_produccion.fecha')
-        ->whereIn('tb_orden_produccion.id', function($sub){$sub->selectRaw('max(id)')->from('tb_orden_produccion')->groupBy('consecutivo');})
+        ->whereIn('tb_orden_produccion.id', function($sub){
+                                            //cambios multiempresa
+                                                foreach (Auth::user()->empresas as $empresa){
+                                                $idEmpresa=$empresa['id'];
+                                                }
+                                            //cambios multiempresa
+                                            $sub->selectRaw('max(id)')
+                                            ->from('tb_orden_produccion')
+                                            ->where('tb_orden_produccion.idEmpresa','=',$idEmpresa)
+                                            ->groupBy('consecutivo');
+                                            }
+        )
         ->orderBy('tb_orden_produccion.id','desc')
         ->get();
 
@@ -117,10 +164,17 @@ class Tb_kardex_almacenController extends Controller
     }
     public function material($identificador) //PARA TRAER DATOS ACORDE
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+            }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $materiales = Tb_orden_produccion_detalle::join('tb_orden_produccion','tb_orden_produccion_detalle.idOrdenProduccion','=','tb_orden_produccion.id')
             ->join('tb_gestion_materia_prima','tb_orden_produccion_detalle.idGestionMateria','=','tb_gestion_materia_prima.id')
             ->select('tb_gestion_materia_prima.gestionMateria as producto','tb_gestion_materia_prima.idUnidadBase','tb_gestion_materia_prima.id')
+            ->where('tb_orden_produccion.idEmpresa','=',$idEmpresa)
             ->where('tb_orden_produccion.consecutivo', '=', $identificador)
             ->orderBy('tb_gestion_materia_prima.gestionMateria','asc')
             ->get();
@@ -130,10 +184,17 @@ class Tb_kardex_almacenController extends Controller
     }
     public function preciomaterialorden(Request $request) //DATOS de valor segun orden 2 5 y 6 traigo segun idmateria el valor promedio del kardex
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador=$request->material;
         $preciomaterial = Tb_kardex_almacen::first()
         ->select('tb_kardex_almacen.id','tb_kardex_almacen.precioSaldos as valorMaterial')
+        ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
         ->where([
             ['tb_kardex_almacen.idGestionMateria', '=', $identificador],
             ['tb_kardex_almacen.precioSaldos', '>', '0'],
@@ -153,6 +214,12 @@ class Tb_kardex_almacenController extends Controller
     }
     public function preciomaterialcompra(Request $request) //DATOS de valor segun compra traigo segun idmateria el valor de compra del kardex
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador=$request->material;
         $proveedor=$request->proveedor;
@@ -166,6 +233,7 @@ class Tb_kardex_almacenController extends Controller
 
         $preciomaterial = Tb_kardex_almacen::first()
         ->select('tb_kardex_almacen.id','tb_kardex_almacen.precio as valorMaterial')
+        ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
         ->where([
             ['tb_kardex_almacen.idDocumentos', '=', '1'],
             ['tb_kardex_almacen.tipologia', '=', '1'],
@@ -185,13 +253,20 @@ class Tb_kardex_almacenController extends Controller
             'valorMaterial' =>  $valorMaterial
         ];
     }
-    public function factura(Request $request) //PARA TRAER DATOS ACORDE
+    public function factura($factura) //PARA TRAER DATOS ACORDE
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
-        $proveedor=$request->proveedor;
+        $proveedor=$factura;
         $materiales = Tb_kardex_almacen::join('tb_proveedores','tb_kardex_almacen.observaciones','=','tb_proveedores.id')
             ->select('tb_kardex_almacen.id','tb_kardex_almacen.detalle as factura','tb_proveedores.razonSocial as proveedor',
             DB::raw("CONCAT('Factura: ',tb_kardex_almacen.detalle,' - ',tb_proveedores.razonSocial) AS detallado"))
+            ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
             ->where([
                 ['tb_kardex_almacen.idDocumentos', '=', '1'],
                 ['tb_kardex_almacen.tipologia', '=', '1'],
@@ -204,11 +279,19 @@ class Tb_kardex_almacenController extends Controller
         return ['materiales' =>  $materiales];
 
     }
-    public function materialfactura(Request $request) //PARA TRAER DATOS ACORDE
+    public function materialfactura($factura) //PARA TRAER DATOS ACORDE
     {
-        //if(!$request->ajax()) return redirect('/');
-        $kardex=$request->factura;
-        $registros = DB::table('tb_kardex_almacen')->where('id', '=', $kardex)->get();
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
+                //if(!$request->ajax()) return redirect('/');
+        $kardex=$factura;
+        $registros = DB::table('tb_kardex_almacen')
+        ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
+        ->where('tb_kardex_almacen.id', '=', $kardex)->get();
 
         foreach ($registros as $registro) {
             $factura = $registro->detalle;
@@ -216,6 +299,7 @@ class Tb_kardex_almacenController extends Controller
         }
 
         $materiales = Tb_kardex_almacen::join('tb_gestion_materia_prima','tb_kardex_almacen.idGestionMateria','=','tb_gestion_materia_prima.id')
+            ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
             ->select('tb_kardex_almacen.idGestionMateria','tb_gestion_materia_prima.gestionMateria as producto','tb_gestion_materia_prima.idUnidadBase',
             'tb_gestion_materia_prima.id')
             ->distinct('tb_kardex_almacen.idGestionMateria')
@@ -233,6 +317,12 @@ class Tb_kardex_almacenController extends Controller
     }
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
 
         $fecha=$request->fecha;
@@ -256,6 +346,7 @@ class Tb_kardex_almacenController extends Controller
         //Proceso para calculo de kardex
 
         $precioSaldos = DB::table('tb_kardex_almacen')
+        ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
         ->select('id','cantidad as cantidadA','cantidadSaldos as cantidadS','precioSaldos as precioS')
         ->where('tb_kardex_almacen.idGestionMateria','=', $idProducto)
         ->orderByDesc('id')
@@ -263,6 +354,7 @@ class Tb_kardex_almacenController extends Controller
         ->get();
 
         $precioSaldoscant= DB::table('tb_kardex_almacen')
+        ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
         ->where('tb_kardex_almacen.idGestionMateria','=', $idProducto)
         ->count();
 
@@ -313,11 +405,13 @@ class Tb_kardex_almacenController extends Controller
         $tb_kardex_almacen->fecha=$fecha;
         $tb_kardex_almacen->cantidadSaldos=$suma1;
         $tb_kardex_almacen->precioSaldos=$suma2;
+        $tb_kardex_almacen->idEmpresa=$idEmpresa;
         $tb_kardex_almacen->save();
 
         $materiales = Tb_orden_produccion_detalle::join('tb_orden_produccion','tb_orden_produccion_detalle.idOrdenProduccion','=','tb_orden_produccion.id')
             ->select('tb_orden_produccion_detalle.id as idOrdenDetalle','tb_orden_produccion_detalle.cantidadEntregada as cantidadEntregada')
             ->where([
+                ['tb_orden_produccion.idEmpresa', '=', $idEmpresa],
                 ['tb_orden_produccion.consecutivo', '=', $detalle],
                 ['tb_orden_produccion_detalle.idGestionMateria', '=', $idProducto]
             ])

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Tb_proveedor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_proveedorController extends Controller
 {
@@ -15,16 +16,23 @@ class Tb_proveedorController extends Controller
      */
     public function index(Request $request)
     {
-        //
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
 
         if ($buscar=='') {
-            $proveedores = Tb_proveedor::orderBy('id','desc')->paginate(5);
+            $proveedores = Tb_proveedor::where('idEmpresa','=',$idEmpresa)
+            ->orderBy('id','desc')->paginate(5);
         }
         else {
-            $proveedores = Tb_proveedor::where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
+            $proveedores = Tb_proveedor::where('idEmpresa','=',$idEmpresa)
+            ->where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
         }
 
         return [
@@ -41,7 +49,14 @@ class Tb_proveedorController extends Controller
     }
 
     public function selectProveedor(){
-        $proveedores = Tb_proveedor::where('estado','=','1')
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
+        $proveedores = Tb_proveedor::where('idEmpresa','=',$idEmpresa)
+        ->where('estado','=','1')
         ->select('id as idProveedor','razonSocial')->orderBy('id','asc')->get();
 
         return ['proveedores' => $proveedores];
@@ -49,7 +64,12 @@ class Tb_proveedorController extends Controller
 
     public function store(Request $request)
     {
-        //
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $tb_proveedor = new Tb_proveedor();
         $tb_proveedor->nit=$request->nit;
@@ -58,6 +78,7 @@ class Tb_proveedorController extends Controller
         $tb_proveedor->telefono=$request->telefono;
         $tb_proveedor->direccion=$request->direccion;
         $tb_proveedor->correo=$request->correo;
+        $tb_proveedor->idEmpresa=$idEmpresa;
         $tb_proveedor->save();
     }
 

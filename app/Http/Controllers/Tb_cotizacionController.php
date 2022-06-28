@@ -13,6 +13,7 @@ use App\Tb_cotizacion;
 use App\Tb_detalle_cotizacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 class Tb_cotizacionController extends Controller
@@ -24,7 +25,12 @@ class Tb_cotizacionController extends Controller
      */
     public function index(Request $request)
     {
-        //
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -32,6 +38,7 @@ class Tb_cotizacionController extends Controller
         if ($buscar=='') {
             # Modelo::join('tablaqueseune',basicamente un on)
             $cotizaciones = Tb_cotizacion::join('tb_clientes','tb_cotizacion.idCliente','=','tb_clientes.id')
+            ->where('tb_cotizacion.idEmpresa','=',$idEmpresa)
             ->select('tb_cotizacion.id','tb_cotizacion.consecutivo','tb_cotizacion.fecha','tb_cotizacion.condicionEntrega',
             'tb_cotizacion.vigencia','tb_cotizacion.idCliente','tb_cotizacion.estado',
             DB::raw('CONCAT(tb_clientes.nombre," ",tb_clientes.apellido," - ",tb_clientes.documento) as nombreCliente'))
@@ -39,6 +46,7 @@ class Tb_cotizacionController extends Controller
         }
         else {
             $cotizaciones = Tb_cotizacion::join('tb_clientes','tb_cotizacion.idCliente','=','tb_clientes.id')
+            ->where('tb_cotizacion.idEmpresa','=',$idEmpresa)
             ->select('tb_cotizacion.id','tb_cotizacion.consecutivo','tb_cotizacion.fecha','tb_cotizacion.condicionEntrega',
             'tb_cotizacion.vigencia','tb_cotizacion.idCliente','tb_cotizacion.estado',
             DB::raw('CONCAT(tb_clientes.nombre," ",tb_clientes.apellido," - ",tb_clientes.documento) as nombreCliente'))
@@ -61,10 +69,16 @@ class Tb_cotizacionController extends Controller
 
     public function store(Request $request)
     {
-        //
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
-        $maximos = Tb_cotizacion::select(DB::raw('MAX(tb_cotizacion.consecutivo) as maximo'))
+        $maximos = Tb_cotizacion::where('tb_cotizacion.idEmpresa','=',$idEmpresa)
+        ->select(DB::raw('MAX(tb_cotizacion.consecutivo) as maximo'))
         ->get();
 
         foreach($maximos as $maximo1){
@@ -80,6 +94,7 @@ class Tb_cotizacionController extends Controller
         $tb_cotizacion->condicionEntrega=$request->condicionEntrega;
         $tb_cotizacion->vigencia=$request->vigencia;
         $tb_cotizacion->idCliente=$request->idCliente;
+        $tb_cotizacion->idEmpresa=$idEmpresa;
         $tb_cotizacion->save();
     }
 
@@ -94,8 +109,15 @@ class Tb_cotizacionController extends Controller
 
     public function clientes()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         // $clientes = Tb_cliente::all();
-        $clientes = Tb_cliente::select('tb_clientes.id','tb_clientes.nombre','tb_clientes.apellido',
+        $clientes = Tb_cliente::where('tb_clientes.idEmpresa','=',$idEmpresa)
+        ->select('tb_clientes.id','tb_clientes.nombre','tb_clientes.apellido',
         'tb_clientes.documento','tb_clientes.direccion','tb_clientes.telefono','tb_clientes.correo',
         DB::raw('CONCAT(tb_clientes.nombre," ",tb_clientes.apellido," - ",tb_clientes.documento) as nombreCliente'))
         ->get();
@@ -109,6 +131,11 @@ class Tb_cotizacionController extends Controller
         {
             //if(!$request->ajax()) return redirect('/');
 
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
 
             $idCotizacion= $request->id;
             $tb_cotizacion=Tb_cotizacion::findOrFail($request->id);
@@ -120,7 +147,8 @@ class Tb_cotizacionController extends Controller
             $observacion=$tb_cotizacion2->condicionEntrega;
             $idCliente=$tb_cotizacion2->idCliente;
 
-            $maximos = Tb_orden_pedido_cliente::select(DB::raw('MAX(tb_orden_pedido_cliente.consecutivo) as maximo'))
+            $maximos = Tb_orden_pedido_cliente::where('tb_orden_pedido_cliente.idEmpresa','=',$idEmpresa)
+                ->select(DB::raw('MAX(tb_orden_pedido_cliente.consecutivo) as maximo'))
                 ->get();
 
                 foreach($maximos as $maximo1){
@@ -135,6 +163,7 @@ class Tb_cotizacionController extends Controller
                 $tb_orden_pedido_cliente->fecha=$fecha;
                 $tb_orden_pedido_cliente->idCliente=$idCliente;
                 $tb_orden_pedido_cliente->observacion=$observacion;
+                $tb_orden_pedido_cliente->idEmpresa=$idEmpresa;
                 $tb_orden_pedido_cliente->save();
 
                 $idOrdenPedido= $tb_orden_pedido_cliente->id;

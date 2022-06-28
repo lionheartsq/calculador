@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Tb_detalle_cotizacion;
 use App\Tb_producto;
+use App\Tb_hoja_de_costo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_detalle_cotizacionController extends Controller
 {
@@ -16,10 +18,18 @@ class Tb_detalle_cotizacionController extends Controller
      */
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->id;
             # Modelo::join('tablaqueseune',basicamente un on)
             $productos = Tb_detalle_cotizacion::join('tb_producto','tb_detalle_cotizacion.idProducto','=','tb_producto.id')
+            ->join('tb_area','tb_producto.idArea','=','tb_area.id')
+            ->where('tb_area.idEmpresa','=',$idEmpresa)
             ->select('tb_detalle_cotizacion.id','tb_detalle_cotizacion.cantidad','tb_detalle_cotizacion.valor',
             'tb_detalle_cotizacion.precioVenta','tb_detalle_cotizacion.idProducto','tb_detalle_cotizacion.idCotizacion',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion','tb_producto.foto')
@@ -29,12 +39,20 @@ class Tb_detalle_cotizacionController extends Controller
 
     public function posibles(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->id;
 
         $posibles = DB::table('tb_producto')
-        ->select('id as idProducto','producto')
-        ->whereNotIn('id', DB::table('tb_detalle_cotizacion')->select('idProducto')->where('idCotizacion', '=', $identificador))
+        ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+        ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
+        ->select('tb_producto.id as idProducto','producto')
+        ->whereNotIn('tb_producto.id', DB::table('tb_detalle_cotizacion')->select('idProducto')->where('idCotizacion', '=', $identificador))
         ->get();
 
         return ['posibles' => $posibles];
@@ -42,6 +60,12 @@ class Tb_detalle_cotizacionController extends Controller
 
     public function listar(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -49,6 +73,8 @@ class Tb_detalle_cotizacionController extends Controller
 
         if ($buscar=='') {
             $productos = Tb_detalle_cotizacion::join('tb_producto','tb_detalle_cotizacion.idProducto','=','tb_producto.id')
+            ->join('tb_area','tb_producto.idArea','=','tb_area.id')
+            ->where('tb_area.idEmpresa','=',$idEmpresa)
             ->select('tb_detalle_cotizacion.id as idRegistro','tb_detalle_cotizacion.cantidad','tb_detalle_cotizacion.valor',
             'tb_detalle_cotizacion.precioVenta','tb_detalle_cotizacion.idProducto','tb_detalle_cotizacion.idCotizacion',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion','tb_producto.foto')
@@ -57,6 +83,8 @@ class Tb_detalle_cotizacionController extends Controller
         }
         else if($criterio=='producto'){
             $productos = Tb_detalle_cotizacion::join('tb_producto','tb_detalle_cotizacion.idProducto','=','tb_producto.id')
+            ->join('tb_area','tb_producto.idArea','=','tb_area.id')
+            ->where('tb_area.idEmpresa','=',$idEmpresa)
             ->select('tb_detalle_cotizacion.id as idRegistro','tb_detalle_cotizacion.cantidad','tb_detalle_cotizacion.valor',
             'tb_detalle_cotizacion.precioVenta','tb_detalle_cotizacion.idProducto','tb_detalle_cotizacion.idCotizacion',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion','tb_producto.foto')
@@ -68,6 +96,8 @@ class Tb_detalle_cotizacionController extends Controller
         }
         else if($criterio=='referencia'){
             $productos = Tb_detalle_cotizacion::join('tb_producto','tb_detalle_cotizacion.idProducto','=','tb_producto.id')
+            ->join('tb_area','tb_producto.idArea','=','tb_area.id')
+            ->where('tb_area.idEmpresa','=',$idEmpresa)
             ->select('tb_detalle_cotizacion.id as idRegistro','tb_detalle_cotizacion.cantidad','tb_detalle_cotizacion.valor',
             'tb_detalle_cotizacion.precioVenta','tb_detalle_cotizacion.idProducto','tb_detalle_cotizacion.idCotizacion',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion','tb_producto.foto')
@@ -80,6 +110,8 @@ class Tb_detalle_cotizacionController extends Controller
         else {
             # code...
             $productos = Tb_detalle_cotizacion::join('tb_producto','tb_detalle_cotizacion.idProducto','=','tb_producto.id')
+            ->join('tb_area','tb_producto.idArea','=','tb_area.id')
+            ->where('tb_area.idEmpresa','=',$idEmpresa)
             ->select('tb_detalle_cotizacion.id as idRegistro','tb_detalle_cotizacion.cantidad','tb_detalle_cotizacion.valor',
             'tb_detalle_cotizacion.precioVenta','tb_detalle_cotizacion.idProducto','tb_detalle_cotizacion.idCotizacion',
             'tb_producto.producto','tb_producto.referencia','tb_producto.descripcion','tb_producto.foto')
@@ -102,9 +134,15 @@ class Tb_detalle_cotizacionController extends Controller
                 'productos' => $productos
         ];
     }
-    public function precioproductos(Request $request)
+    public function precioproductos($productoid)
     {
-        $identificador= $request->producto;
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
+        $identificador= $productoid;
 
         $total = 0;
         $acumuladomd = 0;
@@ -113,11 +151,19 @@ class Tb_detalle_cotizacionController extends Controller
         $acumuladocif = 0;
         $acumuladomaquinaria = 0;
         $acumuladocift = 0;
+        $unidadesprod = "";
 
         # Modelo::join('tablaqueseune',basicamente un on)
+        //
         $productos = Tb_producto::join('tb_hoja_de_costo','tb_producto.id','=','tb_hoja_de_costo.idProducto')
-        ->select('tb_producto.producto as producto','tb_producto.referencia as referencia','tb_producto.foto as foto','tb_hoja_de_costo.capacidadMensual as capacidadMensual')
         ->where('tb_producto.id','=',$identificador)
+        /*         
+        $productos = Tb_hoja_de_costo::join('tb_producto','tb_hoja_de_costo.idProducto','=','tb_producto.id')
+        ->join('tb_area','tb_producto.idArea','=','tb_area.id')
+        ->where('tb_area.idEmpresa','=',$idEmpresa) 
+        */
+        ->select('tb_producto.producto as producto','tb_producto.referencia as referencia','tb_producto.foto as foto',
+        'tb_hoja_de_costo.capacidadMensual as capacidadMensual')
         ->get();
 
         foreach($productos as $producto){
@@ -170,6 +216,7 @@ class Tb_detalle_cotizacionController extends Controller
         $query3 = DB::raw("(CASE WHEN SUM(tb_concepto_cif.valor) IS NULL THEN 0
         ELSE SUM(tb_concepto_cif.valor) END) as acumuladocif");
         $ciftotales = DB::table('tb_concepto_cif')
+        ->where('tb_concepto_cif.idEmpresa','=',$idEmpresa)
         ->select($query3)
         ->get();
         foreach($ciftotales as $ciftotal){
@@ -181,6 +228,7 @@ class Tb_detalle_cotizacionController extends Controller
         $query4 = DB::raw("(CASE WHEN SUM(tb_maquinaria.depreciacionMensual) IS NULL THEN 0
         ELSE SUM(tb_maquinaria.depreciacionMensual) END) as acumuladomaquinaria");
         $totales = DB::table('tb_maquinaria')
+        ->where('tb_maquinaria.idEmpresa','=',$idEmpresa)
         ->select($query4)
         ->get();
         foreach($totales as $totalg){
@@ -202,6 +250,12 @@ class Tb_detalle_cotizacionController extends Controller
     }
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $identificador=$request->idProducto;
 
         $total = 0;
@@ -214,6 +268,8 @@ class Tb_detalle_cotizacionController extends Controller
 
         # Modelo::join('tablaqueseune',basicamente un on)
         $productos = Tb_producto::join('tb_hoja_de_costo','tb_producto.id','=','tb_hoja_de_costo.idProducto')
+        ->join('tb_area','tb_producto.idArea','=','tb_area.id')
+        ->where('tb_area.idEmpresa','=',$idEmpresa)
         ->select('tb_producto.producto as producto','tb_producto.referencia as referencia','tb_producto.foto as foto','tb_hoja_de_costo.capacidadMensual as capacidadMensual')
         ->where('tb_producto.id','=',$identificador)
         ->get();
@@ -268,6 +324,7 @@ class Tb_detalle_cotizacionController extends Controller
         $query3 = DB::raw("(CASE WHEN SUM(tb_concepto_cif.valor) IS NULL THEN 0
         ELSE SUM(tb_concepto_cif.valor) END) as acumuladocif");
         $ciftotales = DB::table('tb_concepto_cif')
+        ->where('tb_concepto_cif.idEmpresa','=',$idEmpresa)
         ->select($query3)
         ->get();
         foreach($ciftotales as $ciftotal){
@@ -279,6 +336,7 @@ class Tb_detalle_cotizacionController extends Controller
         $query4 = DB::raw("(CASE WHEN SUM(tb_maquinaria.depreciacionMensual) IS NULL THEN 0
         ELSE SUM(tb_maquinaria.depreciacionMensual) END) as acumuladomaquinaria");
         $totales = DB::table('tb_maquinaria')
+        ->where('tb_maquinaria.idEmpresa','=',$idEmpresa)
         ->select($query4)
         ->get();
         foreach($totales as $totalg){

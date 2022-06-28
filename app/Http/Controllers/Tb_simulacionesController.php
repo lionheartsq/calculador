@@ -12,6 +12,7 @@ use App\Tb_rotacioninventario;
 use App\Tb_rotacioncartera;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 class Tb_simulacionesController extends Controller
@@ -19,6 +20,12 @@ class Tb_simulacionesController extends Controller
     //
     public function storePrecioVenta(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $hoy = date("Y-m-d");
 
@@ -39,7 +46,10 @@ class Tb_simulacionesController extends Controller
 
         $producto='';
 
-        $productos = Tb_producto::where('id','=',$idProducto)->select('producto')->get();
+        $productos = Tb_producto::where('tb_producto.id','=',$idProducto)
+        ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+        ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
+        ->select('tb_producto.producto')->get();
         foreach($productos as $product){
             $producto = $product->producto;
         }
@@ -55,6 +65,7 @@ class Tb_simulacionesController extends Controller
         $tb_precios_venta->costosfijos=$costosfijos;
         $tb_precios_venta->materiaprima=$materiaprima;
         $tb_precios_venta->manodeobradirecta=$manodeobradirecta;
+        $tb_precios_venta->idEmpresa=$idEmpresa;
         $tb_precios_venta->detalle=$detalle;
 
         $tb_precios_venta->save();
@@ -62,9 +73,16 @@ class Tb_simulacionesController extends Controller
 
     public function listarPrecios()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
-        $precios = Tb_precios_venta::orderBy('id','desc')->paginate(5);
+        $precios = Tb_precios_venta::where('tb_precios_venta.idEmpresa','=',$idEmpresa)
+        ->orderBy('id','desc')->paginate(5);
 
         return [
         'pagination' => [
@@ -81,6 +99,12 @@ class Tb_simulacionesController extends Controller
 
     public function storePuntoEquilibrio(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $hoy = date("Y-m-d");
 
@@ -102,7 +126,9 @@ class Tb_simulacionesController extends Controller
 
         $producto='';
 
-        $productos = Tb_producto::where('id','=',$idProducto)->select('producto')->get();
+        $productos = Tb_producto::join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+        ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
+        ->where('tb_producto.id','=',$idProducto)->select('tb_producto.producto')->get();
         foreach($productos as $product){
             $producto = $product->producto;
         }
@@ -117,6 +143,7 @@ class Tb_simulacionesController extends Controller
         $tb_puntos_equilibrio->materiaprima=$materiaprima;
         $tb_puntos_equilibrio->manodeobradirecta=$manodeobradirecta;
         $tb_puntos_equilibrio->puntodeequilibrio=$puntoequilibrio;
+        $tb_puntos_equilibrio->idEmpresa=$idEmpresa;
         $tb_puntos_equilibrio->detalle=$detalle;
 
         $tb_puntos_equilibrio->save();
@@ -124,9 +151,16 @@ class Tb_simulacionesController extends Controller
 
     public function listarPuntos()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
-        $puntos = Tb_puntos_equilibrio::orderBy('id','desc')->paginate(5);
+        $puntos = Tb_puntos_equilibrio::where('tb_puntos_equilibrio.idEmpresa','=',$idEmpresa)
+        ->orderBy('id','desc')->paginate(5);
 
         return [
         'pagination' => [
@@ -143,6 +177,12 @@ class Tb_simulacionesController extends Controller
 
     public function storeLiquidez(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $hoy = date("Y-m-d");
 
@@ -173,15 +213,22 @@ class Tb_simulacionesController extends Controller
         $tb_liquidez->inventario=$inventario;
         $tb_liquidez->pruebaacida=$pruebaacida;
         $tb_liquidez->detalle=$detalle;
-
+        $tb_liquidez->idEmpresa=$idEmpresa;
         $tb_liquidez->save();
     }
 
     public function listarLiquidez()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
-        $liquidez = Tb_liquidez::orderBy('id','desc')->paginate(5);
+        $liquidez = Tb_liquidez::where('tb_liquidez.idEmpresa','=',$idEmpresa)
+        ->orderBy('id','desc')->paginate(5);
 
         return [
         'pagination' => [
@@ -198,6 +245,12 @@ class Tb_simulacionesController extends Controller
 
     public function storeEndeudamiento(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $hoy = date("Y-m-d");
 
@@ -240,14 +293,22 @@ class Tb_simulacionesController extends Controller
         $tb_endeudamiento->leverage=$leverage;
         $tb_endeudamiento->cortoplazo=$cortoplazo;
         $tb_endeudamiento->detalle=$detalle;
+        $tb_endeudamiento->idEmpresa=$idEmpresa;
         $tb_endeudamiento->save();
     }
 
     public function listarEndeudamiento()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
-        $endeudamiento = Tb_endeudamiento::orderBy('id','desc')->paginate(5);
+        $endeudamiento = Tb_endeudamiento::where('tb_endeudamiento.idEmpresa','=',$idEmpresa)
+        ->orderBy('id','desc')->paginate(5);
 
         return [
         'pagination' => [
@@ -264,6 +325,12 @@ class Tb_simulacionesController extends Controller
 
     public function storeRentabilidad(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $hoy = date("Y-m-d");
 
@@ -296,14 +363,22 @@ class Tb_simulacionesController extends Controller
         $tb_rentabilidad->margenoperacional=$margenoperacional;
         $tb_rentabilidad->margenneto=$margenneto;
         $tb_rentabilidad->detalle=$detalle;
+        $tb_rentabilidad->idEmpresa=$idEmpresa;
         $tb_rentabilidad->save();
     }
 
     public function listarRentabilidad()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
-        $rentabilidad = Tb_rentabilidad::orderBy('id','desc')->paginate(5);
+        $rentabilidad = Tb_rentabilidad::where('tb_rentabilidad.idEmpresa','=',$idEmpresa)
+        ->orderBy('id','desc')->paginate(5);
 
         return [
         'pagination' => [
@@ -320,6 +395,12 @@ class Tb_simulacionesController extends Controller
 
     public function storeRotacioninventario(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $hoy = date("Y-m-d");
 
@@ -355,15 +436,23 @@ class Tb_simulacionesController extends Controller
         $tb_rotacioninventario->promediosaldos=$promediosaldos;
         $tb_rotacioninventario->rotacioninventario=$rotacioninventario;
         $tb_rotacioninventario->detalle=$detalle;
+        $tb_rotacioninventario->idEmpresa=$idEmpresa;
         $tb_rotacioninventario->save();
 
     }
 
     public function listarRotacioninventario()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
-        $rotacioninventario = Tb_rotacioninventario::orderBy('id','desc')->paginate(5);
+        $rotacioninventario = Tb_rotacioninventario::where('tb_rotacioninventario.idEmpresa','=',$idEmpresa)
+        ->orderBy('id','desc')->paginate(5);
 
         return [
         'pagination' => [
@@ -380,6 +469,12 @@ class Tb_simulacionesController extends Controller
 
     public function storeRotacioncartera(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $hoy = date("Y-m-d");
 
@@ -415,15 +510,23 @@ class Tb_simulacionesController extends Controller
         $tb_rotacioncartera->promediosaldos=$promediosaldos;
         $tb_rotacioncartera->rotacioncartera=$rotacioncartera;
         $tb_rotacioncartera->detalle=$detalle;
+        $tb_rotacioncartera->idEmpresa=$idEmpresa;
         $tb_rotacioncartera->save();
 
     }
 
     public function listarRotacioncartera()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
-        $rotacioncartera = Tb_rotacioncartera::orderBy('id','desc')->paginate(5);
+        $rotacioncartera = Tb_rotacioncartera::where('tb_rotacioncartera.idEmpresa','=',$idEmpresa)
+        ->orderBy('id','desc')->paginate(5);
 
         return [
         'pagination' => [
@@ -440,9 +543,16 @@ class Tb_simulacionesController extends Controller
 
     public function posibles()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
-        $posibles = Tb_precios_venta::orderBy('detalle','asc')->get();
+        $posibles = Tb_precios_venta::where('tb_precios_venta.idEmpresa','=',$idEmpresa)
+        ->orderBy('detalle','asc')->get();
 
         return [
                 'posibles' => $posibles

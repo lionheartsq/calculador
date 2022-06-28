@@ -19,7 +19,8 @@ class Tb_simulacionSeeder extends Seeder
                 'descripcion' => $item->descripcion,
                 'fecha' => $item->fecha,
                 'tipoCif' => $item->tipoCif,
-                'estado' => $item->estado
+                'estado' => $item->estado,
+                'idEmpresa' => $item->idEmpresa
             ));
             }
         /*

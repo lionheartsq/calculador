@@ -23,6 +23,7 @@ class CreateTbKardexProduccionTable extends Migration
             $table->integer('precioSaldos');
             $table->foreignId('idGestionMateria')->constrained('tb_gestion_materia_prima');
             $table->boolean('tipologia')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             // tipo 1 entrada tipo 0 salida
         });
     }

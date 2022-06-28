@@ -9,7 +9,7 @@ class Tb_novedades extends Model
     //
     protected $table = 'tb_novedades';
 
-    protected $fillable = ['fechaNovedad','concepto','cantidad','unitario','valor','observacion','tipologia','idEmpleado','idNomina'];
+    protected $fillable = ['fechaNovedad','concepto','cantidad','unitario','valor','observacion','tipologia','idEmpleado','idNomina','idEmpresa'];
 
     public $timestamps = false;
 }

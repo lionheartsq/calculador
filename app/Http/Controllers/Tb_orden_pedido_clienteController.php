@@ -12,12 +12,18 @@ use App\Tb_orden_pedido_cliente;
 use App\Tb_orden_produccion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Auth;
 class Tb_orden_pedido_clienteController extends Controller
 {
     //
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -25,6 +31,7 @@ class Tb_orden_pedido_clienteController extends Controller
         if ($buscar=='') {
             # Modelo::join('tablaqueseune',basicamente un on)
             $ordenes = Tb_orden_pedido_cliente::join('tb_clientes','tb_orden_pedido_cliente.idCliente','=','tb_clientes.id')
+            ->where('tb_orden_pedido_cliente.idEmpresa','=',$idEmpresa)
             ->select('tb_orden_pedido_cliente.id','tb_orden_pedido_cliente.consecutivo','tb_orden_pedido_cliente.fecha',
             'tb_orden_pedido_cliente.idCliente','tb_orden_pedido_cliente.observacion','tb_orden_pedido_cliente.estado',
             DB::raw('CONCAT(tb_clientes.nombre," ",tb_clientes.apellido," - ",tb_clientes.documento) as nombreCliente'))
@@ -32,6 +39,7 @@ class Tb_orden_pedido_clienteController extends Controller
         }
         else {
             $ordenes = Tb_orden_pedido_cliente::join('tb_clientes','tb_orden_pedido_cliente.idCliente','=','tb_clientes.id')
+            ->where('tb_orden_pedido_cliente.idEmpresa','=',$idEmpresa)
             ->select('tb_orden_pedido_cliente.id','tb_orden_pedido_cliente.consecutivo','tb_orden_pedido_cliente.fecha',
             'tb_orden_pedido_cliente.idCliente','tb_orden_pedido_cliente.observacion','tb_orden_pedido_cliente.estado',
             DB::raw('CONCAT(tb_clientes.nombre," ",tb_clientes.apellido," - ",tb_clientes.documento) as nombreCliente'))
@@ -54,9 +62,16 @@ class Tb_orden_pedido_clienteController extends Controller
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
-        $maximos = Tb_orden_pedido_cliente::select(DB::raw('MAX(tb_orden_pedido_cliente.consecutivo) as maximo'))
+        $maximos = Tb_orden_pedido_cliente::where('tb_orden_pedido_cliente.idEmpresa','=',$idEmpresa)
+        ->select(DB::raw('MAX(tb_orden_pedido_cliente.consecutivo) as maximo'))
         ->get();
 
         foreach($maximos as $maximo1){
@@ -71,6 +86,7 @@ class Tb_orden_pedido_clienteController extends Controller
         $tb_orden_pedido_cliente->fecha=$request->fecha;
         $tb_orden_pedido_cliente->idCliente=$request->idCliente;
         $tb_orden_pedido_cliente->observacion=$request->observacion;
+        $tb_orden_pedido_cliente->idEmpresa=$idEmpresa;
         $tb_orden_pedido_cliente->save();
     }
 
@@ -84,8 +100,15 @@ class Tb_orden_pedido_clienteController extends Controller
 
     public function clientes()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         // $clientes = Tb_cliente::all();
-        $clientes = Tb_cliente::select('tb_clientes.id','tb_clientes.nombre','tb_clientes.apellido',
+        $clientes = Tb_cliente::where('tb_clientes.idEmpresa','=',$idEmpresa)
+        ->select('tb_clientes.id','tb_clientes.nombre','tb_clientes.apellido',
         'tb_clientes.documento','tb_clientes.direccion','tb_clientes.telefono','tb_clientes.correo',
         DB::raw('CONCAT(tb_clientes.nombre," ",tb_clientes.apellido," - ",tb_clientes.documento) as nombreCliente'))
         ->get();
@@ -93,10 +116,38 @@ class Tb_orden_pedido_clienteController extends Controller
         return ['clientes' => $clientes];
     }
 
+
+    public function posibles(Request $request)
+    {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
+        //if(!$request->ajax()) return redirect('/');
+        $identificador= $request->id;
+
+        $posibles = DB::table('tb_producto')
+        ->join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+        ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
+        ->select('tb_producto.id as idProducto','producto')
+        ->whereNotIn('tb_producto.id', DB::table('tb_detalle_cotizacion')->select('idProducto')->where('idCotizacion', '=', $identificador))
+        ->get();
+
+        return ['posibles' => $posibles];
+    }
+
     //---------------------Funcion para generar las relaciones en las tablas que quedan con los datos-----------------------------------//
 
     public function estado(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
         // Tomo los productos de la orden de pedido para crear la orden de produccion
@@ -109,7 +160,8 @@ class Tb_orden_pedido_clienteController extends Controller
         $tb_orden_pedido_cliente2=Tb_orden_pedido_cliente::findOrFail($request->id);
         $fecha=$tb_orden_pedido_cliente->fecha;
 
-        $maximos = Tb_orden_produccion::select(DB::raw('MAX(tb_orden_produccion.consecutivo) as maximo'))
+        $maximos = Tb_orden_produccion::where('tb_orden_produccion.idEmpresa','=',$idEmpresa)
+        ->select(DB::raw('MAX(tb_orden_produccion.consecutivo) as maximo'))
         ->get();
 
         foreach($maximos as $maximo1){
@@ -119,7 +171,9 @@ class Tb_orden_pedido_clienteController extends Controller
             }
         $consecutivo=$maximo;
 
-        $ordenes = DB::table('tb_orden_pedido_cliente_detalle')->where('tb_orden_pedido_cliente_detalle.idOrdenPedido', '=', $idOrdenPedido)->get();
+        $ordenes = DB::table('tb_orden_pedido_cliente_detalle')
+            ->where('tb_orden_pedido_cliente_detalle.idOrdenPedido', '=', $idOrdenPedido)->get();
+
         foreach ($ordenes as $orden) {
             $idProducto=$orden->idProducto;
             $cantidad=$orden->cantidad;
@@ -130,6 +184,7 @@ class Tb_orden_pedido_clienteController extends Controller
             $tb_orden_produccion->idProducto=$idProducto;
             $tb_orden_produccion->cantidad=$cantidad;
             $tb_orden_produccion->idOrdenPedido=$idOrdenPedido;
+             $tb_orden_produccion->idEmpresa=$idEmpresa;
             $tb_orden_produccion->save();
 
             $idOrdenProduccion= $tb_orden_produccion->id;

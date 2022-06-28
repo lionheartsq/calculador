@@ -175,6 +175,8 @@
                                         </div>
                                     </div>
 
+
+
                                     <div v-if="tipoModal==2" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Unidades</label>
                                         <div class="col-md-9">

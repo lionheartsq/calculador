@@ -9,12 +9,19 @@ use App\Tb_niveles_riesgo;
 use App\Tb_vinculaciones;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_vinculacionesController extends Controller
 {
     //
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -23,6 +30,7 @@ class Tb_vinculacionesController extends Controller
             $vinculaciones = Tb_vinculaciones::join("tb_empleado","tb_vinculaciones.idEmpleado","=","tb_empleado.id")
             ->join("tb_eps","tb_empleado.idEps","=","tb_eps.id")
             ->join("tb_administradora_pensiones","tb_empleado.idPensiones","=","tb_administradora_pensiones.id")
+            ->where('tb_vinculaciones.idEmpresa','=',$idEmpresa)
             ->select('tb_vinculaciones.id','tb_vinculaciones.tipoContrato','tb_vinculaciones.tipoSalario','tb_vinculaciones.salarioBasicoMensual',
             'tb_vinculaciones.fechaInicio','tb_vinculaciones.tiempoContrato','tb_vinculaciones.fechaFin','tb_vinculaciones.idEmpleado','tb_vinculaciones.idNivelArl',
             'tb_empleado.idEps','tb_empleado.idPensiones','tb_vinculaciones.estado','tb_eps.nombreEps','tb_administradora_pensiones.nombrePensiones',
@@ -34,6 +42,7 @@ class Tb_vinculacionesController extends Controller
             $vinculaciones = Tb_vinculaciones::join("tb_empleado","tb_vinculaciones.idEmpleado","=","tb_empleado.id")
             ->join("tb_eps","tb_empleado.idEps","=","tb_eps.id")
             ->join("tb_administradora_pensiones","tb_empleado.idPensiones","=","tb_administradora_pensiones.id")
+            ->where('tb_vinculaciones.idEmpresa','=',$idEmpresa)
             ->select('tb_vinculaciones.id','tb_vinculaciones.tipoContrato','tb_vinculaciones.tipoSalario','tb_vinculaciones.salarioBasicoMensual',
             'tb_vinculaciones.fechaInicio','tb_vinculaciones.tiempoContrato','tb_vinculaciones.fechaFin','tb_vinculaciones.idEmpleado','tb_vinculaciones.idNivelArl',
             'tb_empleado.idEps','tb_empleado.idPensiones','tb_vinculaciones.estado','tb_eps.nombreEps','tb_administradora_pensiones.nombrePensiones',
@@ -57,6 +66,12 @@ class Tb_vinculacionesController extends Controller
 
     public function vinculacionesInactivas(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -65,6 +80,7 @@ class Tb_vinculacionesController extends Controller
             $vinculaciones = Tb_vinculaciones::join("tb_empleado","tb_vinculaciones.idEmpleado","=","tb_empleado.id")
             ->join("tb_eps","tb_empleado.idEps","=","tb_eps.id")
             ->join("tb_administradora_pensiones","tb_empleado.idPensiones","=","tb_administradora_pensiones.id")
+            ->where('tb_vinculaciones.idEmpresa','=',$idEmpresa)
             ->select('tb_vinculaciones.id','tb_vinculaciones.tipoContrato','tb_vinculaciones.tipoSalario','tb_vinculaciones.salarioBasicoMensual',
             'tb_vinculaciones.fechaInicio','tb_vinculaciones.tiempoContrato','tb_vinculaciones.fechaFin','tb_vinculaciones.idEmpleado','tb_vinculaciones.idNivelArl',
             'tb_empleado.idEps','tb_empleado.idPensiones','tb_vinculaciones.estado','tb_eps.nombreEps','tb_administradora_pensiones.nombrePensiones',
@@ -76,6 +92,7 @@ class Tb_vinculacionesController extends Controller
             $vinculaciones = Tb_vinculaciones::join("tb_empleado","tb_vinculaciones.idEmpleado","=","tb_empleado.id")
             ->join("tb_eps","tb_empleado.idEps","=","tb_eps.id")
             ->join("tb_administradora_pensiones","tb_empleado.idPensiones","=","tb_administradora_pensiones.id")
+            ->where('tb_vinculaciones.idEmpresa','=',$idEmpresa)
             ->select('tb_vinculaciones.id','tb_vinculaciones.tipoContrato','tb_vinculaciones.tipoSalario','tb_vinculaciones.salarioBasicoMensual',
             'tb_vinculaciones.fechaInicio','tb_vinculaciones.tiempoContrato','tb_vinculaciones.fechaFin','tb_vinculaciones.idEmpleado','tb_vinculaciones.idNivelArl',
             'tb_empleado.idEps','tb_empleado.idPensiones','tb_vinculaciones.estado','tb_eps.nombreEps','tb_administradora_pensiones.nombrePensiones',
@@ -99,6 +116,12 @@ class Tb_vinculacionesController extends Controller
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $tb_vinculaciones=new Tb_vinculaciones();
         $tb_vinculaciones->tipoContrato=$request->tipoContrato;
@@ -108,6 +131,7 @@ class Tb_vinculacionesController extends Controller
         $tb_vinculaciones->tiempoContrato=$request->tiempoContrato;
         $tb_vinculaciones->idEmpleado=$request->idEmpleado;
         $tb_vinculaciones->idNivelArl=$request->idNivelArl;
+        $tb_vinculaciones->idEmpresa=$idEmpresa;
         $tb_vinculaciones->save();
     }
 
@@ -145,7 +169,14 @@ class Tb_vinculacionesController extends Controller
     }
 
     public function selectEmpleado(){
-        $empleados = Tb_empleado::where('tb_empleado.estado','=','1')
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
+        $empleados = Tb_empleado::where('tb_empleado.idEmpresa','=',$idEmpresa)
+        ->where('tb_empleado.estado','=','1')
         ->select('tb_empleado.id as idEmpleado',DB::raw("CONCAT(tb_empleado.nombre,'  ',tb_empleado.apellido) AS empleado"))
         ->orderBy('empleado','asc')->get();
 

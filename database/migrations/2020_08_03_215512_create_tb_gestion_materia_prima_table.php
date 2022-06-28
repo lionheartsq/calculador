@@ -20,6 +20,7 @@ class CreateTbGestionMateriaPrimaTable extends Migration
             $table->integer('precioBase')->unsigned();
             $table->foreignId('idTipoMateria')->constrained('tb_tipo_materia');
             $table->boolean('estado')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

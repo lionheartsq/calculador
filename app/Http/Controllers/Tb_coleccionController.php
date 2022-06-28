@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Tb_coleccion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_coleccionController extends Controller
 {
@@ -15,15 +16,25 @@ class Tb_coleccionController extends Controller
      */
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
 
         if ($buscar=='') {
-            $colecciones = Tb_coleccion::orderBy('id','desc')->paginate(5);
+            $colecciones = Tb_coleccion::orderBy('id','desc')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
+            ->paginate(5);
         }
         else {
-            $colecciones = Tb_coleccion::where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
+            $colecciones = Tb_coleccion::where($criterio, 'like', '%'. $buscar . '%')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
+            ->orderBy('id','desc')->paginate(5);
         }
 
         return [
@@ -40,7 +51,14 @@ class Tb_coleccionController extends Controller
     }
 
     public function selectColeccion(){
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $colecciones = Tb_coleccion::where('estado','=','1')
+        ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
         ->select('id as idColeccion','coleccion')->orderBy('coleccion','asc')->get();
 
         return ['colecciones' => $colecciones];
@@ -48,10 +66,17 @@ class Tb_coleccionController extends Controller
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $tb_coleccion=new Tb_coleccion();
         $tb_coleccion->coleccion=$request->coleccion;
         $tb_coleccion->referencia=$request->referencia;
+        $tb_coleccion->idEmpresa=$idEmpresa;
         $tb_coleccion->save();
     }
 

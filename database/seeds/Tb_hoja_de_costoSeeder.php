@@ -1,6 +1,6 @@
 <?php
 
-use App\tb_hoja_de_costo;
+use App\Tb_hoja_de_costo;
 use Illuminate\Database\Seeder;
 
 class Tb_hoja_de_costoSeeder extends Seeder

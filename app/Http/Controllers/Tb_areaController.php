@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Tb_area;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_areaController extends Controller
 {
@@ -14,11 +15,22 @@ class Tb_areaController extends Controller
         $buscar= $request->buscar;
         $criterio= $request->criterio;
 
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if ($buscar=='') {
-            $areas = Tb_area::orderBy('id','desc')->paginate(5);
+            $areas = Tb_area::orderBy('id','desc')
+            ->where('tb_area.idEmpresa','=',$idEmpresa)
+            ->paginate(5);
         }
         else {
-            $areas = Tb_area::where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
+            $areas = Tb_area::where($criterio, 'like', '%'. $buscar . '%')
+            ->where('tb_area.idEmpresa','=',$idEmpresa)
+            ->orderBy('id','desc')
+            ->paginate(5);
         }
 
         return [
@@ -35,17 +47,32 @@ class Tb_areaController extends Controller
     }
 
     public function selectArea(){
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $areas = Tb_area::where('estado','=','1')
-        ->select('id as idArea','area')->orderBy('area','asc')->get();
+        ->where('tb_area.idEmpresa','=',$idEmpresa)
+        ->select('id as idArea','area')
+        ->orderBy('area','asc')->get();
 
         return ['areas' => $areas];
     }
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $tb_area=new Tb_area();
         $tb_area->area=$request->area;
+        $tb_area->idEmpresa=$idEmpresa;
         $tb_area->save();
     }
 

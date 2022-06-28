@@ -17,6 +17,7 @@ class Tb_procesoSeeder extends Seeder
             Tb_proceso::create(array(
                 'proceso' => $item->proceso,
                 'idArea' => $item->idArea,
+                'idEmpresa' => $item->idEmpresa,
             ));
             }
     }

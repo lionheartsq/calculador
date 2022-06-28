@@ -111,7 +111,7 @@
                                     </div>
 
                                     <div class="card-body">
-                                        <materiaprima v-bind:identificador="identificador" :key="componentKey" @abrirmodal="abrirModal" @eliminarmateria="eliminarMateriaPrimaProducto"></materiaprima>
+                                        <materiaprima v-bind:identificador="identificador" :key="componentKey" @abrirmodal="abrirModal" @eliminarMateriaPrimaProducto="eliminarMateriaPrimaProducto"></materiaprima>
                                     </div>
 
                                 </vs-tab>
@@ -772,8 +772,9 @@
                     console.log(error);
                 });
             },
-            eliminarMateriaPrimaProducto(){
+            eliminarMateriaPrimaProducto(data=[]){
                 let me=this;
+                this.id=data['id'];
                 axios.put('/materiaprimaproducto/deactivate',{
                     'id': this.id
                 }).then(function (response) {

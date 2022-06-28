@@ -11,11 +11,18 @@ use App\Tb_orden_produccion;
 use App\Tb_orden_produccion_detalle;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_kardex_producto_terminadoController extends Controller
 {
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -23,6 +30,7 @@ class Tb_kardex_producto_terminadoController extends Controller
         if ($buscar=='') {
             # Modelo::join('tablaqueseune',basicamente un on)
             $kardex = Tb_kardex_producto_terminado::join('tb_producto','tb_kardex_producto_terminado.idProducto','=','tb_producto.id')
+            ->where('tb_kardex_producto_terminado.idEmpresa','=',$idEmpresa)
             ->select('tb_kardex_producto_terminado.id','tb_kardex_producto_terminado.fecha','tb_kardex_producto_terminado.detalle','tb_kardex_producto_terminado.cantidad',
             'tb_kardex_producto_terminado.precio','tb_kardex_producto_terminado.cantidadSaldos','tb_kardex_producto_terminado.precioSaldos','tb_kardex_producto_terminado.idProducto',
             'tb_kardex_producto_terminado.tipologia','tb_producto.producto as producto', 'tb_producto.estado',
@@ -33,6 +41,7 @@ class Tb_kardex_producto_terminadoController extends Controller
         }
         else {
             $kardex = Tb_kardex_producto_terminado::join('tb_producto','tb_kardex_producto_terminado.idProducto','=','tb_producto.id')
+            ->where('tb_kardex_producto_terminado.idEmpresa','=',$idEmpresa)
             ->select('tb_kardex_producto_terminado.id','tb_kardex_producto_terminado.fecha','tb_kardex_producto_terminado.detalle','tb_kardex_producto_terminado.cantidad',
             'tb_kardex_producto_terminado.precio','tb_kardex_producto_terminado.cantidadSaldos','tb_kardex_producto_terminado.precioSaldos','tb_kardex_producto_terminado.idProducto',
             'tb_kardex_producto_terminado.tipologia','tb_producto.producto as producto', 'tb_producto.estado',
@@ -59,8 +68,14 @@ class Tb_kardex_producto_terminadoController extends Controller
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->identificador;
 
- /**/
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
             $kardex = Tb_kardex_producto_terminado::join('tb_producto','tb_kardex_producto_terminado.idProducto','=','tb_producto.id')
+            ->where('tb_kardex_producto_terminado.idEmpresa','=',$idEmpresa)
             ->select('tb_kardex_producto_terminado.id as idKardex','tb_kardex_producto_terminado.fecha','tb_kardex_producto_terminado.detalle','tb_kardex_producto_terminado.cantidad',
             'tb_kardex_producto_terminado.precio',DB::raw('tb_kardex_producto_terminado.cantidad * tb_kardex_producto_terminado.precio as preciototal'),
             'tb_kardex_producto_terminado.cantidadSaldos','tb_kardex_producto_terminado.precioSaldos','tb_kardex_producto_terminado.idProducto',
@@ -84,8 +99,16 @@ class Tb_kardex_producto_terminadoController extends Controller
     }
     public function general()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
-        $productos = Tb_producto::where('estado','=','1')
+        $productos = Tb_producto::join('tb_coleccion','tb_producto.idColeccion','=','tb_coleccion.id')
+            ->where('tb_producto.estado','=','1')
+            ->where('tb_coleccion.idEmpresa','=',$idEmpresa)
             ->select('tb_producto.id as idMateria','tb_producto.producto as materia')
             ->get();
 
@@ -93,8 +116,15 @@ class Tb_kardex_producto_terminadoController extends Controller
     }
     public function ordenes() //PARA TRAER DATOS ACORDE
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $ordenes = DB::table('tb_orden_produccion')
+        ->where('tb_orden_produccion.idEmpresa','=',$idEmpresa)
         ->select('tb_orden_produccion.id','tb_orden_produccion.consecutivo','tb_orden_produccion.fecha')
         ->whereIn('tb_orden_produccion.id', function($sub){$sub->selectRaw('max(id)')->from('tb_orden_produccion')->groupBy('consecutivo');})
         ->orderBy('tb_orden_produccion.id','desc')
@@ -105,8 +135,16 @@ class Tb_kardex_producto_terminadoController extends Controller
     }
     public function productos($identificador) //PARA TRAER DATOS ACORDE
     {
-        $ordenes = Tb_orden_pedido_cliente_detalle::select('tb_orden_pedido_cliente_detalle.idOrdenPedido as idOrdenPedido')
-            ->where('tb_orden_pedido_cliente_detalle.id', '=', $identificador)
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
+        $ordenes = Tb_orden_pedido_cliente_detalle::join('tb_orden_pedido_cliente','tb_orden_pedido_cliente_detalle.idOrdenPedido','=','tb_orden_pedido_cliente.id')
+            ->where('tb_orden_pedido_cliente.idEmpresa','=',$idEmpresa)
+            ->select('tb_orden_pedido_cliente_detalle.idOrdenPedido as idOrdenPedido')
+            ->where('tb_orden_pedido_cliente.consecutivo', '=', $identificador)
             ->get();
 
         foreach($ordenes as $orden){
@@ -114,6 +152,8 @@ class Tb_kardex_producto_terminadoController extends Controller
         }
         //if(!$request->ajax()) return redirect('/');
         $materiales = Tb_orden_pedido_cliente_detalle::join('tb_producto','tb_orden_pedido_cliente_detalle.idProducto','=','tb_producto.id')
+            ->join('tb_area','tb_producto.idArea','=','tb_area.id')
+            ->where('tb_area.idEmpresa','=',$idEmpresa)
             ->select('tb_producto.producto as producto','tb_producto.id','tb_orden_pedido_cliente_detalle.precioCosto',
             'tb_orden_pedido_cliente_detalle.precioVenta','tb_orden_pedido_cliente_detalle.idOrdenPedido')
             ->where('tb_orden_pedido_cliente_detalle.idOrdenPedido', '=', $identiforden)
@@ -125,10 +165,17 @@ class Tb_kardex_producto_terminadoController extends Controller
     }
     public function precioproductospromedio(Request $request) //DATOS de valor segun orden 2 5 y 6 traigo segun idmateria el valor promedio del kardex
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador=$request->producto;
 
         $preciomaterial = DB::table('tb_kardex_producto_terminado')
+        ->where('tb_kardex_producto_terminado.idEmpresa','=',$idEmpresa)
         ->select('tb_kardex_producto_terminado.id','tb_kardex_producto_terminado.precioSaldos as valorProducto')
         ->where('tb_kardex_producto_terminado.idProducto', '=', $identificador)
         ->orderByDesc('tb_kardex_producto_terminado.id')
@@ -147,16 +194,24 @@ class Tb_kardex_producto_terminadoController extends Controller
     }
     public function precioproductosorden(Request $request) //DATOS de valor segun compra 4 traigo segun idmateria el valor de compra del kardex
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador=$request->producto;
         $segordenpedido=$request->segordenpedido;
 
-        $ordenes = DB::table('tb_orden_produccion')->where('id', '=', $segordenpedido)->get();
+        $ordenes = DB::table('tb_orden_produccion')
+        ->where('tb_orden_produccion.idEmpresa','=',$idEmpresa)
+        ->where('id', '=', $segordenpedido)->get();
         foreach ($ordenes as $orden) {
             $idOrdenPedido = $orden->idOrdenPedido;
         }
 
-        $preciomaterial = Tb_orden_pedido_cliente_detalle::first()
+        $preciomaterial = Tb_orden_pedido_cliente_detalle::first() //-------------->Mirar
         ->select('tb_orden_pedido_cliente_detalle.id','tb_orden_pedido_cliente_detalle.precioCosto as valorMaterial')
         ->where([
             ['tb_orden_pedido_cliente_detalle.idOrdenPedido', '=', $idOrdenPedido],
@@ -169,7 +224,7 @@ class Tb_kardex_producto_terminadoController extends Controller
             $valorProducto = $totalg->valorMaterial;
         }
         //para calcular las cantidades que se solicitaron en la orden
-        $cantidadesesperadas = Tb_orden_pedido_cliente_detalle::first()
+        $cantidadesesperadas = Tb_orden_pedido_cliente_detalle::first() //-------------->Mirar
         ->select('tb_orden_pedido_cliente_detalle.id','tb_orden_pedido_cliente_detalle.cantidad as cantidadesesperadas')
         ->where([
             ['tb_orden_pedido_cliente_detalle.idOrdenPedido', '=', $idOrdenPedido],
@@ -181,7 +236,8 @@ class Tb_kardex_producto_terminadoController extends Controller
             $cantidadesperada = $cantidadespera->cantidadesesperadas;
         }
         //para calcular las cantidades que se reciben en el kardex como ingresos
-        $cantidadesentrantes = Tb_kardex_producto_terminado::select(DB::raw('SUM(cantidad) AS cantidadentrante'))
+        $cantidadesentrantes = Tb_kardex_producto_terminado::where('tb_kardex_producto_terminado.idEmpresa','=',$idEmpresa)
+        ->select(DB::raw('SUM(cantidad) AS cantidadentrante'))
         ->where([
             ['tb_kardex_producto_terminado.detalle', '=', $idOrdenPedido],
             ['tb_kardex_producto_terminado.idProducto', '=', $identificador],
@@ -235,8 +291,15 @@ class Tb_kardex_producto_terminadoController extends Controller
     }
     public function empleados()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
-        $empleados = Tb_empleado::select('tb_empleado.id',DB::raw("CONCAT(tb_empleado.nombre,'  ',tb_empleado.apellido) AS empleado"))
+        $empleados = Tb_empleado::where('tb_empleado.idEmpresa','=',$idEmpresa)
+        ->select('tb_empleado.id',DB::raw("CONCAT(tb_empleado.nombre,'  ',tb_empleado.apellido) AS empleado"))
         ->orderBy('tb_empleado.id','asc')
         ->get();
 
@@ -244,8 +307,16 @@ class Tb_kardex_producto_terminadoController extends Controller
     }
     public function todos()
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
-        $todos = Tb_producto::select('tb_producto.id','tb_producto.producto as producto')
+        $todos = Tb_producto::join('tb_area','tb_producto.idArea','=','tb_area.id')
+        ->where('tb_area.idEmpresa','=',$idEmpresa)
+        ->select('tb_producto.id','tb_producto.producto as producto')
         ->orderBy('tb_producto.id','asc')
         ->get();
 
@@ -253,6 +324,12 @@ class Tb_kardex_producto_terminadoController extends Controller
     }
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
 
         $fecha=$request->fecha;
@@ -277,6 +354,7 @@ class Tb_kardex_producto_terminadoController extends Controller
         //Proceso para calculo de kardex
 
         $precioSaldos = DB::table('tb_kardex_producto_terminado')
+        ->where('tb_kardex_producto_terminado.idEmpresa','=',$idEmpresa)
         ->select('id','cantidad as cantidadA','cantidadSaldos as cantidadS','precioSaldos as precioS')
         ->where('tb_kardex_producto_terminado.idProducto','=', $idProducto)
         ->orderByDesc('id')
@@ -284,6 +362,7 @@ class Tb_kardex_producto_terminadoController extends Controller
         ->get();
 
         $precioSaldoscant= DB::table('tb_kardex_producto_terminado')
+        ->where('tb_kardex_producto_terminado.idEmpresa','=',$idEmpresa)
         ->where('tb_kardex_producto_terminado.idProducto','=', $idProducto)
         ->count();
 
@@ -335,6 +414,7 @@ class Tb_kardex_producto_terminadoController extends Controller
         $tb_kardex_producto_terminado->idDocumentos=$idDocumentos;
         $tb_kardex_producto_terminado->idProducto=$idProducto;
         $tb_kardex_producto_terminado->tipologia=$tipologia;
+        $tb_kardex_producto_terminado->idEmpresa=$idEmpresa;
         $tb_kardex_producto_terminado->save();
     }
 }

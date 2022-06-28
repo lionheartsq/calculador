@@ -30,7 +30,8 @@ class Tb_empleadoSeeder extends Seeder
                 'idEps' => $item->idEps,
                 'idPensiones' => $item->idPensiones,
                 'tipoSangre'=>$item->tipoSangre,
-                'enfermedades'=>$item->enfermedades
+                'enfermedades'=>$item->enfermedades,
+                'idEmpresa' => $item->idEmpresa
             ));
             }
     }

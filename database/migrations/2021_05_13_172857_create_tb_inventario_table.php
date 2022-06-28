@@ -18,6 +18,7 @@ class CreateTbInventarioTable extends Migration
             $table->foreignId('idEmpleado')->constrained('tb_empleado');
             $table->date('fecha')->format('Y.m.d');
             $table->boolean('estado')->default(1);//1 true en proceso, 0 false finalizado
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             //$table->timestamps();
         });
     }

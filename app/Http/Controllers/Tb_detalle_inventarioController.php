@@ -11,17 +11,25 @@ use App\Tb_almacen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_detalle_inventarioController extends Controller
 {
     //
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $identificador= $request->id;
             # Modelo::join('tablaqueseune',basicamente un on)
             $detalles = Tb_detalle_inventario::join('tb_gestion_materia_prima','tb_detalle_inventario.idProducto','=','tb_gestion_materia_prima.id')
             ->join('tb_unidad_base','tb_gestion_materia_prima.idUnidadBase','=','tb_unidad_base.id')
+            ->where('tb_gestion_materia_prima.idEmpresa','=',$idEmpresa)
             ->select('tb_detalle_inventario.id','tb_detalle_inventario.idProducto','tb_detalle_inventario.unidadBase','tb_detalle_inventario.cantidadSistema',
             'tb_detalle_inventario.cantidadActual','tb_detalle_inventario.diferencia','tb_detalle_inventario.observacion','tb_detalle_inventario.idInventario',
             'tb_gestion_materia_prima.gestionMateria as producto','tb_unidad_base.unidadBase')
@@ -33,6 +41,12 @@ class Tb_detalle_inventarioController extends Controller
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $tb_detalle_inventario=new Tb_detalle_inventario();
         $tb_detalle_inventario->idProducto=$request->idProducto;
@@ -40,6 +54,7 @@ class Tb_detalle_inventarioController extends Controller
         $tb_detalle_inventario->cantidadSistema=$request->cantidadSistema;
         $tb_detalle_inventario->cantidadActual=$request->cantidadActual;
         $tb_detalle_inventario->observacion=$request->observacion;
+        $tb_detalle_inventario->idEmpresa=$idEmpresa;
         $tb_detalle_inventario->idInventario=$request->idInventario;
         $tb_detalle_inventario->save();
 
@@ -56,6 +71,12 @@ class Tb_detalle_inventarioController extends Controller
 
     public function validar(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
 
         $cantidadActual=$request->cantidadActual;
@@ -64,6 +85,7 @@ class Tb_detalle_inventarioController extends Controller
         $idProducto=0;
 
         $validarCantidad = DB::table('tb_kardex_almacen')
+        ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
         ->select('id','cantidad','cantidadSaldos as cantidadS','precioSaldos as precioS')
         ->where('tb_kardex_almacen.idGestionMateria','=', $idProducto)
         ->orderByDesc('id')
@@ -72,16 +94,24 @@ class Tb_detalle_inventarioController extends Controller
 
     }
     public function verificar1(Request $request){
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $cantidad=$request->data;
         //\Log::debug($cantidad[0]);
-        $inventario=Tb_detalle_inventario::where('idInventario','=',$cantidad[0])->get();
+        $inventario=Tb_detalle_inventario::where('tb_detalle_inventario.idEmpresa','=',$idEmpresa)
+        ->where('tb_detalle_inventario.idInventario','=',$cantidad[0])->get();
         foreach($inventario as $i){
             $i->cantidadActual=$cantidad[$i->id];
             $i->diferencia=$i->cantidadActual-$i->cantidadSistema;
             //\Log::debug($i);
             $i->save();
         }
-        $inventario=Tb_detalle_inventario::where('diferencia','!=',0)->where('idInventario','=',$cantidad[0])->get();
+        $inventario=Tb_detalle_inventario::where('tb_detalle_inventario.idEmpresa','=',$idEmpresa)
+        ->where('diferencia','!=',0)->where('idInventario','=',$cantidad[0])->get();
         //$cantidadActual=$request->cantidadActual;
         //$output = new Symfony\Component\Console\Output\ConsoleOutput();
         //$output->writeln("<info>error</info>");
@@ -93,8 +123,15 @@ class Tb_detalle_inventarioController extends Controller
         return ['inventario'=>$inventario];
     }
     public function observacion(Request $request){
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $observacion=$request->data;
-        $inventario=Tb_detalle_inventario::where('diferencia','!=',0)->where('idInventario','=',$observacion[0])->get();
+        $inventario=Tb_detalle_inventario::where('tb_detalle_inventario.idEmpresa','=',$idEmpresa)
+        ->where('diferencia','!=',0)->where('idInventario','=',$observacion[0])->get();
         //$inventario=Tb_detalle_inventario::where('diferencia','!=',0)->where('idInventario','=',$request->idInventario)->get();
 /*
         $inventario=Tb_detalle_inventario::join('tb_inventario','tb_detalle_inventario.idInventario','=','tb_inventario.id')
@@ -113,6 +150,7 @@ class Tb_detalle_inventarioController extends Controller
 
         /**/
         $inventariocom=Tb_detalle_inventario::join('tb_inventario','tb_detalle_inventario.idInventario','=','tb_inventario.id')
+        ->where('tb_detalle_inventario.idEmpresa','=',$idEmpresa)
         ->select('tb_inventario.idEmpleado as idEmpleado','tb_inventario.fecha as fecha','tb_detalle_inventario.idProducto as idProducto',
         'tb_detalle_inventario.diferencia as diferencia','tb_detalle_inventario.observacion as observacion',
         'tb_detalle_inventario.idInventario as idInventario')
@@ -144,6 +182,7 @@ class Tb_detalle_inventarioController extends Controller
                 $valorparcial=0;
 
                 $preciomaterial = Tb_kardex_almacen::first()
+                ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
                 ->select('tb_kardex_almacen.id','tb_kardex_almacen.precioSaldos as valorMaterial')
                 ->whereIn('tb_kardex_almacen.id', function($sub){$sub->selectRaw('max(id)')->from('tb_kardex_almacen')
                 ->groupBy('tb_kardex_almacen.idGestionMateria');})
@@ -160,6 +199,7 @@ class Tb_detalle_inventarioController extends Controller
                 $valorE=($precio*$cantidad);
 
                 $precioSaldos = DB::table('tb_kardex_almacen')
+                ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
                 ->select('id','cantidad as cantidadA','cantidadSaldos as cantidadS','precioSaldos as precioS')
                 ->where('tb_kardex_almacen.idGestionMateria','=', $idProducto)
                 ->orderByDesc('id')
@@ -167,6 +207,7 @@ class Tb_detalle_inventarioController extends Controller
                 ->get();
 
                 $precioSaldoscant= DB::table('tb_kardex_almacen')
+                ->where('tb_kardex_almacen.idEmpresa','=',$idEmpresa)
                 ->where('tb_kardex_almacen.idGestionMateria','=', $idProducto)
                 ->count();
 
@@ -215,6 +256,7 @@ class Tb_detalle_inventarioController extends Controller
                 $tb_kardex_almacen->idDocumentos=$idDocumentos;
                 $tb_kardex_almacen->tipologia=$tipologia;
                 $tb_kardex_almacen->fecha=$fecha;
+                $tb_kardex_almacen->idEmpresa=$idEmpresa;
                 $tb_kardex_almacen->cantidadSaldos=$suma1;
                 $tb_kardex_almacen->precioSaldos=$suma2;
                 $tb_kardex_almacen->save();
@@ -227,8 +269,15 @@ class Tb_detalle_inventarioController extends Controller
         return ['inventario'=>$inventario];
     }
     public function parakardex(Request $request){
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         $observacion=$request->data;
-        $inventario=Tb_detalle_inventario::where('diferencia','!=',0)->where('idInventario','=',$observacion)->get();
+        $inventario=Tb_detalle_inventario::where('tb_detalle_inventario.idEmpresa','=',$idEmpresa)
+        ->where('diferencia','!=',0)->where('idInventario','=',$observacion)->get();
         foreach($inventario as $i){
             if($i->diferencia>0){
                 //realizar entrada
@@ -236,7 +285,8 @@ class Tb_detalle_inventarioController extends Controller
                 $fecha=$now->format('Y-m-d');
                 $idGestionMateria=$i->idProducto;
 
-                $kardex=Tb_detalle_inventario::where('tb_detalle_inventario.diferencia','!=',0)
+                $kardex=Tb_detalle_inventario::where('tb_detalle_inventario.idEmpresa','=',$idEmpresa)
+                ->where('tb_detalle_inventario.diferencia','!=',0)
                 ->where('tb_detalle_inventario.idInventario','=',$observacion)->get();
                 foreach($kardex as $kar){
                     $idProducto = $kar->idProducto;
@@ -248,10 +298,17 @@ class Tb_detalle_inventarioController extends Controller
     }
     public function listar(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $id=$request->id;
         $productos = Tb_detalle_inventario::join('tb_gestion_materia_prima','tb_detalle_inventario.idProducto','=','tb_gestion_materia_prima.id')
         ->join('tb_unidad_base','tb_gestion_materia_prima.idUnidadBase','=','tb_unidad_base.id')
+        ->where('tb_gestion_materia_prima.idEmpresa','=',$idEmpresa)
         ->select('tb_detalle_inventario.id','tb_detalle_inventario.idProducto','tb_detalle_inventario.cantidadSistema',
         'tb_gestion_materia_prima.gestionMateria as producto','tb_unidad_base.unidadBase')
         ->where('tb_detalle_inventario.idInventario','=',$id)
@@ -272,10 +329,17 @@ class Tb_detalle_inventarioController extends Controller
     }
     public function listar2(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $id=$request->id;
         $productos = Tb_detalle_inventario::join('tb_gestion_materia_prima','tb_detalle_inventario.idProducto','=','tb_gestion_materia_prima.id')
         ->join('tb_unidad_base','tb_gestion_materia_prima.idUnidadBase','=','tb_unidad_base.id')
+        ->where('tb_gestion_materia_prima.idEmpresa','=',$idEmpresa)
         ->select('tb_detalle_inventario.id','tb_detalle_inventario.idProducto','tb_detalle_inventario.cantidadSistema',
         'tb_detalle_inventario.cantidadActual','tb_detalle_inventario.diferencia',
         'tb_gestion_materia_prima.gestionMateria as producto','tb_unidad_base.unidadBase')

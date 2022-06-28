@@ -12,12 +12,19 @@ use App\Jobs\CalcularNomina;
 use App\Jobs\CalculaNominaDestajo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class Tb_nominaController extends Controller
 {
     //
     public function index(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
@@ -25,11 +32,13 @@ class Tb_nominaController extends Controller
         if ($buscar=='') {
             # Modelo::join('tablaqueseune',basicamente un on)
             $nomina = Tb_nomina::select('tb_nomina.id','tb_nomina.fechaInicio as fecha','tb_nomina.fechaFin','tb_nomina.tipo','tb_nomina.observacion','tb_nomina.estado')
+            ->where('tb_nomina.idEmpresa','=',$idEmpresa)
             ->orderBy('tb_nomina.id','desc')->paginate(5);
         }
         else {
             # code...
             $nomina = Tb_nomina::select('tb_nomina.id','tb_nomina.fechaInicio as fecha','tb_nomina.fechaFin','tb_nomina.tipo','tb_nomina.observacion','tb_nomina.estado')
+            ->where('tb_nomina.idEmpresa','=',$idEmpresa)
             ->where('tb_nomina.'.$criterio, 'like', '%'. $buscar . '%')
             ->orderBy('tb_nomina.id','desc')->paginate(5);
 
@@ -50,6 +59,12 @@ class Tb_nominaController extends Controller
 
     public function store(Request $request)
     {
+        //cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa){
+            $idEmpresa=$empresa['id'];
+         }
+        //cambios multiempresa
+
         if(!$request->ajax()) return redirect('/');
         $tb_nomina=new Tb_nomina();
         $tb_nomina->fechaInicio=$request->fechaInicio;
@@ -57,6 +72,7 @@ class Tb_nominaController extends Controller
         $tb_nomina->tipo=$request->tipo;
         $tb_nomina->observacion=$request->observacion;
         $tb_nomina->estado=1;
+        $tb_nomina->idEmpresa=$idEmpresa;
         //$tb_nomina->fechaFin=$request->fechaFin;
         $tb_nomina->save();
     }

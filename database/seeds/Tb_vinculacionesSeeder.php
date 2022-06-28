@@ -24,7 +24,8 @@ class Tb_vinculacionesSeeder extends Seeder
                 'fechaFin' => $item->fechaFin,
                 'idEmpleado' => $item->idEmpleado,
                 'idNivelArl' => $item->idNivelArl,
-                'estado'=>$item->estado
+                'estado'=>$item->estado,
+                'idEmpresa' => $item->idEmpresa
             ));
             }
     }

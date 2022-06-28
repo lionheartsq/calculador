@@ -1,6 +1,3 @@
 [
-    {"id":"1","tipoContrato":"1","tipoSalario":"1","salarioBasicoMensual":"1600000","fechaInicio":"2020-11-30","tiempoContrato":"360","fechaFin":null,"idEmpleado":"1","idNivelArl":"3","estado":"1"},
-    {"id":"2","tipoContrato":"2","tipoSalario":"1","salarioBasicoMensual":"600000","fechaInicio":"2020-10-25","tiempoContrato":"0","fechaFin":null,"idEmpleado":"2","idNivelArl":"4","estado":"1"},
-    {"id":"3","tipoContrato":"2","tipoSalario":"1","salarioBasicoMensual":"23650000","fechaInicio":"2020-11-13","tiempoContrato":"0","fechaFin":null,"idEmpleado":"3","idNivelArl":"1","estado":"1"},
-    {"id":"4","tipoContrato":"0","tipoSalario":"2","salarioBasicoMensual":"0","fechaInicio":"2021-08-05","tiempoContrato":"0","fechaFin":null,"idEmpleado":"4","idNivelArl":"3","estado":"1"}
+
 ]

@@ -9,7 +9,7 @@ class Tb_orden_produccion extends Model
     //
     protected $table = 'tb_orden_produccion';
 
-    protected $fillable = ['fecha','detalle','responsable','bodega','medida','cantidad','precioUnitario','precioTotal','idProducto','estado'];
+    protected $fillable = ['fecha','detalle','responsable','bodega','medida','cantidad','precioUnitario','precioTotal','idProducto','estado','idEmpresa'];
 
     public $timestamps = false;
 

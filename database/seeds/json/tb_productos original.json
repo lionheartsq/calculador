@@ -1,8 +1,0 @@
-[
-{"Id":"1","Producto":"Bota para caballero en cuero","Referencia":"279","Foto":"Bota_para_caballero_en_cuero.png","Descripcion":"Bota en cuero","IdColeccion":"1","IdArea":"1","Estado":"1"},
-{"Id":"2","Producto":"Zapato bolichero","Referencia":"BBrown","Foto":"Zapato_bolichero.png","Descripcion":"Bolichero brown","IdColeccion":"1","IdArea":"1","Estado":"1"},
-{"Id":"3","Producto":"Stiletto","Referencia":"S001","Foto":"Stiletto.jpg","Descripcion":"Stiletto","IdColeccion":"1","IdArea":"1","Estado":"1"},
-{"Id":"4","Producto":"Bota media de seguridad","Referencia":"01BI16","Foto":"Bota_media_de_seguridad.jpg","Descripcion":"Botas de prueba para coste","IdColeccion":"3","IdArea":"1","Estado":"1"},
-{"Id":"5","Producto":"Bolso dama","Referencia":"BL003","Foto":"Bolso_dama.jpg","Descripcion":"Bolso dama","IdColeccion":"1","IdArea":"2","Estado":"1"},
-{"Id":"6","Producto":"Monedero","Referencia":"M005","Foto":"Monedero.jpg","Descripcion":"Monedero","IdColeccion":"1","IdArea":"2","Estado":"1"}
-]

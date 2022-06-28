@@ -31,9 +31,9 @@
                                             <button type="button" @click="$emit('abrirmodal','gestionMateria','actualizar',materiaprimaproducto)" class="btn btn-warning btn-sm">
                                             <i class="icon-pencil"></i>
                                             </button> &nbsp;
-                                            <!--<button type="button" class="btn btn-danger btn-sm" @click="$emit('eliminarmateria',materiaprimaproducto.id)">
+                                            <button type="button" class="btn btn-danger btn-sm" @click="$emit('eliminarMateriaPrimaProducto',materiaprimaproducto)">
                                                 <i class="icon-trash"></i>
-                                            </button>-->
+                                            </button>
                                         </td>
                                         <td v-text="materiaprimaproducto.gestionMateria"></td>
                                         <td v-text="materiaprimaproducto.unidadBase"></td>

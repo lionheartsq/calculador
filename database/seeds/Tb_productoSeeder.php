@@ -22,7 +22,8 @@ class Tb_productoSeeder extends Seeder
                 'descripcion' => $item->Descripcion,
                 'idColeccion' => $item->IdColeccion,
                 'idArea' => $item->IdArea,
-                'estado' => $item->Estado
+                'estado' => $item->Estado,
+                'presentacion' => $item->Presentacion
             ));
             }
         /*

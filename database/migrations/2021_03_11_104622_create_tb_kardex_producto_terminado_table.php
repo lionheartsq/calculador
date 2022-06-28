@@ -27,6 +27,7 @@ class CreateTbKardexProductoTerminadoTable extends Migration
             $table->foreignId('idDocumentos')->constrained('tb_documentos');
             $table->foreignId('idProducto')->constrained('tb_producto');
             $table->boolean('tipologia')->default(1);
+            $table->foreignId('idEmpresa')->constrained('tb_configuracion_basica');
             // tipo 1 entrada tipo 0 salida
         });
     }

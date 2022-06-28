@@ -182,6 +182,7 @@ Route::group(['middleware' => ['guest']], function () {
         Route::get("/rela", "Tb_rela_simulacionController@index");
         Route::get("/rela/listar", "Tb_rela_simulacionController@listar");
         Route::get("/rela/posibles", "Tb_rela_simulacionController@posibles");
+        Route::get("/rela/posiblesprueba", "Tb_rela_simulacionController@posiblesprueba");
         Route::post("/rela/store", "Tb_rela_simulacionController@store");
         Route::put("/rela/update", "Tb_rela_simulacionController@update");
         Route::put("/rela/delete", "Tb_rela_simulacionController@delete");
@@ -241,7 +242,7 @@ Route::group(['middleware' => ['guest']], function () {
         Route::get("/cotizacioncliente", "Tb_detalle_cotizacionController@index");
         Route::get("/cotizacioncliente/listar", "Tb_detalle_cotizacionController@listar");
         Route::get("/cotizacioncliente/posibles", "Tb_detalle_cotizacionController@posibles");
-        Route::get("/cotizacioncliente/precioproductos", "Tb_detalle_cotizacionController@precioproductos");
+        Route::get("/cotizacioncliente/precioproductos/{productoid}", "Tb_detalle_cotizacionController@precioproductos");
         Route::post("/cotizacioncliente/store", "Tb_detalle_cotizacionController@store");
         Route::put("/cotizacioncliente/update", "Tb_detalle_cotizacionController@update");
         Route::put("/cotizacioncliente/delete", "Tb_detalle_cotizacionController@delete");
@@ -266,8 +267,8 @@ Route::group(['middleware' => ['guest']], function () {
         Route::get("/kardexalmacen/material/{identificador}", "Tb_kardex_almacenController@material");
         Route::get("/kardexalmacen/preciomaterialorden", "Tb_kardex_almacenController@preciomaterialorden");
         Route::get("/kardexalmacen/preciomaterialcompra", "Tb_kardex_almacenController@preciomaterialcompra");
-        Route::get("/kardexalmacen/factura", "Tb_kardex_almacenController@factura");
-        Route::get("/kardexalmacen/materialfactura", "Tb_kardex_almacenController@materialfactura");
+        Route::get("/kardexalmacen/factura/{factura}", "Tb_kardex_almacenController@factura");
+        Route::get("/kardexalmacen/materialfactura/{factura}", "Tb_kardex_almacenController@materialfactura");
         Route::get("/kardexalmacen/productofactura", "Tb_kardex_almacenController@productofactura");
         Route::post("/kardexalmacen/store", "Tb_kardex_almacenController@store");
 
@@ -360,6 +361,11 @@ Route::group(['middleware' => ['guest']], function () {
         Route::post("/factores/store", "Tb_factoresController@store");
         Route::put("/factores/update", "Tb_factoresController@update");
         Route::post("/factores/actualizar", "Tb_factoresController@actualizar");
+
+        Route::get("/vistaPersonalizada", "Tb_vista_personalizadaController@index");
+        Route::post("/vistaPersonalizada/store", "Tb_vista_personalizadaController@store");
+        Route::post("/vistaPersonalizada/actualizar", "Tb_vista_personalizadaController@actualizar");
+        Route::get("/vistaPersonalizada/pruebas", "Tb_vista_personalizadaController@pruebas");
 
 //--------------------------------Seccion para el uso de la copia de simulador para el punto multiproducto -----------------------------------//
 

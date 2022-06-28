@@ -130,7 +130,7 @@
                                 <td>{{this.ciftotales | currency}}</td>
                             </tr>
                              <tr>
-                                <td>Costo par</td>
+                                <td>Costo {{this.presentacion}}</td>
                                 <td>{{this.costopar | currency}}</td>
                             </tr>
                         </tbody>
@@ -151,7 +151,7 @@
                     <table class="table table-bordered table-striped table-sm">
                         <tbody>
                             <tr>
-                                <td>Total por par</td>
+                                <td>Total por {{this.presentacion}}</td>
                                 <td>{{this.acumuladomp | currency}}</td>
                             </tr>
                         </tbody>
@@ -162,7 +162,7 @@
                     <table class="table table-bordered table-striped table-sm">
                         <tbody>
                             <tr>
-                                <td>Total por par</td>
+                                <td>Total por {{this.presentacion}}</td>
                                 <td>{{this.acumuladomo | currency}}</td>
                             </tr>
                         </tbody>
@@ -173,7 +173,7 @@
                     <table class="table table-bordered table-striped table-sm">
                         <tbody>
                             <tr>
-                                <td>Total por par</td>
+                                <td>Total por {{this.presentacion}}</td>
                                 <td>{{this.cifunidad | currency}}</td>
                             </tr>
                         </tbody>
@@ -288,6 +288,7 @@
                 nombrep : '',
                 referenciap : '',
                 fotop : '',
+                presentacion : '',
                 simuladet : '',
                 costopar : ''
             }
@@ -322,6 +323,7 @@
                 me.nombrep=respuesta.nombrep;
                 me.referenciap=respuesta.referenciap;
                 me.fotop=respuesta.fotop;
+                me.presentacion=respuesta.presentacion;
                 me.simuladet=respuesta.simuladet;
                 me.costopar=respuesta.costopar;
                 me.acumuladomd=respuesta.acumuladomd;
