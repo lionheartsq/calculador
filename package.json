@@ -26,7 +26,7 @@
     "dependencies": {
         "@popperjs/core": "^2.4.4",
         "material-icons": "^0.3.1",
-        "moment": "^2.29.1",
+        "moment": "^2.29.4",
         "sweetalert2": "^9.17.1",
         "vue-currency-filter": "^5.2.0",
         "vuesax": "^3.11.17"
