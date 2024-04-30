@@ -90,13 +90,11 @@ class Tb_perfilController extends Controller
 
         $relaciones = tb_proceso::join("tb_area","tb_proceso.idArea","=","tb_area.id")
             ->where('tb_proceso.idEmpresa','=',$idEmpresa)
-            ->where([
-                    ['tb_area.estado','=','1'],
-                    ['idArea','=','1'],
-                ])
-                ->select('tb_proceso.id as idProceso','proceso')
-                ->orderBy('proceso','asc')->get();
-                return ['relaciones' => $relaciones];
+            ->where('tb_proceso.idArea','=',$id)
+            ->where('tb_area.estado','=','1')
+            ->select('tb_proceso.id as idProceso','proceso')
+            ->orderBy('proceso','asc')->get();
+            return ['relaciones' => $relaciones];
         }
 
     public function selectPerfil(){

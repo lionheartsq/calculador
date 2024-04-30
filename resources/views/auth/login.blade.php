@@ -39,7 +39,7 @@
             <div>
               <h2>H.A.C.E.M - SENA CIDM</h2>
               <p>Herramienta de apoyo para el costeo en las empresas manufactureras.</p>
-              <p>Confecciones.</p>
+              <p>Calzado.</p>
               <p><img src="img/logo-symbol.png" alt=""></p>
             </div>
 

@@ -1,37 +1,37 @@
 #Descomentar para uso en local
-APP_NAME=Laravel
-APP_ENV=local
-APP_KEY=base64:pGZueZWTF0NSkR+PoAlmREEF+4rULnRHHVnSUJNBmv0=
-APP_DEBUG=true
-APP_URL=http://192.168.0.209
-#Comentar para uso en web
-
-#Descomentar para uso en web
 #APP_NAME=Laravel
 #APP_ENV=local
 #APP_KEY=base64:pGZueZWTF0NSkR+PoAlmREEF+4rULnRHHVnSUJNBmv0=
 #APP_DEBUG=true
-#APP_URL=127.0.0.1
+#APP_URL=http://192.168.0.209
+#Comentar para uso en web
+
+#Descomentar para uso en web
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=base64:pGZueZWTF0NSkR+PoAlmREEF+4rULnRHHVnSUJNBmv0=
+APP_DEBUG=true
+APP_URL=127.0.0.1
 #Comentar para uso en local
 
 LOG_CHANNEL=stack
 
 #Descomentar para uso en local
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=calculadorlocal
-DB_USERNAME=root
-DB_PASSWORD=root
-#Comentar para uso en web
-
-#Descomentar para uso en web
 #DB_CONNECTION=mysql
 #DB_HOST=127.0.0.1
 #DB_PORT=3306
-#DB_DATABASE=u727327027_calculador
-#DB_USERNAME=u727327027_hacemcidm
-#DB_PASSWORD=Hacem002
+#DB_DATABASE=calculadorlocal
+#DB_USERNAME=root
+#DB_PASSWORD=root
+#Comentar para uso en web
+
+#Descomentar para uso en web
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=u727327027_calculador
+DB_USERNAME=u727327027_hacemcidm
+DB_PASSWORD=Hacem002
 #Comentar para uso en local
 
 BROADCAST_DRIVER=log
