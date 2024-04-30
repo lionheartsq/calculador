@@ -37,11 +37,9 @@
                     <li @click="menu=17" class="nav-item">
                         <a class="nav-link" href="#"><i class="icon-book-open"></i> Configuración</a>
                     </li>
-                    {{--
                     <li @click="menu=1" class="nav-item">
                         <a class="nav-link" href="#"><i class="icon-book-open"></i> Areas</a>
                     </li>
-                    --}}
                     <li @click="menu=2" class="nav-item">
                         <a class="nav-link" href="#"><i class="icon-book-open"></i> Procesos</a>
                     </li>

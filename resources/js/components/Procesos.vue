@@ -34,7 +34,7 @@
                                     <tr>
                                         <th>Opciones</th>
                                         <th>Proceso</th>
-                                        <!-- <th>Area</th> -->
+                                        <th>Area</th>
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
@@ -59,7 +59,7 @@
 
                                         </td>
                                         <td v-text="proceso.proceso"></td>
-                                        <!-- <td v-text="proceso.area"></td> -->
+                                        <td v-text="proceso.area"></td>
                                         <td>
                                             <div v-if="proceso.estado">
                                             <span class="badge badge-success">Activo</span>
@@ -102,7 +102,6 @@
                             </div>
                             <div class="modal-body">
                                 <form action="" method="post" enctype="multipart/form-data" class="form-horizontal">
-                                    <!--
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Area</label>
                                         <div class="col-md-9">
@@ -111,7 +110,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    -->
+
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
                                         <div class="col-md-9">
@@ -150,7 +149,7 @@
                 proceso:'',
                 estado:'',
                 arrayProceso : [],
-                idArea:1,
+                idArea:0,
                 area:'',
                 arrayArea:[],
                 modal : 0,

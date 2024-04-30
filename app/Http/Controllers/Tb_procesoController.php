@@ -99,7 +99,7 @@ class Tb_procesoController extends Controller
         if(!$request->ajax()) return redirect('/');
         $tb_proceso=Tb_proceso::findOrFail($request->id);
         $tb_proceso->proceso=$request->proceso;
-        $tb_proceso->idArea='1';
+        $tb_proceso->idArea=$request->idArea;
         $tb_proceso->estado='1';
         $tb_proceso->save();
     }
