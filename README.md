@@ -2,6 +2,10 @@
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
+## 02-05-24
+
+Reunion para reconocimiento del trabajo y uso de Github y Jira fecha: 02-may-2024.
+
 ## 03-08-20
 
 Desarrolo para el grupo Sennova de investigación
