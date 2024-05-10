@@ -7640,15 +7640,16 @@ base-chart.chart {
   border-bottom: 1px solid #c2cfd6; }
   .app-header.navbar .navbar-brand {
     display: inline-block;
-    width: 155px;
+    width: 190px;
     height: 55px;
     padding: 0.5rem 1rem;
     margin-right: 0;
+    margin-left: 10px;
     background-color: #fff;
     background-image: url("../img/logo.png");
     background-repeat: no-repeat;
     background-position: center center;
-    background-size: 70px auto;
+    background-size: 100%;
     border-bottom: 1px solid #c2cfd6; }
   .app-header.navbar .navbar-toggler {
     min-width: 50px;
@@ -7951,7 +7952,8 @@ base-chart.chart {
       background-position: center;
       transition: -webkit-transform .3s;
       transition: transform .3s;
-      transition: transform .3s, -webkit-transform .3s; }
+      transition: transform .3s, -webkit-transform .3s; 
+      transform: rotate(180deg);}
   .sidebar .nav-dropdown.open {
     background: rgba(0, 0, 0, 0.2); }
     .sidebar .nav-dropdown.open > .nav-dropdown-items {
