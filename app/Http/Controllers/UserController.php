@@ -8,6 +8,9 @@ use App\Tb_usuario_tiene_rol;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\Notification;
+use Illuminate\Support\Str; 
 
 class UserController extends Controller
 {
@@ -94,11 +97,15 @@ class UserController extends Controller
     public function store(Request $request)
     {
         if(!$request->ajax()) return redirect('/');
+        
+        $password = Str::random(8);
+        
         $users=new User();
         $users->name=$request->name;
         $users->email=$request->email;
-        $users->password=bcrypt($request->email);
+        $users->password=bcrypt($password);
         $users->save();
+
         $idtabla=DB::getPdo()->lastInsertId();
         //cambios multiempresa
         foreach (Auth::user()->empresas as $empresa){
@@ -110,6 +117,10 @@ class UserController extends Controller
         $usersrela->idRol=$request->idRol;
         $usersrela->idEmpresa=$idEmpresa; //cambios multiempresa
         $usersrela->save();
+
+        Mail::to($users->email)->send(new Notification($users->name, $users->email, $password));
+
+        return response()->json(['message' => 'Usuario creado y correo enviado.', 'user' => $users]);
     }
 
     public function update(Request $request)
