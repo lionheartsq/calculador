@@ -142,7 +142,7 @@
                                     <div v-if="tipoModal==1" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Observaciones de la orden</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="observacion" class="form-control" placeholder="Observaciones">
+                                            <input type="text" v-model="observacion" class="form-control" placeholder="Observaciones" @input="validarEntrada">
                                             <span class="help-block">(*) Ingrese las Observaciones</span>
                                         </div>
                                     </div>
@@ -452,6 +452,18 @@
                 .catch(function (error) {
                     console.log(error);
                 });
+            },
+            validarEntrada(event) {
+                // Al menos una letra al comienzo
+                if (!/^[a-zA-Z]/.test(event.target.value)) {
+
+                    event.target.value = '';
+                } else {
+                    // Permitir letras y números despues de una letra
+                    const regex = /[^a-zA-Z0-9\s]/g;
+                    event.target.value = event.target.value.replace(regex, '');
+                }
+                this.observacion = event.target.value;
             },
             editarRelacion(){
                 let me=this;

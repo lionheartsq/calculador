@@ -142,15 +142,15 @@
                                     <div v-if="tipoModal==1" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Condición Entrega</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="condicionEntrega" class="form-control" placeholder="Condición Entrega">
+                                            <input type="text" v-model="condicionEntrega" class="form-control" placeholder="Condición Entrega" @input="validarEntrada">
                                             <span class="help-block">(*) Ingrese la Condición Entrega</span>
                                         </div>
                                     </div>
                                     <div v-if="tipoModal==1" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Vigencia</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="vigencia" class="form-control" placeholder="Vigencia">
-                                            <span class="help-block">(*) Ingrese la Vigencia</span>
+                                            <input type="text" v-model="vigencia" class="form-control" placeholder="Vigencia" @input="formatVigencia">
+                                            <span class="help-block">(*) Ingrese la Vigencia en días</span>
                                         </div>
                                     </div>
                                     <div v-if="tipoModal==1" class="form-group row">
@@ -417,7 +417,7 @@
                 axios.post('/cotizacion/store',{
                     'fecha': this.fecha,
                     'condicionEntrega':this.condicionEntrega,
-                    'vigencia':this.vigencia,
+                    'vigencia':this.vigencia.replace(/\D/g, ""), 
                     'idCliente': this.idCliente
                 }).then(function (response) {
                 me.cerrarModal('0');
@@ -426,6 +426,27 @@
                 .catch(function (error) {
                     console.log(error);
                 });
+            },
+            validarEntrada(event) {
+                // Al menos una letra al comienzo
+                if (!/^[a-zA-Z]/.test(event.target.value)) {
+
+                    event.target.value = '';
+                } else {
+                    // Permitir letras y números despues de una letra
+                    const regex = /[^a-zA-Z0-9\s]/g;
+                    event.target.value = event.target.value.replace(regex, '');
+                }
+                this.condicionEntrega = event.target.value;
+            },
+            formatVigencia(event) {
+                const input = event.target.value;
+                const regex = /^\d{0,2}$/; // Solo dos digitos
+                if (!regex.test(input)) {
+                
+                    event.target.value = input.slice(0, -1);
+                }
+                this.vigencia = event.target.value;
             },
             crearRelacion(){
                 //valido con el metodo de validacion creado

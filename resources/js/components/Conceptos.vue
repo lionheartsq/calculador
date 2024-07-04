@@ -60,7 +60,7 @@
                                         </td>
                                         <td v-text="concepto.id"></td>
                                         <td v-text="concepto.concepto"></td>
-                                        <td v-text="concepto.valor"></td>
+                                        <td v-text="formatCurrency(concepto.valor)"></td>
                                         <td>
                                             <div v-if="concepto.estado">
                                             <span class="badge badge-success">Activo</span>
@@ -105,14 +105,14 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="concepto" class="form-control" placeholder="Nombre de el concepto">
+                                            <input type="text" v-model="concepto" class="form-control" placeholder="Nombre de el concepto" @input="validarEntrada">
                                             <span class="help-block">(*) Ingrese el nombre del concepto</span>
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Valor mensual</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="valor" class="form-control" placeholder="Valor de el concepto">
+                                            <input type="text" v-model="valor" class="form-control" placeholder="Valor de el concepto" @input="formatMoney">
                                             <span class="help-block">(*) Ingrese el valor mensual del concepto</span>
                                         </div>
                                     </div>
@@ -235,7 +235,7 @@
                 let me=this;
                 axios.post('/concepto/store',{
                     'concepto': this.concepto,
-                    'valor': this.valor
+                    'valor': this.valor.replace(/\D/g, ""), 
                     //'estado': this.estado,
                     //'dato': this.dato
                 }).then(function (response) {
@@ -246,6 +246,41 @@
                     console.log(error);
                 });
             },
+            validarEntrada(event) {
+                // Al menos una letra al comienzo
+                if (!/^[a-zA-Z]/.test(event.target.value)) {
+
+                    event.target.value = '';
+                } else {
+                    // Permitir letras y números despues de una letra
+                    const regex = /[^a-zA-Z0-9\s]/g;
+                    event.target.value = event.target.value.replace(regex, '');
+                }
+                this.concepto = event.target.value;
+            },
+            formatMoney(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 9) { 
+                    value = value.slice(0, 9);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.valor = value;
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
+            },
             editarConcepto(){
                 if(this.validarConcepto()){
                     return;
@@ -253,7 +288,7 @@
 
                 let me=this;
                 axios.put('/concepto/update',{
-                    'valor': this.valor,
+                    'valor': this.valor.replace(/\D/g, ""), 
                     'concepto': this.concepto,
                     'id': this.idConcepto
                     //'estado': this.estado,
@@ -380,7 +415,7 @@
                             this.tipoAccion= 2;
                             this.idConcepto=data['id'];
                             this.concepto=data['concepto'];
-                            this.valor=data['valor'];
+                            this.valor=this.formatCurrency(data['valor']);
                             break;
                         }
                     }

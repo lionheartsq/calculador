@@ -14,34 +14,34 @@
                             <table class="table table-bordered table-striped table-sm">
                                 <tbody>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Nombre Empresa
                                         </td>
-                                        <td>
+                                        <td class="col-6">
                                             <input type="text" v-model="nombre" class="form-control" placeholder="Nombre Empresa">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Dirección Empresa
                                         </td>
-                                        <td>
+                                        <td class="col-6">
                                             <input type="text" v-model="direccion" class="form-control" placeholder="Dirección Empresa">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Telefono Empresa
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="telefono" step="0.01" class="form-control" placeholder="Telefono Empresa">
+                                        <td class="col-6">
+                                            <input type="tel" v-model="telefono" @input="limitarTelefono" class="form-control" placeholder="Telefono Empresa">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Caja de Compensación Empresa
                                         </td>
-                                        <td>
+                                        <td class="col-6">
                                         <select class="form-control" v-model="cajaCompensacion">
                                         <option value="0" disabled>Seleccione la caja de compensación</option>
                                         <option v-for="caja in arrayCajas" :key="caja.id" :value="caja.id" v-text="caja.NombreCajaCompensacion">
@@ -50,10 +50,10 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Arl Empresa
                                         </td>
-                                        <td>
+                                        <td class="col-6">
                                         <select class="form-control" v-model="arl">
                                         <option value="0" disabled>Seleccione la arl</option>
                                         <option v-for="arl in arrayArl" :key="arl.id" :value="arl.id" v-text="arl.nombreArl">
@@ -62,10 +62,10 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Nivel de Riesgo Empresa
                                         </td>
-                                        <td>
+                                        <td class="col-6">
                                         <select class="form-control" v-model="nivelRiesgo">
                                         <option value="0" disabled>Seleccione el nivel de riesgo</option>
                                         <option v-for="nivel in arrayNivel" :key="nivel.id" :value="nivel.id" v-text="nivel.nivelArl">
@@ -74,10 +74,10 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Tipo Nomina Empresa
                                         </td>
-                                        <td>
+                                        <td class="col-6">
                                         <select class="form-control" v-model="idTipoNomina">
                                         <option value="0" disabled>Seleccione el tipo de nomina</option>
                                         <option v-for="tiponomina in arrayTipoNomina" :key="tiponomina.id" :value="tiponomina.id" v-text="tiponomina.tipoNomina">
@@ -103,6 +103,8 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+
     export default {
         props: {
             identificador: {
@@ -150,6 +152,14 @@
                     // handle error
                     console.log(error);
                 })
+            },
+            limitarTelefono() {
+
+                this.telefono = this.telefono.replace(/\D/g, '');
+
+                if (this.telefono.length > 10) {
+                    this.telefono = this.telefono.slice(0, 10);
+                }
             },
             listarTipoNomina(){
                 let me=this;
@@ -237,6 +247,17 @@
                 });
             },
             actualizarDatos(id,nombre,direccion,telefono,cajaCompensacion,arl,nivelRiesgo,idTipoNomina){
+                
+                if (!nombre || !direccion || !telefono || !cajaCompensacion || !arl || !nivelRiesgo || !idTipoNomina) {
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Por favor, completa todos los campos del formulario.',
+                });
+                return; 
+                }
+                
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success'

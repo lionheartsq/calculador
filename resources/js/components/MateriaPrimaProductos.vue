@@ -37,9 +37,9 @@
                                         </td>
                                         <td v-text="materiaprimaproducto.gestionMateria"></td>
                                         <td v-text="materiaprimaproducto.unidadBase"></td>
-                                        <td v-text="materiaprimaproducto.cantidad"></td>
-                                        <td v-text="materiaprimaproducto.precio"></td>
-                                        <td v-text="materiaprimaproducto.subtotal"></td>
+                                        <td v-text="formatearCantidad(materiaprimaproducto.cantidad)"></td>
+                                        <td v-text="formatCurrency(materiaprimaproducto.precio)"></td>
+                                        <td v-text="formatCurrency(materiaprimaproducto.subtotal)"></td>
                                         <td>
                                             <div v-if="materiaprimaproducto.tipoDeCosto=='Directo'">
                                             <span class="badge badge-success">Directo</span>
@@ -143,6 +143,21 @@
                     // handle error
                     console.log(error);
                 })
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
+            },
+            formatearCantidad(valor) {
+                if (!valor) return '';
+                const valorFormateado = Number(valor).toLocaleString('es-CO', {
+                    minimumFractionDigits: 0
+                });
+                return valorFormateado;
             },
             cambiarPagina(page,buscar,criterio){
                 let me = this;

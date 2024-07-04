@@ -42,8 +42,8 @@
                                         <td v-text="manodeobraproducto.proceso"></td>
                                         <td v-if="manodeobraproducto.tipoPago==1" v-text="manodeobraproducto.tiempo"></td>
                                         <td v-if="manodeobraproducto.tipoPago>1"><span class="badge badge-secondary">Por par</span></td>
-                                        <td v-text="manodeobraproducto.precio"></td>
-                                        <td v-text="manodeobraproducto.subtotal"></td>
+                                        <td v-text="formatCurrency(manodeobraproducto.precio)"></td>
+                                        <td v-text="formatCurrency(manodeobraproducto.subtotal)"></td>
                                         <td v-if="manodeobraproducto.tipoPago==1"><span class="badge badge-success">Sueldo Fijo</span></td>
                                         <td v-if="manodeobraproducto.tipoPago==2"><span class="badge badge-danger">Destajo sin provision</span></td>
                                         <td v-if="manodeobraproducto.tipoPago==3"><span class="badge badge-warning">Destajo + liquidación</span></td>
@@ -148,6 +148,14 @@
                     // handle error
                     console.log(error);
                 })
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
             },
             cambiarPagina(page,buscar,criterio){
                 let me = this;

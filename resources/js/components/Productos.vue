@@ -118,18 +118,18 @@
                             </div>
                             <div class="modal-body">
                                 <form action="" method="post" enctype="multipart/form-data" class="form-horizontal">
-                                   <div class="form-group row">
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-                                                <label class="col-md-3 form-control-label" for="text-input">Coleccion</label>
-                                                <div class="col-md-9">
-                                                    <select class="form-control" v-model="idColeccion">
-                                                        <option value="0" disabled> Seleccione Coleccion</option>
-                                                        <option v-for="coleccion in arrayColeccion" :key="coleccion.idColeccion" :value="coleccion.idColeccion" v-text="coleccion.coleccion"></option>
-                                                    </select>
-                                                </div>
+                                   
+                                        
+                                        <div class="form-group row">
+                                            <label class="col-md-3 form-control-label" for="text-input">Coleccion</label>
+                                            <div class="col-md-9">
+                                                <select class="form-control" v-model="idColeccion">
+                                                    <option value="0" disabled> Seleccione Coleccion</option>
+                                                    <option v-for="coleccion in arrayColeccion" :key="coleccion.idColeccion" :value="coleccion.idColeccion" v-text="coleccion.coleccion"></option>
+                                                </select>
                                             </div>
                                         </div>
+                                        
                                         <!--
                                         <div class="col-md-6">
                                             <div class="form-group row">
@@ -143,7 +143,7 @@
                                             </div>
                                         </div>
                                         -->
-                                   </div>
+                                   
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
                                         <div class="col-md-9">
@@ -162,7 +162,7 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Capacidad</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="capacidadMensual" class="form-control" placeholder="Capacidad de producción">
+                                            <input type="text" v-model="capacidadMensual" class="form-control" placeholder="Capacidad de producción" @input="formatCapacidad">
                                             <span class="help-block">(*) Ingrese la capacidad de producción mensual</span>
                                         </div>
                                     </div>
@@ -384,7 +384,7 @@
                     'descripcion': this.descripcion,
                     'idColeccion': this.idColeccion,
                     'idArea': this.idArea,
-                    'capacidadMensual': this.capacidadMensual,
+                    'capacidadMensual': this.capacidadMensual.replace(/\D/g, ""), 
                     'presentacion': this.presentacion
                     //'dato': this.dato
                 }).then(function (response) {
@@ -394,6 +394,17 @@
                 .catch(function (error) {
                     console.log(error);
                 });
+            },
+            formatCapacidad(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 9) { 
+                    value = value.slice(0, 9);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO'); 
+                }
+                event.target.value = value;
+                this.capacidadMensual = value;
             },
             editarProducto(){
                 if(this.validarProducto()){

@@ -62,7 +62,7 @@
 
                                         </td>
                                         <td v-text="perfil.perfil"></td>
-                                        <td v-text="perfil.valorMinuto"></td>
+                                        <td v-text="formatCurrency(perfil.valorMinuto)"></td>
                                         <td v-text="perfil.proceso"></td>
                                         <td v-text="perfil.area"></td>
                                         <td>
@@ -130,14 +130,14 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="perfil" class="form-control" placeholder="Nombre de perfil">
+                                            <input type="text" v-model="perfil" class="form-control" placeholder="Nombre de perfil" @input="validarEntrada">
                                             <span class="help-block">(*) Ingrese el nombre del perfil</span>
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Valor Minuto</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="valorMinuto" class="form-control" placeholder="Valor Minuto">
+                                            <input type="text" v-model="valorMinuto" class="form-control" placeholder="Valor Minuto" @input="formatMoney">
                                             <span class="help-block">(*) Ingrese el valor del minuto</span>
                                         </div>
                                     </div>
@@ -288,13 +288,48 @@
                 axios.post('/perfil/store',{
                     'perfil': this.perfil,
                     'idProceso': this.idProceso,
-                    'valorMinuto': this.valorMinuto
+                    'valorMinuto': this.valorMinuto.replace(/\D/g, ""), 
                 }).then(function (response) {
                 me.cerrarModal();
                 me.listarPerfil(1,'','perfil');
                 })
                 .catch(function (error) {
                     console.log(error);
+                });
+            },
+            validarEntrada(event) {
+                // Al menos una letra al comienzo
+                if (!/^[a-zA-Z]/.test(event.target.value)) {
+
+                    event.target.value = '';
+                } else {
+                    // Permitir letras y números despues de una letra
+                    const regex = /[^a-zA-Z0-9\s]/g;
+                    event.target.value = event.target.value.replace(regex, '');
+                }
+                this.perfil = event.target.value;
+            },
+            formatMoney(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 9) { 
+                    value = value.slice(0, 9);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.valorMinuto = value;
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
                 });
             },
             editarPerfil(){
@@ -306,7 +341,7 @@
                     'id': this.idPerfil,
                     'perfil': this.perfil,
                     'idProceso': this.idProceso,
-                    'valorMinuto': this.valorMinuto
+                    'valorMinuto': this.valorMinuto.replace(/\D/g, ""), 
                 }).then(function (response) {
                 me.cerrarModal();
                 me.listarPerfil(1,'','perfil');
@@ -434,7 +469,7 @@
                             this.tipoAccion= 2;
                             this.idPerfil=data['id'];
                             this.perfil=data['perfil'];
-                            this.valorMinuto=data['valorMinuto'];
+                            this.valorMinuto=this.formatCurrency(data['valorMinuto']);
                             this.idProceso=data['idProceso']; // añadido para alimentar el select
                             this.proceso=data['proceso']; //añadido para alimentar el select
                             this.idArea=data['idArea']; // añadido para alimentar el select

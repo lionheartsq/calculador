@@ -63,7 +63,7 @@
                                         </td>
                                         <td v-text="gestionMateria.gestionMateria"></td>
                                         <td v-text="gestionMateria.unidadBase"></td>
-                                        <td v-text="gestionMateria.precioBase"></td>
+                                        <td v-text="formatCurrency(gestionMateria.precioBase)"></td>
                                         <td v-text="gestionMateria.tipoMateria"></td>
                                         <td>
                                             <div v-if="gestionMateria.estado">
@@ -111,7 +111,7 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="gestionMateria" class="form-control" placeholder="Nombre de materia">
+                                            <input type="text" v-model="gestionMateria" class="form-control" placeholder="Nombre de materia" @input="validarEntrada">
                                             <span class="help-block">(*) Ingrese el nombre de la materia</span>
                                         </div>
                                     </div>
@@ -129,7 +129,7 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Precio base</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="precioBase" class="form-control" placeholder="Precio base">
+                                            <input type="text" v-model="precioBase" class="form-control" placeholder="Precio base" @input="formatMoney">
                                             <span class="help-block">(*) Ingrese el precio base</span>
                                         </div>
                                     </div>
@@ -297,7 +297,7 @@
                 axios.post('/gestionmateria/store',{
                     'gestionMateria': this.gestionMateria,
                     'idUnidadBase': this.idUnidadBase,
-                    'precioBase': this.precioBase,
+                    'precioBase': this.precioBase.replace(/\D/g, ""), 
                     'idTipoMateria': this.idTipoMateria
                 }).then(function (response) {
                 me.cerrarModal();
@@ -305,6 +305,41 @@
                 })
                 .catch(function (error) {
                     console.log(error);
+                });
+            },
+            validarEntrada(event) {
+                // Al menos una letra al comienzo
+                if (!/^[a-zA-Z]/.test(event.target.value)) {
+
+                    event.target.value = '';
+                } else {
+                    // Permitir letras y números despues de una letra
+                    const regex = /[^a-zA-Z0-9\s]/g;
+                    event.target.value = event.target.value.replace(regex, '');
+                }
+                this.gestionMateria = event.target.value;
+            },
+            formatMoney(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 9) { 
+                    value = value.slice(0, 9);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.precioBase = value;
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
                 });
             },
             editarGestionMateria(){
@@ -316,7 +351,7 @@
                     'id': this.id,
                     'gestionMateria': this.gestionMateria,
                     'idUnidadBase': this.idUnidadBase,
-                    'precioBase': this.precioBase,
+                    'precioBase': this.precioBase.replace(/\D/g, ""), 
                     'idTipoMateria': this.idTipoMateria,
                     'estado': 1
                     //'dato': this.dato
@@ -446,7 +481,7 @@
                             this.tipoAccion= 2;
                             this.gestionMateria=data['gestionMateria'];
                             this.idUnidadBase=data['idUnidadBase'];
-                            this.precioBase=data['precioBase'];
+                            this.precioBase=this.formatCurrency(data['precioBase']);
                             this.idTipoMateria=data['idTipoMateria'];
                             this.id=data['id'];
                             break;

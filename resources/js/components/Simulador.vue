@@ -143,7 +143,7 @@
                                     <div v-if="tipoModal==1" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre simulación</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="detalle" class="form-control" placeholder="Descripción de simulación">
+                                            <input type="text" v-model="detalle" class="form-control" placeholder="Descripción de simulación" @input="validarEntrada">
                                             <span class="help-block">(*) Ingrese la Descripción de la Simulación</span>
                                         </div>
                                     </div>
@@ -382,6 +382,18 @@
                 .catch(function (error) {
                     console.log(error);
                 });
+            },
+            validarEntrada(event) {
+                // Al menos una letra al comienzo
+                if (!/^[a-zA-Z]/.test(event.target.value)) {
+
+                    event.target.value = '';
+                } else {
+                    // Permitir letras y números despues de una letra
+                    const regex = /[^a-zA-Z0-9\s]/g;
+                    event.target.value = event.target.value.replace(regex, '');
+                }
+                this.detalle = event.target.value;
             },
             crearRelacion(){
                 //valido con el metodo de validacion creado
