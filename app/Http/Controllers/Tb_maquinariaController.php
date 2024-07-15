@@ -108,4 +108,19 @@ class Tb_maquinariaController extends Controller
         $tb_maquinaria->estado='1';
         $tb_maquinaria->save();
     }
+
+    public function eliminarMaquinaria($id, Request $request)
+    {
+        if(!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_maquinaria = Tb_maquinaria::find($id);
+        if(!$tb_maquinaria){
+            return response()->json(['error' => 'Maquinaria no encontrada'], 404);
+        }
+
+        $tb_maquinaria->delete();
+        return response()->json(['message' => 'Maquinaria eliminada'], 200);
+    }
 }

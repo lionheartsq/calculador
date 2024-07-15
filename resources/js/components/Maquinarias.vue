@@ -46,20 +46,24 @@
 
                                     <tr v-for="maquinaria in arrayMaquinarias" :key="maquinaria.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('maquinaria','actualizar',maquinaria)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="abrirModal('maquinaria','actualizar',maquinaria)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            </button> 
 
                                         <template v-if="maquinaria.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarMaquinaria(maquinaria.id)">
-                                                <i class="icon-trash"></i>
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarMaquinaria(maquinaria.id)">
+                                                <i class="icon-ban"></i>
                                             </button>
                                         </template>
                                         <template v-else>
                                             <button type="button" class="btn btn-success btn-sm" @click="activarMaquinaria(maquinaria.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!maquinaria.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarMaquinaria(maquinaria.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="maquinaria.id"></td>
@@ -74,7 +78,7 @@
                                             <span class="badge badge-success">Activo</span>
                                             </div>
                                             <div v-else>
-                                            <span class="badge badge-danger">Desactivado</span>
+                                            <span class="badge badge-warning">Desactivado</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -292,6 +296,11 @@
                 
                     event.target.value = input.slice(0, -1);
                 }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
                 this.tiempoDeVidaUtil = event.target.value;
             },
             formatMoney(event) {
@@ -349,7 +358,8 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Está seguro?',
+                title: 'Esta acción desactivará la maquinaria seleccionada',
+                text: '¿Deseas continuar?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Desactivar!',
@@ -363,7 +373,7 @@
                     }).then(function (response) {
                     me.listarMaquinaria(1,'','maquinaria');
                     swalWithBootstrapButtons.fire(
-                    'maquinaria desactivada!'
+                    'Maquinaria desactivada!'
                     )
                     }).catch(function (error) {
                         console.log(error);
@@ -386,7 +396,7 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar esta maquinaria?',
+                title: 'Deseas activar esta maquinaria?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -412,6 +422,54 @@
                     me.listarMaquinaria();
                 }
                 })
+            },
+            eliminarMaquinaria(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará la maquinaria. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/maquinaria/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'La maquinaria ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+                                    
+                                    this.listarMaquinaria(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la maquinaria. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 500) {
+                                    console.error("Error al eliminar la maquinaria:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la maquinaria. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar la maquinaria:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar la maquinaria.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
             },
             validarMaquinaria(){
                 this.errorMaquinaria=0;
@@ -494,5 +552,12 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .btn {
+        border-radius: 8px;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

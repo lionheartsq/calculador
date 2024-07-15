@@ -45,20 +45,24 @@
 
                                     <tr v-for="perfil in arrayPerfil" :key="perfil.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('perfil','actualizar',perfil)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="abrirModal('perfil','actualizar',perfil)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            </button> 
 
                                         <template v-if="perfil.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarPerfil(perfil.id)">
-                                                <i class="icon-trash"></i>
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarPerfil(perfil.id)">
+                                                <i class="icon-ban"></i>
                                             </button>
                                         </template>
                                         <template v-else>
                                             <button type="button" class="btn btn-success btn-sm" @click="activarPerfil(perfil.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!perfil.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarPerfil(perfil.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="perfil.perfil"></td>
@@ -70,7 +74,7 @@
                                             <span class="badge badge-success">Activo</span>
                                             </div>
                                             <div v-else>
-                                            <span class="badge badge-danger">Desactivado</span>
+                                            <span class="badge badge-warning">Desactivado</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -360,7 +364,8 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Está seguro?',
+                title: 'Esta acción desactivará el perfil seleccionado',
+                text: '¿Deseas continuar?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Desactivar!',
@@ -397,7 +402,7 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar este perfil?',
+                title: 'Deseas activar este perfil?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -423,6 +428,54 @@
                     me.listarPerfil();
                 }
                 })
+            },
+            eliminarPerfil(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará el perfil. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/perfil/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'El perfil ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+                                    
+                                    this.listarPerfil(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el perfil. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 500) {
+                                    console.error("Error al eliminar el perfil:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el perfil. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar el perfil:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar el perfil.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
             },
             validarPerfil(){
                 this.errorArea=0;
@@ -507,5 +560,12 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .btn {
+        border-radius: 8px;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

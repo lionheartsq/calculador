@@ -41,20 +41,25 @@
                                 <tbody>
                                     <tr v-for="materia in arrayMaterias" :key="materia.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('tipoMateria','actualizar',materia)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="abrirModal('tipoMateria','actualizar',materia)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            </button> 
 
                                         <template v-if="materia.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarMateria(materia.id)">
-                                                <i class="icon-trash"></i>
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarMateria(materia.id)">
+                                                <i class="icon-ban"></i>
                                             </button>
                                         </template>
                                         <template v-else>
                                             <button type="button" class="btn btn-success btn-sm" @click="activarMateria(materia.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!materia.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarMateria(materia.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
+
                                         </td>
                                         <td v-text="materia.id"></td>
                                         <td v-text="materia.tipoMateria"></td>
@@ -63,7 +68,7 @@
                                             <span class="badge badge-success">Activo</span>
                                             </div>
                                             <div v-else>
-                                            <span class="badge badge-danger">Desactivado</span>
+                                            <span class="badge badge-warning">Desactivado</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -275,7 +280,8 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Está seguro?',
+                title: 'Esta acción desactivará la clasificación seleccionada',
+                text: '¿Deseas continuar?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Desactivar!',
@@ -312,7 +318,7 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar esta Clasificación?',
+                title: 'Deseas activar esta Clasificación?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -339,7 +345,55 @@
                 }
                 })
             },
-           validarMateria(){
+            eliminarMateria(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará la clasificación. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/materia/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'La clasificación ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+                                    
+                                    this.listarMateria(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la clasificación. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 500) {
+                                    console.error("Error al eliminar la clasificación:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la clasificación. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar la clasificación:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar la clasificación.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
+            },
+            validarMateria(){
                 this.errorMateria=0;
                 this.errorMensaje=[];
 
@@ -406,5 +460,12 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .btn {
+        border-radius: 8px;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

@@ -54,20 +54,24 @@
 
                                     <tr v-for="producto in arrayProducto" :key="producto.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('producto','actualizar',producto)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="abrirModal('producto','actualizar',producto)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            </button> 
 
                                         <template v-if="producto.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarProducto(producto.id)">
-                                                <i class="icon-trash"></i>
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarProducto(producto.id)">
+                                                <i class="icon-ban"></i>
                                             </button>
                                         </template>
                                         <template v-else>
                                             <button type="button" class="btn btn-success btn-sm" @click="activarProducto(producto.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!producto.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarProducto(producto.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="producto.producto"></td>
@@ -81,7 +85,7 @@
                                             <span class="badge badge-success">Activo</span>
                                             </div>
                                             <div v-else>
-                                            <span class="badge badge-danger">Desactivado</span>
+                                            <span class="badge badge-warning">Desactivado</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -419,7 +423,9 @@
                     'foto': this.foto,
                     'descripcion': this.descripcion,
                     'idColeccion': this.idColeccion,
-                    'idArea': this.idArea
+                    'idArea': this.idArea,
+                    'capacidadMensual': this.capacidadMensual.replace(/\D/g, ""),
+                    'presentacion': this.presentacion
                     //'dato': this.dato
                 }).then(function (response) {
                 me.cerrarModal();
@@ -439,7 +445,8 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Está seguro?',
+                title: 'Esta acción desactivará el producto seleccionado',
+                text: '¿Deseas continuar?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Desactivar!',
@@ -476,7 +483,7 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar este producto?',
+                title: 'Deseas activar este producto?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -502,6 +509,54 @@
                     me.listarProducto();
                 }
                 })
+            },
+            eliminarProducto(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará el producto. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/producto/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'El producto ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+                                    
+                                    this.listarProducto(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el producto. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 500) {
+                                    console.error("Error al eliminar el producto:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el producto. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar el producto:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar el producto.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
             },
             validarProducto(){
                 this.errorProducto=0;
@@ -548,6 +603,7 @@
                             this.tipoAccion= 1;
                             this.idColeccion= 1;
                             this.idArea= 1;
+                            this.capacidadMensual = ''; 
                             break;
                         }
                         case 'actualizar':{
@@ -559,6 +615,7 @@
                             this.producto=data['producto'];
                             this.referencia=data['referencia'];
                             this.foto=data['foto'];
+                            this.capacidadMensual=data['capacidadMensual'];
                             this.descripcion=data['descripcion'];
                             this.idColeccion=data['idColeccion']; // añadido para alimentar el select
                             this.idArea=data['idArea']; // añadido para alimentar el select
@@ -646,5 +703,12 @@
     }
     .cursor{
         cursor: pointer;
+    }
+    .btn {
+        border-radius: 8px;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

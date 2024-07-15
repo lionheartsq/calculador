@@ -147,4 +147,19 @@ class Tb_perfilController extends Controller
         $tb_perfil->save();
     }
 
+    public function eliminarPerfil($id, Request $request)
+    {
+        if(!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_perfil = Tb_perfil::find($id);
+        if(!$tb_perfil){
+            return response()->json(['error' => 'Perfil no encontrada'], 404);
+        }
+
+        $tb_perfil->delete();
+        return response()->json(['message' => 'Perfil eliminado'], 200);
+    }
+
 }

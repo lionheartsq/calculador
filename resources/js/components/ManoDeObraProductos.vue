@@ -30,12 +30,12 @@
                                     <tr v-for="manodeobraproducto in arrayManoDeObraProductos" :key="manodeobraproducto.id">
                                         <td>
 
-                                            <button type="button" @click="$emit('abrirmodal','gestionManoDeObra','actualizar',manodeobraproducto)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="$emit('abrirmodal','gestionManoDeObra','actualizar',manodeobraproducto)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
                                             </button> &nbsp;
-                                            <!--<button type="button" class="btn btn-danger btn-sm" @click="$emit('eliminarmanodeobra',manodeobraproducto.id)">
+                                            <button type="button" class="btn btn-danger btn-sm" @click="$emit('eliminarmanodeobra',manodeobraproducto)">
                                                 <i class="icon-trash"></i>
-                                            </button>-->
+                                            </button>
 
                                         </td>
                                         <td v-text="manodeobraproducto.perfil"></td>

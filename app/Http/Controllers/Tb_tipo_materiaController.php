@@ -98,4 +98,19 @@ class Tb_tipo_materiaController extends Controller
         $tb_tipo_materia->estado='1';
         $tb_tipo_materia->save();
     }
+
+    public function eliminarMateria($id, Request $request)
+    {
+        if(!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_tipo_materia = Tb_tipo_materia::find($id);
+        if(!$tb_tipo_materia){
+            return response()->json(['error' => 'Clasificación no encontrada'], 404);
+        }
+
+        $tb_tipo_materia->delete();
+        return response()->json(['message' => 'Clasificación eliminada'], 200);
+    }
 }

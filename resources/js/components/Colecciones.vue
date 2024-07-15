@@ -45,20 +45,24 @@
 
                                     <tr v-for="coleccion in arrayColecciones" :key="coleccion.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('coleccion','actualizar',coleccion)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="abrirModal('coleccion','actualizar',coleccion)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            </button> 
                                         <!--para modificar luego-->
                                         <template v-if="coleccion.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarColeccion(coleccion.id)">
-                                                <i class="icon-trash"></i>
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarColeccion(coleccion.id)">
+                                                <i class="icon-ban"></i>
                                             </button>
                                         </template>
                                         <template v-else>
                                             <button type="button" class="btn btn-success btn-sm" @click="activarColeccion(coleccion.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!coleccion.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarColeccion(coleccion.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="coleccion.id"></td>
@@ -69,7 +73,7 @@
                                             <span class="badge badge-success">Activo</span>
                                             </div>
                                             <div v-else>
-                                            <span class="badge badge-danger">Desactivado</span>
+                                            <span class="badge badge-warning">Desactivado</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -303,7 +307,8 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Está seguro?',
+                title: 'Esta acción desactivará la colección seleccionada',
+                text: '¿Deseas continuar?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Desactivar!',
@@ -340,7 +345,7 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar este registro?',
+                title: 'Deseas activar esta colección?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -366,6 +371,54 @@
                     me.listarColeccion();
                 }
                 })
+            },
+            eliminarColeccion(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará la colección. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/coleccion/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'La colección ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+                                    
+                                    this.listarColeccion(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la colección. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 500) {
+                                    console.error("Error al eliminar la colección:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la colección. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar la colección:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar la colección.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
             },
             validarColeccion(){
                 this.errorColeccion=0;
@@ -437,5 +490,12 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .btn {
+        border-radius: 8px;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

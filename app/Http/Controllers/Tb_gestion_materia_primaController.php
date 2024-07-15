@@ -175,4 +175,19 @@ class Tb_gestion_materia_primaController extends Controller
             $tb_gestion_materia_prima->save();
         }
 
+        public function eliminarGestionMateria($id, Request $request)
+        {
+            if(!$request->ajax()) {
+                return response()->json(['error' => 'Acción no permitida'], 403);
+            }
+
+            $tb_gestion_materia_prima = Tb_gestion_materia_prima::find($id);
+            if(!$tb_gestion_materia_prima){
+                return response()->json(['error' => 'Materia prima no encontrada'], 404);
+            }
+
+            $tb_gestion_materia_prima->delete();
+            return response()->json(['message' => 'Materia prima eliminada'], 200);
+        }
+
 }

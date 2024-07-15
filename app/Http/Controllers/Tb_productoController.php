@@ -171,6 +171,14 @@ class Tb_productoController extends Controller
         $tb_producto->idArea=$request->idArea;
         $tb_producto->estado='1';
         $tb_producto->save();
+
+        $tb_hoja_de_costo = Tb_hoja_de_costo::where('idProducto', $request->id)->first();
+        if ($tb_hoja_de_costo) {
+            $tb_hoja_de_costo->capacidadMensual = $request->capacidadMensual;
+            $tb_hoja_de_costo->save();
+        }
+
+        return response()->json(['message' => 'Capacidad actualizado'], 200);
     }
 
     public function deactivate(Request $request)
@@ -187,5 +195,20 @@ class Tb_productoController extends Controller
         $tb_producto=Tb_producto::findOrFail($request->id);
         $tb_producto->estado='1';
         $tb_producto->save();
+    }
+
+    public function eliminarProducto($id, Request $request)
+    {
+        if(!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_producto = Tb_producto::find($id);
+        if(!$tb_producto){
+            return response()->json(['error' => 'Producto no encontrada'], 404);
+        }
+
+        $tb_producto->delete();
+        return response()->json(['message' => 'Producto eliminado'], 200);
     }
 }

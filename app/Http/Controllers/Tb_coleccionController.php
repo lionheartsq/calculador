@@ -105,4 +105,19 @@ class Tb_coleccionController extends Controller
         $tb_coleccion->estado='1';
         $tb_coleccion->save();
     }
+
+    public function eliminarColeccion($id, Request $request)
+    {
+        if(!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_coleccion = Tb_coleccion::find($id);
+        if(!$tb_coleccion){
+            return response()->json(['error' => 'Colección no encontrada'], 404);
+        }
+
+        $tb_coleccion->delete();
+        return response()->json(['message' => 'Colección eliminada'], 200);
+    }
 }

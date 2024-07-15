@@ -238,17 +238,17 @@
 
                                     <div v-if="tipoModal==1" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Precio <br>
-                                            <sub><b><i>( Precio base: $ {{valorPrecioBase}} por {{unidadBase}} )</i></b></sub></label>
+                                            <sub><b><i>( Precio base: {{valorPrecioBase}} por {{unidadBase}} )</i></b></sub></label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="precioBase" class="form-control">
+                                            <input type="text" v-model="precioBase" class="form-control" @input="formatoPrecio">
                                             <span class="help-block">(*) Ingrese el precio</span>
                                         </div>
                                     </div>
                                     <div v-if="tipoModal==3" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Precio <br>
-                                            <sub><b><i>( Precio base: $ {{valorPrecioBase}} por {{unidadBase}} )</i></b></sub></label>
+                                            <sub><b><i>( Precio base: {{valorPrecioBase}} por {{unidadBase}} )</i></b></sub></label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="precioBase" class="form-control">
+                                            <input type="text" v-model="precioBase" class="form-control" @input="formatoPrecio">
                                             <span class="help-block">(*) Ingrese el precio</span>
                                         </div>
                                     </div>
@@ -320,14 +320,14 @@
                                             <sub><i>(Valor minuto: $ {{valor}})</i></sub></label>
 
                                             <div v-if="flag==1" class="col-md-9">
-                                                <input type="number" step="0.01" v-model="tiempo" class="form-control" placeholder="Tiempo estandar de mano de obra">
+                                                <input type="text" v-model="tiempo" class="form-control" placeholder="Tiempo estandar de mano de obra" @input="soloNumeros">
                                                 <span class="help-block">(*) Ingrese el tiempo estandar de mano de obra en minutos</span>
                                             </div>
 
                                             <label v-if="flag==2" class="col-md-3 form-control-label" for="text-input">Costo</label>
 
                                             <div v-if="flag==2" class="col-md-9">
-                                                <input type="number" v-model="preciom" class="form-control" placeholder="Valor de mano de obra por tarea">
+                                                <input type="text" v-model="preciom" class="form-control" placeholder="Valor de mano de obra por tarea" @input="formatMoney">
                                                 <span class="help-block">(*) Ingrese el costo de mano de obra por destajo</span>
                                             </div>
 
@@ -348,7 +348,9 @@
                                             </div>
 
                                             <div v-if="flag==2" class="col-md-3">
-                                                <label for="prueba">Total: {{parseInt((preciom*liquidacion*liqui)+(preciom*parafiscales*paraf)+parseInt(preciom))}}</label>
+                                                <!--<label for="prueba">Total: {{parseInt((preciom*liquidacion*liqui)+(preciom*parafiscales*paraf)+parseInt(preciom))}}</label>-->
+                                                <!--<label for="prueba">Total: {{parseInt((limpiarNumero(preciom)*liquidacion*liqui)+(limpiarNumero(preciom)*parafiscales*paraf)+limpiarNumero(preciom))}}</label>-->
+                                                <label for="prueba">Total: {{formatCurrency((limpiarNumero(preciom)*liquidacion*0.073)+(limpiarNumero(preciom)*parafiscales*0.046)+limpiarNumero(preciom))}}</label>
                                             </div>
 
                                         </div>
@@ -425,7 +427,7 @@
                 tiempo:1,
                 valor:0,
                 valorPrecioBase:0,
-                preciom:0,
+                preciom:'',
                 liquidacion:3,
                 parafiscales:4,
                 liqui:'',
@@ -571,6 +573,60 @@
                     console.log(error);
                 })
             },
+            limpiarNumero(value) {
+                const valorLimpio = value.replace(/[^0-9]/g, '');
+                return valorLimpio ? parseInt(valorLimpio, 10) : 0;
+            },
+            formatoPrecio(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 9) { 
+                    value = value.slice(0, 9);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.precioBase = value;
+            },
+            soloNumeros(event) {
+                let value = event.target.value.replace(/[^0-9]/g, '');
+                
+                if (value.length === 1 && value.charAt(0) === '0') {
+                    event.target.value = ''; 
+                    this.tiempo = '';
+                } else {
+                    value = value.slice(0, 6);
+                    event.target.value = value; 
+                    this.tiempo = value; 
+                }
+            },
+            formatMoney(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 9) { 
+                    value = value.slice(0, 9);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.preciom = value;
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
+            },
             cambiarPagina(page,buscar,criterio){
                 let me = this;
                 //Actualiza la pagina actual
@@ -596,6 +652,7 @@
                 this.materiaprimaproducto='';
                 this.manodeobraproducto='';
                 this.precioBase=0;
+                this.valorPrecioBase = '';
                 this.unidadBase='';
                 this.tipoModal=0;
                 this.flag=0;
@@ -612,7 +669,7 @@
                             this.modal=1;
                             this.tipoModal=1; //carga tipos de campos y footers
                             this.materiaprimaproducto='';
-                            this.idMateriaPrima=this.idMateriaPrima;
+                            this.idMateriaPrima='0';
                             this.cantidad='1';
                             this.precio=data['precioBase'];
                             this.idHoja=this.identificador;
@@ -628,7 +685,9 @@
                             this.idMateriaPrima=data['idGestionMateria'];
                             this.gestionMateria=data['gestionMateria'];
                             this.cantidad=data['cantidad'];
-                            this.precio=data['precioBase'];
+                            this.precioBase = this.formatCurrency(data['precio']);
+                            this.valorPrecioBase = this.formatCurrency(data['precioBase']);
+                            this.unidadBase = data['unidadBase'];
                             this.tipoDeCosto=data['tipoDeCosto'];
                             this.idHoja=this.identificador;
                             this.tituloModal='Editar materia prima';
@@ -647,7 +706,8 @@
                             this.modal=1;
                             this.tipoModal=2;
                             this.manodeobraproducto='';
-                            this.idPerfil=data['idPerfil'];
+                            this.idPerfil='0';
+                            this.idProceso='0';
                             this.idHoja=this.identificador;
                             this.idArea=this.identificadorArea;
                             this.tituloModal='Asignar nueva mano de obra';
@@ -663,7 +723,7 @@
                             this.idPerfil=data['idPerfil'];
                             this.idProceso=data['idProceso'];
                             this.tiempo=data['tiempo'];
-                            this.precio=data['precio'];
+                            this.valor=data['valorMinuto'];
                             this.idHoja=this.identificador;
                             this.idArea=this.identificadorArea;
                             this.tituloModal='Editar mano de obra';
@@ -738,7 +798,7 @@
                 axios.post('/materiaprimaproducto/store',{
                     'idMateriaPrima': this.idMateriaPrima,
                     'cantidad': this.cantidad,
-                    'precio': this.precioBase,
+                    'precio': this.precioBase.replace(/\D/g, ""),
                     'tipoDeCosto': this.tipoDeCosto,
                     'idHoja': this.idHoja
 
@@ -760,7 +820,7 @@
                 axios.put('/materiaprimaproducto/update',{
                     'id': this.id,
                     'cantidad': this.cantidad,
-                    'precio': this.precio,
+                    'precio': this.precioBase.replace(/\D/g, ""),
                     'tipoDeCosto': this.tipoDeCosto
 
                 }).then(function (response) {
@@ -806,7 +866,10 @@
                 }
                 else if(this.flag==2) {
                     this.tiempo=1;
-                    this.precio=parseInt((this.preciom*this.liquidacion*0.073)+(this.preciom*this.parafiscales*0.046)+parseInt(this.preciom));
+
+                    let precioNumerico = parseInt(this.preciom.replace(/\D/g, ''));
+
+                    this.precio=parseInt((precioNumerico*this.liquidacion*0.073)+(precioNumerico*this.parafiscales*0.046)+precioNumerico);
 
                     if(this.liquidacion==0 && this.parafiscales==0) {
                         this.tipoPago=2;
@@ -842,11 +905,38 @@
                     return;
                 }
 
+                if(this.flag==1) {
+                this.tipoPago=1;
+                this.tiempo=this.tiempo;
+                this.precio=this.valor; //este precio debo traerlo de consulta
+                }
+                else if(this.flag==2) {
+                    this.tiempo=1;
+
+                    let precioNumerico = parseInt(this.preciom.replace(/\D/g, ''));
+
+                    this.precio=parseInt((precioNumerico*this.liquidacion*0.073)+(precioNumerico*this.parafiscales*0.046)+precioNumerico);
+
+                    if(this.liquidacion==0 && this.parafiscales==0) {
+                        this.tipoPago=2;
+                    }
+                    else if(this.liquidacion==3 && this.parafiscales==0) {
+                        this.tipoPago=3;
+                    }
+                    else if(this.liquidacion==0 && this.parafiscales==4) {
+                        this.tipoPago=4;
+                    }
+                    else {
+                        this.tipoPago=5;
+                    }
+                }
                 let me=this;
                 axios.put('/manodeobraproducto/update',{
                     'id': this.idManoDeObraProducto,
                     'tiempo': this.tiempo,
-                    'precio': this.preciom
+                    'precio': this.precio,
+                    'tipoPago': this.tipoPago,
+                    'idHoja': this.idHoja
 
                 }).then(function (response) {
                 me.cerrarModal();
@@ -856,8 +946,9 @@
                     console.log(error);
                 });
             },
-            eliminarManoDeObraProducto(){
+            eliminarManoDeObraProducto(data=[]){
                 let me=this;
+                this.id=data['id'];
                 axios.put('/manodeobraproducto/deactivate',{
                     'id': this.id
                 }).then(function (response) {

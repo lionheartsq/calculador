@@ -42,20 +42,24 @@
 
                                     <tr v-for="proceso in arrayProceso" :key="proceso.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('proceso','actualizar',proceso)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="abrirModal('proceso','actualizar',proceso)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            </button> 
 
                                         <template v-if="proceso.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarProceso(proceso.id)">
-                                                <i class="icon-trash"></i>
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarProceso(proceso.id)">
+                                                <i class="icon-ban"></i>
                                             </button>
                                         </template>
                                         <template v-else>
                                             <button type="button" class="btn btn-success btn-sm" @click="activarProceso(proceso.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!proceso.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarProceso(proceso.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="proceso.proceso"></td>
@@ -304,7 +308,8 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Está seguro?',
+                title: 'Esta acción desactivará el proceso seleccionado',
+                text: '¿Deseas continuar?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Desactivar!',
@@ -341,7 +346,7 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar este proceso?',
+                title: 'Deseas activar este proceso?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -367,6 +372,54 @@
                     me.listarProceso();
                 }
                 })
+            },
+            eliminarProceso(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará el proceso. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/proceso/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'El proceso ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+                                    
+                                    this.listarProceso(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el proceso. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 500) {
+                                    console.error("Error al eliminar el proceso:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el proceso. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar el proceso:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar el proceso.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
             },
             validarProceso(){
                 this.errorProceso=0;
@@ -439,5 +492,12 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .btn {
+        border-radius: 8px;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

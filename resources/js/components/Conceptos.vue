@@ -42,20 +42,24 @@
 
                                     <tr v-for="concepto in arrayConceptos" :key="concepto.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('concepto','actualizar',concepto)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="abrirModal('concepto','actualizar',concepto)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            </button> 
 
                                         <template v-if="concepto.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarConcepto(concepto.id)">
-                                                <i class="icon-trash"></i>
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarConcepto(concepto.id)">
+                                                <i class="icon-ban"></i>
                                             </button>
                                         </template>
                                         <template v-else>
                                             <button type="button" class="btn btn-success btn-sm" @click="activarConcepto(concepto.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!concepto.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarConcepto(concepto.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="concepto.id"></td>
@@ -66,7 +70,7 @@
                                             <span class="badge badge-success">Activo</span>
                                             </div>
                                             <div v-else>
-                                            <span class="badge badge-danger">Desactivado</span>
+                                            <span class="badge badge-warning">Desactivado</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -311,7 +315,8 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Está seguro?',
+                title: 'Esta acción desactivará el concepto seleccionado',
+                text: '¿Deseas continuar?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Desactivar!',
@@ -348,7 +353,7 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar este concepto?',
+                title: 'Deseas activar este concepto?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -374,6 +379,54 @@
                     me.listarConcepto();
                 }
                 })
+            },
+            eliminarConcepto(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará el concepto. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/concepto/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'El concepto ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+                                    
+                                    this.listarConcepto(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el concepto. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 500) {
+                                    console.error("Error al eliminar el concepto:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el concepto. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar el concepto:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar el concepto.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
             },
             validarConcepto(){
                 this.errorConcepto=0;
@@ -446,5 +499,12 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .btn {
+        border-radius: 8px;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>
