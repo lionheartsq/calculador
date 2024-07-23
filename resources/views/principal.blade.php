@@ -99,11 +99,14 @@
                         <strong>Cuenta</strong>
                     </div>
                 <a class="dropdown-item" @click="menu=98" href="#">
-                <i class="fa fa-eye"></i> Vista personalizada</a>
+                <i class="fa fa-eye" style="color: #ff671b"></i> Vista personalizada</a>
+
+                <a class="dropdown-item" @click="menu=100" href="#">
+                <i class="fa fa-lock" style="color: #ff671b"></i>Cambiar Contraseña</a>
 
                 <a class="dropdown-item" href="{{route('logout')}}"
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <i class="fa fa-lock"></i> Cerrar sesión</a>
+                <i class="fa fa-sign-out" style="color: #ff671b"></i> Cerrar sesión</a>
 
                 <form id="logout-form" action="{{route('logout')}}" method="post" style="display: none;">
                 {{csrf_field()}}

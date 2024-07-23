@@ -138,6 +138,8 @@ Route::group(['middleware' => ['guest']], function () {
         Route::put("/usuario/deactivate", "UserController@deactivate");
         Route::put("/usuario/activate", "UserController@activate");
         Route::get("/usuario/selectUsuario", "UserController@selectUsuario");
+        
+        Route::post("/usuario/cambiar-contrasena", "UserController@cambiarContrasena");
 
         Route::get("/manodeobraproducto", "Tb_mano_de_obra_productoController@index");
         Route::post("/manodeobraproducto/store", "Tb_mano_de_obra_productoController@store");

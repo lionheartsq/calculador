@@ -177,4 +177,8 @@
         <pruebas></pruebas>
     </template>
 
+    <template v-if="menu==100">
+        <cambiocontraseña></cambiocontraseña>
+    </template>
+
     @endsection

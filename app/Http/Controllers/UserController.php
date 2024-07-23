@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
 use App\Mail\Notification;
 use Illuminate\Support\Str; 
 
@@ -154,6 +155,21 @@ class UserController extends Controller
         $users=User::findOrFail($request->id);
         $users->estado='1';
         $users->save();
+    }
+
+    public function cambiarContrasena(Request $request)
+    {
+    
+        $request->validate([
+            'newPassword' => 'required|min:8',
+        ]);
+        
+        $user = Auth::user();
+
+        $user->password = Hash::make($request->newPassword);
+        $user->save();
+
+        return response()->json(['message' => 'Contraseña cambiada correctamente.']);
     }
 
 }
