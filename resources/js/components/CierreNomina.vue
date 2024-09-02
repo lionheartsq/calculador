@@ -46,13 +46,13 @@
                                     <tr v-for="nomina in arrayNomina" :key="nomina.id">
                                         <td>
                                         <template v-if="nomina.estado==1">
-                                        <button type="button" class="btn btn-primary btn-sm" @click="cargaNovedad(nomina.id)">
+                                        <button type="button" class="btn btn-novedad btn-sm" @click="cargaNovedad(nomina.id)">
                                                 <i class="icon-plus"></i><span> Novedades</span>
                                         </button>
                                         <button type="button" class="btn btn-danger btn-sm" @click="eliminarNomina(nomina.id)">
                                                 <i class="icon-trash"></i>
                                         </button>
-                                        <button type="button" @click="abrirModal('detalle','crear',nomina.id)" class="btn btn-warning btn-sm">
+                                        <button type="button" @click="abrirModal('detalle','crear',nomina.id)" class="btn custom-button btn-sm">
                                             <i class="icon-cloud-upload"></i>
                                         </button>
                                         </template>
@@ -479,5 +479,13 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
+    }
+    .btn-novedad {
+        background-color: #198754; 
+        color: #ffffff; 
     }
 </style>

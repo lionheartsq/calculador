@@ -47,15 +47,22 @@
                                     <tr v-for="orden in arrayOrdenes" :key="orden.id">
                                         <td>
                                         <template v-if="orden.estado==1">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="mostrarProductos(orden.id)">
+                                            <button type="button" class="btn btn-success btn-sm" @click="mostrarProductos(orden.id)">
                                                 <i class="icon-plus"></i><span> Agregar</span>
                                             </button>
-                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('detalle','crear',orden.id)">
-                                                <i class="icon-cloud-upload"></i><span> Generar</span>
+                                            <template v-if="orden.cantidad_productos > 0">
+                                                <button type="button" class="btn btn-generar btn-sm" @click="abrirModal('detalle','crear',orden.id)">
+                                                    <i class="icon-cloud-upload"></i><span> Generar</span>
+                                                </button>
+                                            </template>
+                                            <button type="button" class="btn btn-danger btn-sm" @click="eliminarOrdenPedido(orden.id)">
+                                                <i class="icon-trash"></i><span> Eliminar</span>
                                             </button>
+
+                                            <span>({{ orden.cantidad_productos }} productos)</span>
                                         </template>
                                         <template v-if="orden.estado==2">
-                                            <button type="button" class="btn btn-success btn-sm" @click="mostrarDetalle(orden.id)">
+                                            <button type="button" class="btn btn-detalle btn-sm" @click="mostrarDetalle(orden.id)">
                                                 <i class="icon-magnifier"></i><span> Detalle</span>
                                             </button>
                                         </template>
@@ -180,7 +187,7 @@
                                     <div v-if="tipoModal==2" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Unidades</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="cantidad" class="form-control" placeholder="Unidades a producir">
+                                            <input type="text" v-model="cantidad" class="form-control" placeholder="Unidades a producir" @input="soloNumeros">
                                             <span class="help-block">(*) Ingrese la cantidad solicitada</span>
                                         </div>
                                     </div>
@@ -188,7 +195,7 @@
                                     <div v-if="tipoModal==4" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Unidades</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="cantidad" class="form-control" placeholder="Unidades a producir">
+                                            <input type="text" v-model="cantidad" class="form-control" placeholder="Unidades a producir" @input="soloNumeros">
                                             <span class="help-block">(*) Ingrese la cantidad solicitada</span>
                                         </div>
                                     </div>
@@ -204,16 +211,16 @@
                                     <div v-if="tipoModal==2" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Precio Venta</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="precioVenta" class="form-control" placeholder="Precio venta unidad">
-                                            <span class="help-block">(*) Ingrese el precio acordado. El costo es {{costopar}}</span>
+                                            <input type="text" v-model="precioVenta" class="form-control" placeholder="Precio venta unidad" @input="formatMoney">
+                                            <span class="help-block">(*) Ingrese el precio acordado. El costo es {{ formatCurrency(costopar) }}</span>
                                         </div>
                                     </div>
 
                                     <div v-if="tipoModal==4" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Precio Venta</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="precioVenta" class="form-control" placeholder="Precio venta unidad">
-                                            <span class="help-block">(*) Ingrese el precio acordado. El costo es {{costopar}}</span>
+                                            <input type="text" v-model="precioVenta" class="form-control" placeholder="Precio venta unidad" @input="formatMoney">
+                                            <span class="help-block">(*) Ingrese el precio acordado. El costo es {{ precioVenta }}</span>
                                         </div>
                                     </div>
 
@@ -339,7 +346,7 @@
                 //console.log(event.target.value);
                 this.identificadorProducto=event.target.value;
                 let me=this;
-                var url='/cotizacioncliente/precioproductos?producto='+this.identificadorProducto;
+                var url='/cotizacioncliente/precioproductos/'+this.identificadorProducto;
                 console.log('Url Seguimiento Valor de producto');
                 console.log(url);
                 console.log(me.identificadorProducto);
@@ -371,6 +378,77 @@
                     console.log(error);
                 })
             },
+            eliminarOrdenPedido(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción no se puede deshacer.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/ordenpedido/${id}`)
+                            .then(response => {
+                                // Actualiza la lista después de la eliminación
+                                this.listarOrdenPedido(1, this.buscar, this.criterio);
+                                Swal.fire(
+                                    'Eliminado!',
+                                    'La orden de pedido ha sido eliminada.',
+                                    'success'
+                                );
+                            })
+                            .catch(error => {
+                                console.error('Hubo un error al eliminar la orden de pedido:', error);
+                                Swal.fire(
+                                    'Error!',
+                                    'Hubo un problema al eliminar la orden de pedido.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
+            },
+            soloNumeros(event) {
+                const input = event.target.value;
+                const regex = /^\d*$/; // Permite cualquier cantidad de dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.cantidad = event.target.value;
+            },
+            formatMoney(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 9) { 
+                    value = value.slice(0, 9);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.precioVenta = value;
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
+            },
+            
             cambiarPagina(page,buscar,criterio){
                 let me = this;
                 //Actualiza la pagina actual
@@ -441,7 +519,7 @@
                 axios.post('/ordenpedidocliente/store',{
                     'idProducto': this.idProducto,
                     'cantidad': this.cantidad,
-                    'precioVenta': this.precioVenta,
+                    'precioVenta': this.precioVenta.replace(/\D/g, ""), 
                     'idOrdenPedido': this.identificador,
                 }).then(function (response) {
                 me.cerrarModal('0');
@@ -470,7 +548,7 @@
                 axios.put('/ordenpedidocliente/update',{
                    'id': this.id,
                    'cantidad': this.cantidad,
-                   'precioVenta': this.precioVenta,
+                   'precioVenta': this.precioVenta.replace(/\D/g, ""), 
                    'idOrdenPedido': this.identificador,
                 }).then(function (response) {
                 me.cerrarModal();
@@ -622,7 +700,7 @@
                             console.log("Id de producto:");
                             console.log(this.id);
                             this.cantidad=data['cantidad'];
-                            this.precioVenta=data['precioVenta'];
+                            this.precioVenta=this.formatCurrency(data['precioVenta']);
                             this.idOrdenPedido=this.identificador;
                             this.tituloModal='Editar productos';
                             this.tipoAccion= 2;
@@ -682,5 +760,20 @@
         height: 100% !important;
         text-align: center;
         color: #ffffffff;
+    }
+    .btn-custom {
+        margin-right: 30px; 
+    }
+    .btn-generar {
+        background-color: #ff671b; 
+        color: #ffffff;
+    }
+    .btn-detalle {
+        background-color: #17a2b8; 
+        color: #ffffff;
+        padding: 0.25rem 0.7rem;
+    }
+    .btn-danger {
+        margin-left: 10px;
     }
 </style>

@@ -3,6 +3,8 @@
         <template v-if="listado==0">
         <!-- Ejemplo de tabla Listado -->
         <div>
+            <div class="card">
+                <div class="card-body">
                             <div class="table-responsive">
                             <table class="table table-bordered table-striped table-sm">
                                 <thead>
@@ -25,8 +27,8 @@
                                         <td>{{total.unidades}}</td>
                                         <td>{{total.tiempo | redondeodec}}</td>
                                         <td>{{total.tiempo*total.unidades | redondeo}}</td>
-                                        <td>{{total.tiempo*total.unidades*valorbase | redondeo}}</td>
-                                        <td>{{total.tiempo*valorbase | redondeo}}</td>
+                                        <td>{{total.tiempo*total.unidades*valorbase | redondeo | currency}}</td>
+                                        <td>{{total.tiempo*valorbase | redondeo | currency}}</td>
                                         <td>
                                             <button type="button" class="btn btn-success btn-sm" @click="abrirModal(total)">
                                                 <i class="icon-magnifier"></i><span> Ver</span>
@@ -41,9 +43,11 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            </div>
+                        </div>
+                    </div>
+                </div>
                     <!-- Fin ejemplo de tabla Listado -->
-        </div>
+            </div>
                 <!--Inicio del modal agregar/actualizar-->
                 <div class="modal fade" tabindex="-1" :class="{'mostrar':modal}" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true">
                     <div class="modal-dialog modal-primary modal-lg" role="document">
@@ -87,6 +91,9 @@
         </template>
 
         <template v-if="listado==1">
+
+        <div class="card">
+                <div class="card-body">
 
             <div class="row">
                 <div class="table-responsive col-md-5">
@@ -238,6 +245,10 @@
             <p align="right">
                 <button class="btn btn-secondary" @click="ocultarDetalle()" aria-label="Close">Regresar</button>
             </p>
+            
+            </div>
+        </div>
+
         </template>
     </main>
 </template>
@@ -387,6 +398,13 @@
 
 <style>
     .minimo {
-	min-height: 150px;
+	    min-height: 150px;
+    }
+    .card {
+        border: none;
+    }
+    .card-body{
+        padding: 30px;
+        border: none;
     }
 </style>

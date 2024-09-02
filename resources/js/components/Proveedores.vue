@@ -52,12 +52,12 @@
 
                                     <tr v-for="proveedor in arrayProveedores" :key="proveedor.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('proveedor','actualizar',proveedor)" class="btn btn-warning btn-sm">
-                                            <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            <button type="button" @click="abrirModal('proveedor','actualizar',proveedor)" class="btn btn-info btn-sm">
+                                            <i class="icon-pencil" style="color: white;"></i>
+                                            </button> 
 
                                         <template v-if="proveedor.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarProveedor(proveedor.id)">
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarProveedor(proveedor.id)">
                                                 <i class="icon-trash"></i>
                                             </button>
                                         </template>
@@ -65,7 +65,11 @@
                                             <button type="button" class="btn btn-success btn-sm" @click="activarProveedor(proveedor.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!proveedor.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarProveedor(proveedor.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="proveedor.id"></td>
@@ -120,7 +124,7 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nit</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="nit" max="10" class="form-control" placeholder="Nit">
+                                            <input type="text" v-model="nit" max="10" class="form-control" placeholder="Nit" @input="soloNumeros">
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -132,13 +136,13 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Contacto</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="contacto" class="form-control" placeholder="Contacto">
+                                            <input type="text" v-model="contacto" class="form-control" placeholder="Contacto" @input="soloNumerosContacto">
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Telefono</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="telefono" max="10" class="form-control" placeholder="Telefono">
+                                            <input type="text" v-model="telefono" max="10" class="form-control" placeholder="Telefono" @input="soloNumerosTelefono">
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -150,7 +154,8 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Correo</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="correo" class="form-control" placeholder="Correo">
+                                            <input type="text" v-model="correo" class="form-control" placeholder="Correo" @input="validarEmail" :class="{ 'is-invalid': emailError }">
+                                            <span v-if="emailError" class="text-danger">{{ emailError }}</span>
                                         </div>
                                     </div>
 
@@ -249,6 +254,95 @@
                     // handle error
                     console.log(error);
                 })
+            },
+            eliminarProveedor(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará el proveedor. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/proveedor/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'El proveedor ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+
+                                    this.listarProveedor(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el proveedor.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error al eliminar el proveedor:", error);
+                                Swal.fire(
+                                    'Error',
+                                    'Se produjo un error al intentar eliminar el proveedor.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
+            },
+            soloNumeros(event) {
+                const input = event.target.value;
+                const regex = /^\d{0,10}$/; // Permite solo 10 dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.nit = event.target.value;
+            },
+            soloNumerosContacto(event) {
+                const input = event.target.value;
+                const regex = /^\d{0,10}$/; // Permite solo 10 dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.contacto = event.target.value;
+            },
+            soloNumerosTelefono(event) {
+                const input = event.target.value;
+                const regex = /^\d{0,10}$/; // Permite solo 10 dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.telefono = event.target.value;
+            },
+            validarEmail() {
+                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+                if (this.correo && !emailPattern.test(this.correo)) {
+                    this.emailError = 'Ingrese un correo electrónico válido.';
+                } else {
+                    this.emailError = '';
+                }
             },
             cambiarPagina(page,buscar,criterio){
                 let me = this;
@@ -475,5 +569,9 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

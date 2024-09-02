@@ -47,15 +47,23 @@
                                     <tr v-for="simulacion in arraySimulaciones" :key="simulacion.id">
                                         <td>
                                         <template v-if="simulacion.estado==1">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="mostrarProductos(simulacion.id)">
+                                            <button type="button" class="btn btn-success btn-sm" @click="mostrarProductos(simulacion.id)">
                                                 <i class="icon-plus"></i><span> Agregar</span>
                                             </button>
-                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('detalle','crear',simulacion.id)">
-                                                <i class="icon-cloud-upload"></i><span> Generar</span>
+                                            <template v-if="simulacion.cantidad_productos > 0">
+                                                <button type="button" class="btn btn-generar btn-sm" @click="abrirModal('detalle', 'crear', simulacion.id)">
+                                                    <i class="icon-cloud-upload"></i><span> Generar</span>
+                                                </button>
+                                            </template>
+                                            <button type="button" class="btn btn-danger btn-sm" @click="eliminarSimulacion(simulacion.id)">
+                                                <i class="icon-trash"></i><span> Eliminar</span>
                                             </button>
+
+                                            <span>({{ simulacion.cantidad_productos }} productos)</span>
+
                                         </template>
                                         <template v-if="simulacion.estado==2">
-                                            <button type="button" class="btn btn-success btn-sm" @click="mostrarDetalle(simulacion.id)">
+                                            <button type="button" class="btn btn-detalle btn-sm" @click="mostrarDetalle(simulacion.id)">
                                                 <i class="icon-magnifier"></i><span> Detalle</span>
                                             </button>
                                         </template>
@@ -121,7 +129,7 @@
                         <div class="card">
                             <hojadecostossimulador v-bind:identificador="identificador" :key="componentKey" @eliminarproducto="eliminarProducto"></hojadecostossimulador>
                             <p align="right">
-                                <button class="btn btn-danger" @click="ocultarDetalle()" aria-label="Close">Cerrar</button>
+                                <button class="btn btn-danger btn-custom" @click="ocultarDetalle()" aria-label="Close">Cerrar</button>
                             </p>
                         </div>
                     </div>
@@ -180,28 +188,28 @@
                                     <div v-if="tipoModal==2" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Unidades</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="unidades" class="form-control" placeholder="Unidades a producir">
+                                            <input type="text" v-model="unidades" class="form-control" placeholder="Unidades a producir" @input="soloNumeros">
                                             <span class="help-block">(*) Ingrese la cantidad a producir</span>
                                         </div>
                                     </div>
                                     <div v-if="tipoModal==4" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Unidades</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="unidades" class="form-control" placeholder="Unidades a producir">
+                                            <input type="text" v-model="unidades" class="form-control" placeholder="Unidades a producir" @input="soloNumeros">
                                             <span class="help-block">(*) Ingrese la cantidad a producir</span>
                                         </div>
                                     </div>
                                     <div v-if="tipoModal==2" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="email-input">Tiempo</label>
                                         <div class="col-md-9">
-                                            <input type="number" step="0.01" v-model="tiempo" class="form-control" placeholder="Tiempo estandar de mano de obra">
+                                            <input type="text" step="0.01" v-model="tiempo" class="form-control" placeholder="Tiempo estandar de mano de obra" @input="soloNumerosTiempo">
                                             <span class="help-block">(*) Ingrese el tiempo de mano de obra en horas</span>
                                         </div>
                                     </div>
                                      <div v-if="tipoModal==4" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="email-input">Tiempo</label>
                                         <div class="col-md-9">
-                                            <input type="number" step="0.01" v-model="tiempo" class="form-control" placeholder="Tiempo estandar de mano de obra">
+                                            <input type="text" step="0.01" v-model="tiempo" class="form-control" placeholder="Tiempo estandar de mano de obra" @input="soloNumerosTiempo">
                                             <span class="help-block">(*) Ingrese el tiempo de mano de obra en horas</span>
                                         </div>
                                     </div>
@@ -240,6 +248,7 @@
 </template>
 
 <script>
+    import Swal from 'sweetalert2';
     import moment from 'moment';
     import productossimulacion from '../components/ProductosSimulacion';
     import hojadecostossimulador from '../components/HojaDeCostosSimulador';
@@ -334,6 +343,67 @@
                     // handle error
                     console.log(error);
                 })
+            },
+            eliminarSimulacion(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción no se puede deshacer.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/simulacion/${id}`)
+                            .then(response => {
+                                // Actualiza la lista después de la eliminación
+                                this.listarSimulacion(1, this.buscar, this.criterio);
+                                Swal.fire(
+                                    'Eliminado!',
+                                    'La simulación ha sido eliminada.',
+                                    'success'
+                                );
+                            })
+                            .catch(error => {
+                                console.error('Hubo un error al eliminar la simulación:', error);
+                                Swal.fire(
+                                    'Error!',
+                                    'Hubo un problema al eliminar la simulación.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
+            },
+            soloNumeros(event) {
+                const input = event.target.value;
+                const regex = /^\d*$/; // Permite cualquier cantidad de dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.unidades = event.target.value;
+            },
+            soloNumerosTiempo(event) {
+                const input = event.target.value;
+                const regex = /^\d*$/; // Permite cualquier cantidad de dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.tiempo = event.target.value;
             },
             cambiarPagina(page,buscar,criterio){
                 let me = this;
@@ -609,5 +679,20 @@
         height: 100% !important;
         text-align: center;
         color: #ffffffff;
+    }
+    .btn-custom {
+        margin-right: 30px; 
+    }
+    .btn-generar {
+        background-color: #ff671b; 
+        color: #ffffff;
+    }
+    .btn-detalle {
+        background-color: #17a2b8; 
+        color: #ffffff;
+        padding: 0.25rem 0.7rem;
+    }
+    .btn-danger {
+        margin-left: 10px;
     }
 </style>

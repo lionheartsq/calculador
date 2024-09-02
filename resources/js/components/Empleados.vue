@@ -59,12 +59,12 @@
                                             <i class="icon-eye"></i>
                                             </button> &nbsp;
 
-                                            <button type="button" @click="abrirModal('empleado','actualizar',empleado)" class="btn btn-warning btn-sm">
-                                            <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            <button type="button" @click="abrirModal('empleado','actualizar',empleado)" class="btn btn-info btn-sm">
+                                            <i class="icon-pencil" style="color: white;"></i>
+                                            </button> 
 
                                         <template v-if="empleado.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarEmpleado(empleado.id)">
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarEmpleado(empleado.id)">
                                                 <i class="icon-trash"></i>
                                             </button>
                                         </template>
@@ -72,7 +72,11 @@
                                             <button type="button" class="btn btn-success btn-sm" @click="activarEmpleado(empleado.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <!--<button v-if="!empleado.estado" type="button" class="btn btn-danger btn-sm">
+                                            <i class="icon-trash"></i>
+                                        </button>-->
 
                                         </td>
                                         <td v-text="empleado.documento"></td>
@@ -214,7 +218,7 @@
                                                         <td v-if="vinculacionempleado.tiposalario">Sueldo fijo</td>
                                                         <td v-else-if="vinculacionempleado.tiposalario==2">Destajo</td>
                                                         <td v-text="vinculacionempleado.nivel"></td>
-                                                        <td v-text="vinculacionempleado.salarioBasicoMensual"></td>
+                                                        <td v-text="formatCurrency(vinculacionempleado.salarioBasicoMensual)"></td>
                                                         <td v-text="vinculacionempleado.fechainicio"></td>
                                                     </tr>
                                                 </tbody>
@@ -248,7 +252,7 @@
                                 <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Documento</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="documento" class="form-control" placeholder="Documento de Identificación">
+                                            <input type="text" v-model="documento" class="form-control" placeholder="Documento de Identificación" @input="soloNumeros">
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -319,25 +323,26 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Telefono</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="telefono" class="form-control" placeholder="Telefono del Empleado">
+                                            <input type="text" v-model="telefono" class="form-control" placeholder="Telefono del Empleado" @input="soloNumerosTelefono">
                                         </div>
                                     </div>
                                      <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Correo</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="correo" class="form-control" placeholder="Correo del Empleado">
+                                            <input type="text" v-model="correo" class="form-control" placeholder="Correo del Empleado" @input="validarEmail" :class="{ 'is-invalid': emailError }">
+                                            <span v-if="emailError" class="text-danger">{{ emailError }}</span>
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Contacto emergencia</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="contacto" class="form-control" placeholder="Contacto de emergencia">
+                                            <input type="text" v-model="contacto" class="form-control" placeholder="Contacto de emergencia" @input="soloNumerosContEmerg">
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Telefono emergencia</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="telefonocontacto" class="form-control" placeholder="Telefono de emergencia">
+                                            <input type="text" v-model="telefonocontacto" class="form-control" placeholder="Telefono de emergencia" @input="soloNumerosTelEmerg">
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -504,6 +509,78 @@
                     // handle error
                     console.log(error);
                 })
+            },
+            soloNumeros(event) {
+                const input = event.target.value;
+                const regex = /^\d{0,10}$/; // Permite hasta 10 dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.documento = event.target.value;
+            },
+            soloNumerosTelefono(event) {
+                const input = event.target.value;
+                const regex = /^\d{0,10}$/; // Permite hasta 10 dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.telefono = event.target.value;
+            },
+            soloNumerosContEmerg(event) {
+                const input = event.target.value;
+                const regex = /^\d{0,10}$/; // Permite hasta 10 dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.contacto = event.target.value;
+            },
+            soloNumerosTelEmerg(event) {
+                const input = event.target.value;
+                const regex = /^\d{0,10}$/; // Permite hasta 10 dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.telefonocontacto = event.target.value;
+            },
+            validarEmail() {
+                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+                if (this.correo && !emailPattern.test(this.correo)) {
+                    this.emailError = 'Ingrese un correo electrónico válido.';
+                } else {
+                    this.emailError = '';
+                }
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
             },
             listarVinculacionEmpleado(id){
                 let me=this;
@@ -883,5 +960,9 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

@@ -64,6 +64,8 @@
 </template>
 
 <script>
+    import Swal from 'sweetalert2';
+
     export default {
         props: {
             identificador: {
@@ -232,9 +234,15 @@
                     'idConsistencia':this.idConsistencia,
                     'idTiempoEstandar':this.identificador
                 }).then(function (response) {
-                me.clear();    
-                me.listarWesting(1,this.identificador);
-                me.forceRender();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Datos guardados',
+                        text: 'El registro se ha guardado exitosamente',
+                    }).then(() => {
+                        //me.clear();
+                        me.listarWesting(1, me.identificador);
+                        me.forceRender();
+                    });
                 })
                 .catch(function (error) {
                     console.log(error);

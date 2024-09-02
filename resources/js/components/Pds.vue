@@ -68,6 +68,8 @@
 </template>
 
 <script>
+    import Swal from 'sweetalert2';
+
     export default {
         props: {
             identificador: {
@@ -252,28 +254,56 @@
                     console.log(error);
                 })
             },
-        crearPds(){
-                //valido con el metodo de validacion creado
-                let me=this;
-                axios.post('/tiempoestandar/guardarPds',{
-                    'id':this.arrayPds[0].id,
-                    'idEsfuerzoMental': this.idEsfuerzoMental,
-                    'idEsfuerzoFisico': this.idEsfuerzoFisico,
-                    'idSuplementario':this.idSuplementario,
-                    'idPersonales':this.idPersonales,
-                    'idMonotonia':this.idMonotonia,
-                    'idEspera':this.idEspera,
-                    'valorEspera':this.valorEspera,
-                    'idTiempoEstandar':this.identificador
-                }).then(function (response) {
-                me.clear();    
-                me.listarPds(1,this.identificador);
-                me.forceRender();
-                })
-                .catch(function (error) {
-                    console.log(error);
+        crearPds() {
+            let me = this;
+
+            // Verificar si hay ciclos antes de enviar la solicitud
+            if (!me.arrayPds || me.arrayPds.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se han creado ciclos. Por favor, cree al menos un ciclo antes de guardar.',
                 });
-            },
+                return;
+            }
+
+            axios.post('/tiempoestandar/guardarPds', {
+                'id': this.arrayPds[0].id,
+                'idEsfuerzoMental': this.idEsfuerzoMental,
+                'idEsfuerzoFisico': this.idEsfuerzoFisico,
+                'idSuplementario': this.idSuplementario,
+                'idPersonales': this.idPersonales,
+                'idMonotonia': this.idMonotonia,
+                'idEspera': this.idEspera,
+                'valorEspera': this.valorEspera,
+                'idTiempoEstandar': this.identificador
+            }).then(function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Datos guardados',
+                    text: 'El registro se ha guardado correctamente',
+                }).then(() => {
+                    me.listarPds(1, me.identificador);
+                    me.forceRender();
+                });
+            }).catch(function (error) {
+                
+                if (error.response && error.response.data && error.response.data.message) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se han definido ciclos o la cantidad de ciclos es cero.',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error inesperado. Por favor, intenta nuevamente.',
+                    });
+                }
+                console.log(error);
+            });
+        },
          clear(){
                 this.idEsfuerzoMental="";
                 this.idEsfuerzoFisico= "";

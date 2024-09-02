@@ -52,15 +52,22 @@
                                     <tr v-for="cotizacion in arrayCotizaciones" :key="cotizacion.id">
                                         <td>
                                         <template v-if="cotizacion.estado==1">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="mostrarProductos(cotizacion.id)">
+                                            <button type="button" class="btn btn-success btn-sm" @click="mostrarProductos(cotizacion.id)">
                                                 <i class="icon-plus"></i><span> Agregar</span>
                                             </button>
-                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('detalle','crear',cotizacion.id)">
-                                                <i class="icon-cloud-upload"></i><span> Generar</span>
+                                            <template v-if="cotizacion.cantidad_productos > 0">
+                                                <button type="button" class="btn btn-generar btn-sm" @click="abrirModal('detalle','crear',cotizacion.id)">
+                                                    <i class="icon-cloud-upload"></i><span> Generar</span>
+                                                </button>
+                                            </template>
+                                            <button type="button" class="btn btn-danger btn-sm" @click="eliminarCotizacion(cotizacion.id)">
+                                                <i class="icon-trash"></i><span> Eliminar</span>
                                             </button>
+
+                                            <span>({{ cotizacion.cantidad_productos }} productos)</span>
                                         </template>
                                         <template v-if="cotizacion.estado==2">
-                                            <button type="button" class="btn btn-success btn-sm" @click="mostrarDetalle(cotizacion.id)">
+                                            <button type="button" class="btn btn-detalle btn-sm" @click="mostrarDetalle(cotizacion.id)">
                                                 <i class="icon-magnifier"></i><span> Detalle</span>
                                             </button>
                                         </template>
@@ -120,7 +127,7 @@
                         <div class="card">
                             <detallecotizacion v-bind:identificador="identificador" :key="componentKey"></detallecotizacion>
                             <p align="right">
-                                <button class="btn btn-danger" @click="ocultarDetalle()" aria-label="Close">Cerrar</button>
+                                <button class="btn btn-danger btn-custom" @click="ocultarDetalle()" aria-label="Close">Cerrar</button>
                             </p>
                         </div>
                     </div>
@@ -184,29 +191,29 @@
                                     <div v-if="tipoModal==2" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Unidades</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="cantidad" class="form-control" placeholder="Unidades a producir">
+                                            <input type="text" v-model="cantidad" class="form-control" placeholder="Unidades a producir" @input="soloNumeros">
                                             <span class="help-block">(*) Ingrese la cantidad solicitada</span>
                                         </div>
                                     </div>
                                     <div v-if="tipoModal==4" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Unidades</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="cantidad" class="form-control" placeholder="Unidades a producir">
+                                            <input type="text" v-model="cantidad" class="form-control" placeholder="Unidades a producir" @input="soloNumeros">
                                             <span class="help-block">(*) Ingrese la cantidad solicitada</span>
                                         </div>
                                     </div>
                                     <div v-if="tipoModal==2" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Precio Venta</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="precioVenta" class="form-control" placeholder="Precio venta unidad">
-                                            <span class="help-block">(*) Ingrese el precio acordado. El costo es {{costopar}}</span>
+                                            <input type="text" v-model="precioVenta" class="form-control" placeholder="Precio venta unidad" @input="formatMoney">
+                                            <span class="help-block">(*) Ingrese el precio acordado. El costo es {{ formatCurrency(costopar) }}</span>
                                         </div>
                                     </div>
                                     <div v-if="tipoModal==4" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Precio Venta</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="precioVenta" class="form-control" placeholder="Precio venta unidad">
-                                            <span class="help-block">(*) Ingrese el precio acordado. El costo es {{costopar}}</span>
+                                            <input type="text" v-model="precioVenta" class="form-control" placeholder="Precio venta unidad" @input="formatMoney">
+                                            <span class="help-block">(*) Ingrese el precio acordado. El costo es {{ formatCurrency(costopar) }}</span>
                                         </div>
                                     </div>
 
@@ -363,6 +370,76 @@
                     console.log(error);
                 })
             },
+            eliminarCotizacion(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción no se puede deshacer.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/cotizacion/${id}`)
+                            .then(response => {
+                                // Actualiza la lista después de la eliminación
+                                this.listarCotizacion(1, this.buscar, this.criterio);
+                                Swal.fire(
+                                    'Eliminado!',
+                                    'La cotización ha sido eliminada.',
+                                    'success'
+                                );
+                            })
+                            .catch(error => {
+                                console.error('Hubo un error al eliminar la cotización:', error);
+                                Swal.fire(
+                                    'Error!',
+                                    'Hubo un problema al eliminar la cotización.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
+            },
+            soloNumeros(event) {
+                const input = event.target.value;
+                const regex = /^\d*$/; // Permite cualquier cantidad de dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.cantidad = event.target.value;
+            },
+            formatMoney(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 9) { 
+                    value = value.slice(0, 9);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.precioVenta = value;
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
+            },
             cambiarPagina(page,buscar,criterio){
                 let me = this;
                 //Actualiza la pagina actual
@@ -442,9 +519,13 @@
             formatVigencia(event) {
                 const input = event.target.value;
                 const regex = /^\d{0,2}$/; // Solo dos digitos
-                if (!regex.test(input)) {
-                
-                    event.target.value = input.slice(0, -1);
+                if (input.length === 1 && input.charAt(0) === '0') {
+                    event.target.value = ''; // Elimina el '0' inicial
+                } else {
+                    // Verifica que el input coincida con el regex
+                    if (!regex.test(input)) {
+                        event.target.value = input.slice(0, -1); // Elimina el último carácter si no coincide con el regex
+                    }
                 }
                 this.vigencia = event.target.value;
             },
@@ -453,7 +534,7 @@
                 let me=this;
                 axios.post('/cotizacioncliente/store',{
                     'cantidad': this.cantidad,
-                    'precioVenta': this.precioVenta,
+                    'precioVenta': this.precioVenta.replace(/\D/g, ""), 
                     'idProducto': this.idProducto,
                     'idCotizacion': this.identificador,
                 }).then(function (response) {
@@ -471,7 +552,7 @@
                 axios.put('/cotizacioncliente/update',{
                    'id': this.id,
                    'cantidad': this.cantidad,
-                   'precioVenta': this.precioVenta,
+                   'precioVenta': this.precioVenta.replace(/\D/g, ""), 
                    'idCotizacion': this.identificador,
                 }).then(function (response) {
                 me.cerrarModal();
@@ -611,7 +692,7 @@
                             console.log("Id de producto:");
                             console.log(this.id);
                             this.cantidad=data['cantidad'];
-                            this.precioVenta=data['precioVenta'];
+                            this.precioVenta=this.formatCurrency(data['precioVenta']);
                             this.idCotizacion=this.identificador;
                             this.tituloModal='Editar productos';
                             this.tipoAccion= 2;
@@ -671,5 +752,20 @@
         height: 100% !important;
         text-align: center;
         color: #ffffffff;
+    }
+    .btn-custom {
+        margin-right: 30px; 
+    }
+    .btn-generar {
+        background-color: #ff671b; 
+        color: #ffffff;
+    }
+    .btn-detalle {
+        background-color: #17a2b8; 
+        color: #ffffff;
+        padding: 0.25rem 0.7rem;
+    }
+    .btn-danger {
+        margin-left: 10px;
     }
 </style>

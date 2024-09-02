@@ -52,12 +52,12 @@
 
                                     <tr v-for="cliente in arrayClientes" :key="cliente.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('cliente','actualizar',cliente)" class="btn btn-warning btn-sm">
-                                            <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            <button type="button" @click="abrirModal('cliente','actualizar',cliente)" class="btn btn-info btn-sm">
+                                            <i class="icon-pencil" style="color: white;"></i>
+                                            </button> 
 
                                         <template v-if="cliente.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarCliente(cliente.id)">
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarCliente(cliente.id)">
                                                 <i class="icon-trash"></i>
                                             </button>
                                         </template>
@@ -65,7 +65,12 @@
                                             <button type="button" class="btn btn-success btn-sm" @click="activarCliente(cliente.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!cliente.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarCliente(cliente.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
+
                                         </td>
                                         <td v-text="cliente.id"></td>
                                         <td v-text="cliente.documento"></td>
@@ -119,7 +124,7 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Documento</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="documento" max="10" class="form-control" placeholder="Documento de Identificación">
+                                            <input type="text" v-model="documento" max="10" class="form-control" placeholder="Documento de Identificación" @input="soloNumeros">
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -143,13 +148,14 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Telefono</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="telefono" max="10" class="form-control" placeholder="Telefono">
+                                            <input type="text" v-model="telefono" max="10" class="form-control" placeholder="Telefono" @input="soloNumerosTelef">
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Correo</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="correo" class="form-control" placeholder="Correo">
+                                            <input type="text" v-model="correo" class="form-control" placeholder="Correo" @input="validarEmail" :class="{ 'is-invalid': emailError }">
+                                            <span v-if="emailError" class="text-danger">{{ emailError }}</span>
                                         </div>
                                     </div>
 
@@ -248,6 +254,81 @@
                     // handle error
                     console.log(error);
                 })
+            },
+            eliminarCliente(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará el cliente. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/cliente/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'El cliente ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+
+                                    this.listarCliente(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el cliente.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error al eliminar el cliente:", error);
+                                Swal.fire(
+                                    'Error',
+                                    'Se produjo un error al intentar eliminar el cliente.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
+            },
+            soloNumeros(event) {
+                const input = event.target.value;
+                const regex = /^\d{0,10}$/; // Permite hasta 10 dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.documento = event.target.value;
+            },
+            soloNumerosTelef(event) {
+                const input = event.target.value;
+                const regex = /^\d{0,10}$/; // Permite hasta 10 dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.telefono = event.target.value;
+            },
+            validarEmail() {
+                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+                if (this.correo && !emailPattern.test(this.correo)) {
+                    this.emailError = 'Ingrese un correo electrónico válido.';
+                } else {
+                    this.emailError = '';
+                }
             },
             cambiarPagina(page,buscar,criterio){
                 let me = this;
@@ -473,5 +554,9 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

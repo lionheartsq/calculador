@@ -46,12 +46,12 @@
 
                                     <tr v-for="usuario in arrayUsuario" :key="usuario.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('usuario','actualizar',usuario)" class="btn btn-warning btn-sm">
-                                            <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            <button type="button" @click="abrirModal('usuario','actualizar',usuario)" class="btn btn-info btn-sm">
+                                            <i class="icon-pencil" style="color: white;"></i>
+                                            </button> 
 
                                         <template v-if="usuario.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarUsuario(usuario.id)">
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarUsuario(usuario.id)">
                                                 <i class="icon-trash"></i>
                                             </button>
                                         </template>
@@ -59,7 +59,11 @@
                                             <button type="button" class="btn btn-success btn-sm" @click="activarUsuario(usuario.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!usuario.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarUsuario(usuario.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="usuario.id"></td>
@@ -131,8 +135,9 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">E-mail</label>
                                         <div class="col-md-9">
-                                            <input type="email" v-model="email" class="form-control" placeholder="Correo electrónico">
+                                            <input type="email" v-model="email" class="form-control" placeholder="Correo electrónico" @input="validarEmail" :class="{ 'is-invalid': emailError }">
                                             <span class="help-block">(*) Ingrese el correo electrónico</span>
+                                            <span v-if="emailError" class="text-danger">{{ emailError }}</span>
                                         </div>
                                     </div>
                                     <div class="form-group row div-error" v-show="errorUsuario">
@@ -168,6 +173,7 @@ import Swal from 'sweetalert2';
                 id:'',
                 name:'',
                 email:'',
+                emailError: '',
                 estado:'',
                 arrayUsuario : [],
                 idRol:0,
@@ -235,6 +241,74 @@ import Swal from 'sweetalert2';
                     // handle error
                     console.log(error);
                 })
+            },
+            validarEmail() {
+                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+                if (this.email && !emailPattern.test(this.email)) {
+                    this.emailError = 'Ingrese un correo electrónico válido.';
+                } else {
+                    this.emailError = '';
+                }
+            },
+            eliminarUsuario(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará el usuario y todos los roles asociados. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/usuario/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'El usuario y sus roles asociados han sido eliminados correctamente.',
+                                        'success'
+                                    );
+                                    this.listarUsuario(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el usuario.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response) {
+                                    if (error.response.status === 403 && error.response.data.error === 'No se puede eliminar un superadministrador') {
+                                        Swal.fire(
+                                            'Acción no permitida',
+                                            'No se puede eliminar un Super Administrador.',
+                                            'error'
+                                        );
+                                    } else if (error.response.status === 404) {
+                                        Swal.fire(
+                                            'Error',
+                                            'Usuario no encontrado.',
+                                            'error'
+                                        );
+                                    } else {
+                                        Swal.fire(
+                                            'Error',
+                                            'Se produjo un error al intentar eliminar el usuario.',
+                                            'error'
+                                        );
+                                    }
+                                } else {
+                                    console.error("Error al eliminar el usuario:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar el usuario.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
             },
             indexChange: function(args) {
                 let newIndex = args.value
@@ -544,4 +618,8 @@ import Swal from 'sweetalert2';
         transform: rotate(360deg);
     }
 }
+.custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
+    }
 </style>

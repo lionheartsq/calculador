@@ -132,14 +132,18 @@ Route::group(['middleware' => ['guest']], function () {
         Route::put("/rol/activate", "Tb_rolController@activate");
         Route::get("/rol/selectRol", "Tb_rolController@selectRol");
 
+        Route::delete("/rol/delete/{id}", "Tb_rolController@eliminarRol");
+
+
         Route::get("/usuario", "UserController@index");
         Route::post("/usuario/store", "UserController@store");
         Route::put("/usuario/update", "UserController@update");
         Route::put("/usuario/deactivate", "UserController@deactivate");
         Route::put("/usuario/activate", "UserController@activate");
         Route::get("/usuario/selectUsuario", "UserController@selectUsuario");
-        
         Route::post("/usuario/cambiar-contrasena", "UserController@cambiarContrasena");
+
+        Route::delete("/usuario/delete/{id}", "UserController@eliminarUsuario");
 
         Route::get("/manodeobraproducto", "Tb_mano_de_obra_productoController@index");
         Route::post("/manodeobraproducto/store", "Tb_mano_de_obra_productoController@store");
@@ -191,6 +195,9 @@ Route::group(['middleware' => ['guest']], function () {
         Route::get("/simulacion/unitariogen/", "Tb_simulacionController@unitarioTotalGen");
         Route::get("/simulacion/detallegen/", "Tb_simulacionController@hojaDetalleGen");
 
+        Route::delete("/simulacion/{id}", "Tb_simulacionController@destroy");
+
+
         Route::get("/rela", "Tb_rela_simulacionController@index");
         Route::get("/rela/listar", "Tb_rela_simulacionController@listar");
         Route::get("/rela/posibles", "Tb_rela_simulacionController@posibles");
@@ -206,6 +213,9 @@ Route::group(['middleware' => ['guest']], function () {
         Route::get("/ordenpedido/clientes", "Tb_orden_pedido_clienteController@clientes");
         Route::put("/ordenpedido/update", "Tb_orden_pedido_clienteController@update");
         Route::get("/ordenpedido/ciftiempos/{identificador}", "Tb_orden_pedido_clienteController@cifTiempos");
+
+        Route::delete("/ordenpedido/{id}", "Tb_orden_pedido_clienteController@destroy");
+
 
         Route::get("/ordenpedidocliente", "Tb_orden_pedido_cliente_detalleController@index");
         Route::get("/ordenpedidocliente/listar", "Tb_orden_pedido_cliente_detalleController@listar");
@@ -238,6 +248,8 @@ Route::group(['middleware' => ['guest']], function () {
         Route::put("/cliente/activate", "Tb_clienteController@activate");
         Route::get("/cliente/selectCliente", "Tb_clienteController@selectCliente");
 
+        Route::delete("/cliente/delete/{id}", "Tb_clienteController@eliminarCliente");
+
         Route::get("/proveedor", "Tb_proveedorController@index");
         Route::post("/proveedor/store", "Tb_proveedorController@store");
         Route::put("/proveedor/update", "Tb_proveedorController@update");
@@ -245,11 +257,16 @@ Route::group(['middleware' => ['guest']], function () {
         Route::put("/proveedor/activate", "Tb_proveedorController@activate");
         Route::get("/proveedor/selectProveedor", "Tb_proveedorController@selectProveedor");
 
+        Route::delete("/proveedor/delete/{id}", "Tb_proveedorController@eliminarProveedor");
+
         Route::get("/cotizacion", "Tb_cotizacionController@index");
         Route::post("/cotizacion/store", "Tb_cotizacionController@store");
         Route::post("/cotizacion/estado", "Tb_cotizacionController@estado");
         Route::put("/cotizacion/update", "Tb_cotizacionController@update");
         Route::get("/cotizacion/clientes", "Tb_cotizacionController@clientes");
+
+        Route::delete("/cotizacion/{id}", "Tb_cotizacionController@destroy");
+
 
         Route::get("/cotizacioncliente", "Tb_detalle_cotizacionController@index");
         Route::get("/cotizacioncliente/listar", "Tb_detalle_cotizacionController@listar");

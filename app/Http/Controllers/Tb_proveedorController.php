@@ -112,4 +112,19 @@ class Tb_proveedorController extends Controller
         $tb_proveedor->estado='1';
         $tb_proveedor->save();
     }
+
+    public function eliminarProveedor($id, Request $request)
+    {
+        if (!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_proveedor = Tb_proveedor::find($id);
+        if (!$tb_proveedor) {
+            return response()->json(['error' => 'Proveedor no encontrado'], 404);
+        }
+
+        $tb_proveedor->delete();
+        return response()->json(['message' => 'Proveedor eliminado'], 200);
+    }
 }

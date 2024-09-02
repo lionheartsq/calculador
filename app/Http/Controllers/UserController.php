@@ -157,6 +157,36 @@ class UserController extends Controller
         $users->save();
     }
 
+    public function eliminarUsuario($id, Request $request)
+    {
+        if (!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no encontrado'], 404);
+        }
+
+        // Verifica si el usuario tiene el rol de superadministrador (rol 1)
+        $esSuperAdmin = \DB::table('tb_usuario_tiene_rol')
+            ->where('idUser', $id)
+            ->where('idRol', 1)
+            ->exists();
+
+        if ($esSuperAdmin) {
+            return response()->json(['error' => 'No se puede eliminar un superadministrador'], 403);
+        }
+
+        // Elimina los roles asociados al usuario (solo si no es superadministrador)
+        \DB::table('tb_usuario_tiene_rol')->where('idUser', $id)->delete();
+
+        
+        $user->delete();
+
+        return response()->json(['message' => 'Usuario y roles asociados eliminados correctamente'], 200);
+    }
+
     public function cambiarContrasena(Request $request)
     {
     

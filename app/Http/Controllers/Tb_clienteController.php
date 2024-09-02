@@ -114,4 +114,19 @@ class Tb_clienteController extends Controller
         $tb_cliente->estado='1';
         $tb_cliente->save();
     }
+
+    public function eliminarCliente($id, Request $request)
+    {
+        if (!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_cliente = Tb_cliente::find($id);
+        if(!$tb_cliente) {
+            return response()->json(['error' => 'Cliente no encontrado'], 404);
+        }
+
+        $tb_cliente->delete();
+        return response()->json(['message' => 'Proveedor eliminado'], 200);
+    }
 }

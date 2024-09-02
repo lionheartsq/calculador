@@ -8,6 +8,7 @@ use App\Tb_westing_house;
 use App\Tb_perfil;
 use App\Tb_proceso;
 use App\Tb_tiempo_estandar;
+use App\Tb_ciclos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -49,6 +50,12 @@ class Tb_tiempo_estandarController extends Controller
             ->where('tb_tiempo_estandar.'.$criterio, 'like', '%'. $buscar . '%')
             ->orderBy('tb_tiempo_estandar.id','desc')->paginate(5);
          }
+
+         $tiempoestandar->transform(function ($te) {
+            $te->cantidad_ciclos = Tb_ciclos::where('idTiempoEstandar', $te->id)->count();
+            return $te;
+        });
+
          return [
              'pagination' => [
                  'total'         =>$tiempoestandar->total(),

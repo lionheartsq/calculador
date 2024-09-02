@@ -9,10 +9,12 @@ use App\Tb_producto;
 use App\Tb_orden_produccion_detalle;
 use App\Tb_cliente;
 use App\Tb_orden_pedido_cliente;
+use App\Tb_orden_pedido_cliente_detalle;
 use App\Tb_orden_produccion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+
 class Tb_orden_pedido_clienteController extends Controller
 {
     //
@@ -46,6 +48,11 @@ class Tb_orden_pedido_clienteController extends Controller
             ->orderBy('tb_orden_pedido_cliente.consecutivo','asc')
             ->where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
         }
+
+        $ordenes->transform(function ($orden) {
+            $orden->cantidad_productos = Tb_orden_pedido_cliente_detalle::where('idOrdenPedido', $orden->id)->count();
+            return $orden;
+        });
 
         return [
             'pagination' => [
@@ -96,6 +103,18 @@ class Tb_orden_pedido_clienteController extends Controller
         $tb_orden_pedido_cliente=Tb_orden_pedido_cliente::findOrFail($request->id);
         $tb_orden_pedido_cliente->estado=1;
         $tb_orden_pedido_cliente->save();
+    }
+
+    public function destroy($id)
+    {
+
+        $orden = Tb_orden_pedido_cliente::findOrFail($id);
+
+        Tb_orden_pedido_cliente_detalle::where('idOrdenPedido', $id)->delete();
+
+        $orden->delete();
+
+        return response()->json(['message' => 'Orden de pedido eliminada con éxito.']);
     }
 
     public function clientes()
