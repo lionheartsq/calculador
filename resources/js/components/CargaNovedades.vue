@@ -66,7 +66,7 @@
 
                                         <td v-text="novedad.observacion"></td>
                                         <td v-text="novedad.cantidad"></td>
-                                        <td v-text="novedad.valor"></td>
+                                        <td v-text="formatCurrency(novedad.valor)"></td>
                                         <td v-text="novedad.empleado"></td>
 
                                     </tr>
@@ -423,6 +423,14 @@ import moment from 'moment';
                     // handle error
                     console.log(error);
                 })
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
             },
             eliminarNovedad(idNovedad){
                 const swalWithBootstrapButtons = Swal.mixin({

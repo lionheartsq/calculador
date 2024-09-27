@@ -146,6 +146,7 @@ Vue.component('simuladorfinanciero', require('./components/SimuladorFinanciero.v
 Vue.component('productossimuladorfinanciero', require('./components/ProductosSimuladorFinanciero.vue').default);
 
 Vue.component('vistapersonalizada', require('./components/VistaPersonalizada.vue').default);
+Vue.component('cambiocontraseña', require('./components/CambioContraseña.vue').default);
 
 Vue.component('pruebas', require('./components/Pruebas.vue').default);
 /**

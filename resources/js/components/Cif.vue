@@ -27,7 +27,7 @@
                                         <!--<td><span class="badge badge-success">Maquinaria</span></td>-->
                                         <td>0</td>
                                         <td>Depreciación mensual total</td>
-                                        <td>{{this.maquinaria}}</td>
+                                        <td>{{ formatCurrency(maquinaria) }}</td>
                                     </tr>
                                     <tr v-for="concepto in arrayConceptos" :key="concepto.id">
                                         <!--<td>
@@ -49,7 +49,7 @@
                                         </td>-->
                                         <td v-text="concepto.id"></td>
                                         <td v-text="concepto.concepto"></td>
-                                        <td v-text="concepto.valor"></td>
+                                        <td v-text="formatCurrency(concepto.valor)"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -149,6 +149,14 @@
                     // handle error
                     console.log(error);
                 })
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
             },
             cambiarPagina(page,buscar,criterio){
                 let me = this;

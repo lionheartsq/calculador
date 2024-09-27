@@ -25,45 +25,56 @@ class Tb_cotizacionController extends Controller
      */
     public function index(Request $request)
     {
-        //cambios multiempresa
-        foreach (Auth::user()->empresas as $empresa){
-            $idEmpresa=$empresa['id'];
-         }
-        //cambios multiempresa
-
-        //if(!$request->ajax()) return redirect('/');
-        $buscar= $request->buscar;
-        $criterio= $request->criterio;
-
-        if ($buscar=='') {
-            # Modelo::join('tablaqueseune',basicamente un on)
-            $cotizaciones = Tb_cotizacion::join('tb_clientes','tb_cotizacion.idCliente','=','tb_clientes.id')
-            ->where('tb_cotizacion.idEmpresa','=',$idEmpresa)
-            ->select('tb_cotizacion.id','tb_cotizacion.consecutivo','tb_cotizacion.fecha','tb_cotizacion.condicionEntrega',
-            'tb_cotizacion.vigencia','tb_cotizacion.idCliente','tb_cotizacion.estado',
-            DB::raw('CONCAT(tb_clientes.nombre," ",tb_clientes.apellido," - ",tb_clientes.documento) as nombreCliente'))
-            ->orderBy('tb_cotizacion.consecutivo','asc')->paginate(5);
+        // Cambios multiempresa
+        foreach (Auth::user()->empresas as $empresa) {
+            $idEmpresa = $empresa['id'];
         }
-        else {
-            $cotizaciones = Tb_cotizacion::join('tb_clientes','tb_cotizacion.idCliente','=','tb_clientes.id')
-            ->where('tb_cotizacion.idEmpresa','=',$idEmpresa)
-            ->select('tb_cotizacion.id','tb_cotizacion.consecutivo','tb_cotizacion.fecha','tb_cotizacion.condicionEntrega',
-            'tb_cotizacion.vigencia','tb_cotizacion.idCliente','tb_cotizacion.estado',
-            DB::raw('CONCAT(tb_clientes.nombre," ",tb_clientes.apellido," - ",tb_clientes.documento) as nombreCliente'))
-            ->orderBy('tb_cotizacion.consecutivo','asc')
-            ->where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
+        // Cambios multiempresa
+
+        // Condición para la búsqueda
+        $buscar = $request->buscar;
+        $criterio = $request->criterio;
+
+        // Consulta base
+        $cotizacionesQuery = Tb_cotizacion::join('tb_clientes', 'tb_cotizacion.idCliente', '=', 'tb_clientes.id')
+            ->where('tb_cotizacion.idEmpresa', '=', $idEmpresa)
+            ->select(
+                'tb_cotizacion.id',
+                'tb_cotizacion.consecutivo',
+                'tb_cotizacion.fecha',
+                'tb_cotizacion.condicionEntrega',
+                'tb_cotizacion.vigencia',
+                'tb_cotizacion.idCliente',
+                'tb_cotizacion.estado',
+                DB::raw('CONCAT(tb_clientes.nombre," ",tb_clientes.apellido," - ",tb_clientes.documento) as nombreCliente')
+            );
+
+        // Aplicar búsqueda si es necesario
+        if ($buscar != '') {
+            $cotizacionesQuery->where($criterio, 'like', '%' . $buscar . '%');
         }
+
+        // Paginar resultados
+        $cotizaciones = $cotizacionesQuery->orderBy('tb_cotizacion.consecutivo', 'asc')
+            ->orderBy('tb_cotizacion.id', 'desc')
+            ->paginate(5);
+
+        // Obtiene la cantidad de productos asociados a cada cotización
+        $cotizaciones->transform(function ($cotizacion) {
+            $cotizacion->cantidad_productos = Tb_detalle_cotizacion::where('idCotizacion', $cotizacion->id)->count();
+            return $cotizacion;
+        });
 
         return [
             'pagination' => [
-                'total'         =>$cotizaciones->total(),
-                'current_page'  =>$cotizaciones->currentPage(),
-                'per_page'      =>$cotizaciones->perPage(),
-                'last_page'     =>$cotizaciones->lastPage(),
-                'from'          =>$cotizaciones->firstItem(),
-                'to'            =>$cotizaciones->lastItem(),
+                'total' => $cotizaciones->total(),
+                'current_page' => $cotizaciones->currentPage(),
+                'per_page' => $cotizaciones->perPage(),
+                'last_page' => $cotizaciones->lastPage(),
+                'from' => $cotizaciones->firstItem(),
+                'to' => $cotizaciones->lastItem(),
             ],
-                'cotizaciones' => $cotizaciones
+            'cotizaciones' => $cotizaciones
         ];
     }
 
@@ -105,6 +116,18 @@ class Tb_cotizacionController extends Controller
          $tb_cotizacion=Tb_cotizacion::findOrFail($request->id);
          $tb_cotizacion->estado=1;
          $tb_cotizacion->save();
+    }
+
+    public function destroy($id)
+    {
+        
+        $cotizacion = Tb_cotizacion::findOrFail($id);
+
+        Tb_detalle_cotizacion::where('idCotizacion', $id)->delete();
+
+        $cotizacion->delete();
+
+        return response()->json(['message' => 'Cotización eliminada con éxito.']);
     }
 
     public function clientes()

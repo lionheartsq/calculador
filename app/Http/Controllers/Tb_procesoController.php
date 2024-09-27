@@ -120,4 +120,19 @@ class Tb_procesoController extends Controller
         $tb_proceso->save();
     }
 
+    public function eliminarProceso($id, Request $request)
+    {
+        if(!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_proceso = Tb_proceso::find($id);
+        if(!$tb_proceso){
+            return response()->json(['error' => 'Proceso no encontrada'], 404);
+        }
+
+        $tb_proceso->delete();
+        return response()->json(['message' => 'Proceso eliminado'], 200);
+    }
+
 }

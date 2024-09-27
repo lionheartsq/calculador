@@ -46,35 +46,39 @@
 
                                     <tr v-for="maquinaria in arrayMaquinarias" :key="maquinaria.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('maquinaria','actualizar',maquinaria)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="abrirModal('maquinaria','actualizar',maquinaria)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            </button> 
 
                                         <template v-if="maquinaria.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarMaquinaria(maquinaria.id)">
-                                                <i class="icon-trash"></i>
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarMaquinaria(maquinaria.id)">
+                                                <i class="icon-ban"></i>
                                             </button>
                                         </template>
                                         <template v-else>
                                             <button type="button" class="btn btn-success btn-sm" @click="activarMaquinaria(maquinaria.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!maquinaria.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarMaquinaria(maquinaria.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="maquinaria.id"></td>
                                         <td v-text="maquinaria.maquinaria"></td>
-                                        <td v-text="maquinaria.valor"></td>
+                                        <td v-text="formatCurrency(maquinaria.valor)"></td>
                                         <td v-text="maquinaria.tiempoDeVidaUtil"></td>
-                                        <td v-text="maquinaria.depreciacionAnual"></td>
-                                        <td v-text="maquinaria.depreciacionMensual"></td>
+                                        <td v-text="formatCurrency(maquinaria.depreciacionAnual)"></td>
+                                        <td v-text="formatCurrency(maquinaria.depreciacionMensual)"></td>
                                         <td v-text="maquinaria.fecha"></td>
                                         <td>
                                             <div v-if="maquinaria.estado">
                                             <span class="badge badge-success">Activo</span>
                                             </div>
                                             <div v-else>
-                                            <span class="badge badge-danger">Desactivado</span>
+                                            <span class="badge badge-warning">Desactivado</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -113,21 +117,21 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="maquinaria" class="form-control" placeholder="Nombre de la maquinaria">
+                                            <input type="text" v-model="maquinaria" class="form-control" placeholder="Nombre de la maquinaria" @input="validarEntrada">
                                             <span class="help-block">(*) Ingrese el nombre de la maquinaria</span>
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Valor</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="valor" class="form-control" placeholder="Valor de la maquinaria">
+                                            <input type="text" v-model="valor" class="form-control" placeholder="Valor de la maquinaria" @input="formatMoney">
                                             <span class="help-block">(*) Ingrese el valor de la maquinaria</span>
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Vida útil en años</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="tiempoDeVidaUtil" class="form-control" placeholder="Tiempo de vida util">
+                                            <input type="text" v-model="tiempoDeVidaUtil" class="form-control" placeholder="Tiempo de vida util" @input="validarTiempoDeVidaUtil">
                                             <span class="help-block">(*) Ingrese el tiempo de vida útil en años</span>
                                         </div>
                                     </div>
@@ -260,7 +264,7 @@
                 let me=this;
                 axios.post('/maquinaria/store',{
                     'maquinaria': this.maquinaria,
-                    'valor': this.valor,
+                    'valor': this.valor.replace(/\D/g, ""), 
                     'tiempoDeVidaUtil': this.tiempoDeVidaUtil,
                     'fecha': this.fecha,
                     //'estado': this.estado,
@@ -273,6 +277,55 @@
                     console.log(error);
                 });
             },
+            validarEntrada(event) {
+                // Al menos una letra al comienzo
+                if (!/^[a-zA-Z]/.test(event.target.value)) {
+
+                    event.target.value = '';
+                } else {
+                    // Permitir letras y números despues de una letra
+                    const regex = /[^a-zA-Z0-9\s]/g;
+                    event.target.value = event.target.value.replace(regex, '');
+                }
+                this.maquinaria = event.target.value;
+            },
+            validarTiempoDeVidaUtil(event) {
+                const input = event.target.value;
+                const regex = /^\d{0,3}$/; // Solo tres digitos
+                if (!regex.test(input)) {
+                
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.tiempoDeVidaUtil = event.target.value;
+            },
+            formatMoney(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 9) { 
+                    value = value.slice(0, 9);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.valor = value;
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
+            },
             editarMaquinaria(){
                 if(this.validarMaquinaria()){
                     return;
@@ -282,7 +335,7 @@
                 axios.put('/maquinaria/update',{
                     'fecha': this.fecha,
                     'tiempoDeVidaUtil': this.tiempoDeVidaUtil,
-                    'valor': this.valor,
+                    'valor': this.valor.replace(/\D/g, ""), 
                     'maquinaria': this.maquinaria,
                     'id': this.idMaquinaria
                     //'estado': this.estado,
@@ -305,7 +358,8 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Está seguro?',
+                title: 'Esta acción desactivará la maquinaria seleccionada',
+                text: '¿Deseas continuar?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Desactivar!',
@@ -319,7 +373,7 @@
                     }).then(function (response) {
                     me.listarMaquinaria(1,'','maquinaria');
                     swalWithBootstrapButtons.fire(
-                    'maquinaria desactivada!'
+                    'Maquinaria desactivada!'
                     )
                     }).catch(function (error) {
                         console.log(error);
@@ -342,7 +396,7 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar esta maquinaria?',
+                title: 'Deseas activar esta maquinaria?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -368,6 +422,54 @@
                     me.listarMaquinaria();
                 }
                 })
+            },
+            eliminarMaquinaria(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará la maquinaria. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/maquinaria/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'La maquinaria ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+                                    
+                                    this.listarMaquinaria(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la maquinaria. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 500) {
+                                    console.error("Error al eliminar la maquinaria:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la maquinaria. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar la maquinaria:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar la maquinaria.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
             },
             validarMaquinaria(){
                 this.errorMaquinaria=0;
@@ -415,7 +517,7 @@
                             this.tipoAccion= 2;
                             this.idMaquinaria=data['id'];
                             this.maquinaria=data['maquinaria'];
-                            this.valor=data['valor'];
+                            this.valor=this.formatCurrency(data['valor']);
                             this.tiempoDeVidaUtil=data['tiempoDeVidaUtil'];
                             this.depreciacionAnual=data['depreciacionAnual'];
                             this.depreciacionMensual=data['depreciacionMensual'];
@@ -450,5 +552,12 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .btn {
+        border-radius: 8px;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

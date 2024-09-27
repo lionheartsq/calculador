@@ -45,32 +45,36 @@
 
                                     <tr v-for="gestionMateria in arrayGestionMateria" :key="gestionMateria.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('gestionMateria','actualizar',gestionMateria)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="abrirModal('gestionMateria','actualizar',gestionMateria)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            </button> 
 
                                         <template v-if="gestionMateria.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarGestionMateria(gestionMateria.id)">
-                                                <i class="icon-trash"></i>
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarGestionMateria(gestionMateria.id)">
+                                                <i class="icon-ban"></i>
                                             </button>
                                         </template>
                                         <template v-else>
                                             <button type="button" class="btn btn-success btn-sm" @click="activarGestionMateria(gestionMateria.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!gestionMateria.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarGestionMateria(gestionMateria.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="gestionMateria.gestionMateria"></td>
                                         <td v-text="gestionMateria.unidadBase"></td>
-                                        <td v-text="gestionMateria.precioBase"></td>
+                                        <td v-text="formatCurrency(gestionMateria.precioBase)"></td>
                                         <td v-text="gestionMateria.tipoMateria"></td>
                                         <td>
                                             <div v-if="gestionMateria.estado">
                                             <span class="badge badge-success">Activo</span>
                                             </div>
                                             <div v-else>
-                                            <span class="badge badge-danger">Desactivado</span>
+                                            <span class="badge badge-warning">Desactivado</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -111,7 +115,7 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="gestionMateria" class="form-control" placeholder="Nombre de materia">
+                                            <input type="text" v-model="gestionMateria" class="form-control" placeholder="Nombre de materia" @input="validarEntrada">
                                             <span class="help-block">(*) Ingrese el nombre de la materia</span>
                                         </div>
                                     </div>
@@ -129,7 +133,7 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Precio base</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="precioBase" class="form-control" placeholder="Precio base">
+                                            <input type="text" v-model="precioBase" class="form-control" placeholder="Precio base" @input="formatMoney">
                                             <span class="help-block">(*) Ingrese el precio base</span>
                                         </div>
                                     </div>
@@ -297,7 +301,7 @@
                 axios.post('/gestionmateria/store',{
                     'gestionMateria': this.gestionMateria,
                     'idUnidadBase': this.idUnidadBase,
-                    'precioBase': this.precioBase,
+                    'precioBase': this.precioBase.replace(/\D/g, ""), 
                     'idTipoMateria': this.idTipoMateria
                 }).then(function (response) {
                 me.cerrarModal();
@@ -305,6 +309,41 @@
                 })
                 .catch(function (error) {
                     console.log(error);
+                });
+            },
+            validarEntrada(event) {
+                // Al menos una letra al comienzo
+                if (!/^[a-zA-Z]/.test(event.target.value)) {
+
+                    event.target.value = '';
+                } else {
+                    // Permitir letras y números despues de una letra
+                    const regex = /[^a-zA-Z0-9\s]/g;
+                    event.target.value = event.target.value.replace(regex, '');
+                }
+                this.gestionMateria = event.target.value;
+            },
+            formatMoney(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 9) { 
+                    value = value.slice(0, 9);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.precioBase = value;
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
                 });
             },
             editarGestionMateria(){
@@ -316,7 +355,7 @@
                     'id': this.id,
                     'gestionMateria': this.gestionMateria,
                     'idUnidadBase': this.idUnidadBase,
-                    'precioBase': this.precioBase,
+                    'precioBase': this.precioBase.replace(/\D/g, ""), 
                     'idTipoMateria': this.idTipoMateria,
                     'estado': 1
                     //'dato': this.dato
@@ -337,7 +376,8 @@
                 buttonsStyling: false
                 })
                 swalWithBootstrapButtons.fire({
-                title: 'Está seguro?',
+                title: 'Esta acción desactivará la materia prima seleccionada',
+                text: '¿Deseas continuar?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Desactivar!',
@@ -351,7 +391,7 @@
                     }).then(function (response) {
                     me.listarGestionMateria(1,'','gestionmateria');
                     swalWithBootstrapButtons.fire(
-                    'Gestión desactivada!'
+                    'Materia prima desactivada!'
                     )
                     }).catch(function (error) {
                         console.log(error);
@@ -373,7 +413,7 @@
                 buttonsStyling: false
                 })
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar esta gestión?',
+                title: 'Deseas activar esta gestión?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -387,7 +427,7 @@
                     }).then(function (response) {
                     me.listarGestionMateria(1,'','gestionmateria');
                     swalWithBootstrapButtons.fire(
-                    'Gestión activada!'
+                    'Materia prima activada!'
                     )
                     }).catch(function (error) {
                         console.log(error);
@@ -399,6 +439,54 @@
                     me.listarGestionMateria();
                 }
                 })
+            },
+            eliminarGestionMateria(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará la materia prima. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/gestionmateria/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'La materia prima ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+                                    
+                                    this.listarGestionMateria(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la materia prima. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 500) {
+                                    console.error("Error al eliminar la materia prima:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la materia prima. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar la materia prima:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar la materia prima.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
             },
             validarGestionMateria(){
                 this.errorGestionMateria=0;
@@ -446,7 +534,7 @@
                             this.tipoAccion= 2;
                             this.gestionMateria=data['gestionMateria'];
                             this.idUnidadBase=data['idUnidadBase'];
-                            this.precioBase=data['precioBase'];
+                            this.precioBase=this.formatCurrency(data['precioBase']);
                             this.idTipoMateria=data['idTipoMateria'];
                             this.id=data['id'];
                             break;
@@ -483,5 +571,12 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .btn {
+        border-radius: 8px;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

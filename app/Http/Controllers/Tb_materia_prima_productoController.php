@@ -190,41 +190,42 @@ class Tb_materia_prima_productoController extends Controller
         }
 
         public function valorPrecioBase($id)
-        { //DATOS de valor segun orden 2 5 y 6 traigo segun idmateria el valor promedio del kardex
-            //if(!$request->ajax()) return redirect('/');
+        {
             $valorMaterial = 0;
-            $preciomaterial = Tb_kardex_almacen::first()
-            ->select('tb_kardex_almacen.id','tb_kardex_almacen.precioSaldos')
-            ->where([
-                ['tb_kardex_almacen.idGestionMateria', '=', $id],
-                ['tb_kardex_almacen.precioSaldos', '>', '0'],
-            ]) //aca podria poner en el where que mirara que el valor no es cero y probar edit funciona
-            ->orderBy('tb_kardex_almacen.idGestionMateria','desc')
-            ->get();
+            $preciomaterial = Tb_kardex_almacen::select('id','precioSaldos')
+                ->where([
+                    ['idGestionMateria', '=', $id],
+                    ['precioSaldos', '>', '0'],
+                ])
+                ->orderBy('idGestionMateria','desc')
+                ->get();
 
-            foreach($preciomaterial as $totalg){
-                $id = $totalg->id;
-                $valorMaterial = $valorMaterial + $totalg->precioSaldos;
+            if ($preciomaterial->isNotEmpty()) {
+                foreach($preciomaterial as $totalg) {
+                    $valorMaterial += $totalg->precioSaldos;
+                }
+            } else {
+                $valorMaterial = 0; // Establecer un valor predeterminado en caso de colección vacía
+                // Otra lógica para manejar la situación de colección vacía si es necesario
             }
 
-            if($valorMaterial>0){
+            if ($valorMaterial > 0) {
                 $valores = Tb_gestion_materia_prima::join('tb_unidad_base','tb_gestion_materia_prima.idUnidadBase','=','tb_unidad_base.id')
-                ->select('tb_unidad_base.unidadBase as unidadBase')
-                ->where('tb_gestion_materia_prima.id','=',$id)
-                ->get();
+                    ->select('tb_unidad_base.unidadBase as unidadBase')
+                    ->where('tb_gestion_materia_prima.id','=',$id)
+                    ->get();
 
                 foreach($valores as $totalg){
                     $unidad = $totalg->unidadBase;
                 }
 
                 $valorPrecioBase = $valorMaterial;
-            }
-            else{
+            } else {
                 $precioB = 0;
                 $valores = Tb_gestion_materia_prima::join('tb_unidad_base','tb_gestion_materia_prima.idUnidadBase','=','tb_unidad_base.id')
-                ->select('tb_gestion_materia_prima.precioBase as precioBase','tb_unidad_base.unidadBase as unidadBase')
-                ->where('tb_gestion_materia_prima.id','=',$id)
-                ->get();
+                    ->select('tb_gestion_materia_prima.precioBase as precioBase','tb_unidad_base.unidadBase as unidadBase')
+                    ->where('tb_gestion_materia_prima.id','=',$id)
+                    ->get();
 
                 foreach($valores as $totalg){
                     $valor = $totalg->precioBase + $precioB;
@@ -234,11 +235,13 @@ class Tb_materia_prima_productoController extends Controller
                 $valorPrecioBase = $valor;
             }
 
-            return [
-            'valorPrecioBase' => $valorPrecioBase,
-            'unidadBase' => $unidad
-            ];
+            $valorPrecioBaseFormatted = number_format($valorPrecioBase, 0, ',', '.');
+            $valorPrecioBaseFormatted = '$ ' . $valorPrecioBaseFormatted;
 
+            return [
+                'valorPrecioBase' => $valorPrecioBaseFormatted,
+                'unidadBase' => $unidad
+            ];
         }
 
 /*

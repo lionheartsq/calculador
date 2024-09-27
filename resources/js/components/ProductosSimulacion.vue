@@ -14,6 +14,11 @@
                                     </div>
                                 </div>
                             </div>
+
+            <div class="mb-3">
+                <strong>Total de productos: </strong> {{ arrayProductos.length }}
+            </div>
+            
             <div class="table-responsive">
             <table class="table table-bordered table-striped table-sm">
                 <thead>
@@ -30,9 +35,9 @@
                 <tbody>
                     <tr v-for="producto in arrayProductos" :key="producto.idRegistro">
                         <td>
-                            <button type="button" @click="$emit('abrirmodal','rela','actualizar',identificador,producto)" class="btn btn-warning btn-sm">
+                            <button type="button" @click="$emit('abrirmodal','rela','actualizar',identificador,producto)" class="btn btn-info btn-sm">
                             <i class="icon-pencil"></i>
-                            </button> &nbsp;
+                            </button> 
                             <button type="button" class="btn btn-danger btn-sm" @click="$emit('eliminarmateria',producto.idRegistro)">
                                 <i class="icon-trash"></i>
                             </button>

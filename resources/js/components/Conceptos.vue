@@ -42,31 +42,35 @@
 
                                     <tr v-for="concepto in arrayConceptos" :key="concepto.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('concepto','actualizar',concepto)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="abrirModal('concepto','actualizar',concepto)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            </button> 
 
                                         <template v-if="concepto.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarConcepto(concepto.id)">
-                                                <i class="icon-trash"></i>
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarConcepto(concepto.id)">
+                                                <i class="icon-ban"></i>
                                             </button>
                                         </template>
                                         <template v-else>
                                             <button type="button" class="btn btn-success btn-sm" @click="activarConcepto(concepto.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!concepto.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarConcepto(concepto.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="concepto.id"></td>
                                         <td v-text="concepto.concepto"></td>
-                                        <td v-text="concepto.valor"></td>
+                                        <td v-text="formatCurrency(concepto.valor)"></td>
                                         <td>
                                             <div v-if="concepto.estado">
                                             <span class="badge badge-success">Activo</span>
                                             </div>
                                             <div v-else>
-                                            <span class="badge badge-danger">Desactivado</span>
+                                            <span class="badge badge-warning">Desactivado</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -105,14 +109,14 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="concepto" class="form-control" placeholder="Nombre de el concepto">
+                                            <input type="text" v-model="concepto" class="form-control" placeholder="Nombre de el concepto" @input="validarEntrada">
                                             <span class="help-block">(*) Ingrese el nombre del concepto</span>
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Valor mensual</label>
                                         <div class="col-md-9">
-                                            <input type="number" v-model="valor" class="form-control" placeholder="Valor de el concepto">
+                                            <input type="text" v-model="valor" class="form-control" placeholder="Valor de el concepto" @input="formatMoney">
                                             <span class="help-block">(*) Ingrese el valor mensual del concepto</span>
                                         </div>
                                     </div>
@@ -235,7 +239,7 @@
                 let me=this;
                 axios.post('/concepto/store',{
                     'concepto': this.concepto,
-                    'valor': this.valor
+                    'valor': this.valor.replace(/\D/g, ""), 
                     //'estado': this.estado,
                     //'dato': this.dato
                 }).then(function (response) {
@@ -246,6 +250,41 @@
                     console.log(error);
                 });
             },
+            validarEntrada(event) {
+                // Al menos una letra al comienzo
+                if (!/^[a-zA-Z]/.test(event.target.value)) {
+
+                    event.target.value = '';
+                } else {
+                    // Permitir letras y números despues de una letra
+                    const regex = /[^a-zA-Z0-9\s]/g;
+                    event.target.value = event.target.value.replace(regex, '');
+                }
+                this.concepto = event.target.value;
+            },
+            formatMoney(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 9) { 
+                    value = value.slice(0, 9);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.valor = value;
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
+            },
             editarConcepto(){
                 if(this.validarConcepto()){
                     return;
@@ -253,7 +292,7 @@
 
                 let me=this;
                 axios.put('/concepto/update',{
-                    'valor': this.valor,
+                    'valor': this.valor.replace(/\D/g, ""), 
                     'concepto': this.concepto,
                     'id': this.idConcepto
                     //'estado': this.estado,
@@ -276,7 +315,8 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Está seguro?',
+                title: 'Esta acción desactivará el concepto seleccionado',
+                text: '¿Deseas continuar?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Desactivar!',
@@ -313,7 +353,7 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar este concepto?',
+                title: 'Deseas activar este concepto?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -339,6 +379,54 @@
                     me.listarConcepto();
                 }
                 })
+            },
+            eliminarConcepto(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará el concepto. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/concepto/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'El concepto ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+                                    
+                                    this.listarConcepto(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el concepto. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 500) {
+                                    console.error("Error al eliminar el concepto:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el concepto. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar el concepto:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar el concepto.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
             },
             validarConcepto(){
                 this.errorConcepto=0;
@@ -380,7 +468,7 @@
                             this.tipoAccion= 2;
                             this.idConcepto=data['id'];
                             this.concepto=data['concepto'];
-                            this.valor=data['valor'];
+                            this.valor=this.formatCurrency(data['valor']);
                             break;
                         }
                     }
@@ -411,5 +499,12 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .btn {
+        border-radius: 8px;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

@@ -1226,7 +1226,6 @@ pre {
   background-color: #fff;
   background-image: none;
   background-clip: padding-box;
-  border: 1px solid #c2cfd6;
   border-radius: 0;
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s; }
   .form-control::-ms-expand {
@@ -1637,12 +1636,14 @@ fieldset[disabled] a.btn {
 
 .btn-warning {
   color: #111;
-  background-color: #ffc107;
-  border-color: #ffc107; }
+  background-color: transparent;
+  border-radius: 10px;
+  box-shadow: 0px 0px 4px 4px rgba(255, 103, 27, 0.5); 
+  margin-top: 10px;}
   .btn-warning:hover {
     color: #111;
-    background-color: #e0a800;
-    border-color: #d39e00; }
+    background-color: #ff671b;
+    border-color: #ff671b; }
   .btn-warning:focus, .btn-warning.focus {
     box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.5); }
   .btn-warning.disabled, .btn-warning:disabled {
@@ -7640,15 +7641,16 @@ base-chart.chart {
   border-bottom: 1px solid #c2cfd6; }
   .app-header.navbar .navbar-brand {
     display: inline-block;
-    width: 155px;
+    width: 190px;
     height: 55px;
     padding: 0.5rem 1rem;
     margin-right: 0;
+    margin-left: 10px;
     background-color: #fff;
     background-image: url("../img/logo.png");
     background-repeat: no-repeat;
     background-position: center center;
-    background-size: 70px auto;
+    background-size: 100%;
     border-bottom: 1px solid #c2cfd6; }
   .app-header.navbar .navbar-toggler {
     min-width: 50px;
@@ -7951,7 +7953,8 @@ base-chart.chart {
       background-position: center;
       transition: -webkit-transform .3s;
       transition: transform .3s;
-      transition: transform .3s, -webkit-transform .3s; }
+      transition: transform .3s, -webkit-transform .3s; 
+      transform: rotate(180deg);}
   .sidebar .nav-dropdown.open {
     background: rgba(0, 0, 0, 0.2); }
     .sidebar .nav-dropdown.open > .nav-dropdown-items {

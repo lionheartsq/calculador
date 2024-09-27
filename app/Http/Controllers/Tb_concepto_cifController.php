@@ -99,4 +99,19 @@ class Tb_concepto_cifController extends Controller
         $tb_concepto->estado='1';
         $tb_concepto->save();
     }
+
+    public function eliminarConcepto($id, Request $request)
+    {
+        if(!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_concepto = Tb_concepto_cif::find($id);
+        if(!$tb_concepto){
+            return response()->json(['error' => 'Concepto no encontrada'], 404);
+        }
+
+        $tb_concepto->delete();
+        return response()->json(['message' => 'Concepto eliminado'], 200);
+    }
 }

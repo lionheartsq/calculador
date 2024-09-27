@@ -96,4 +96,19 @@ class Tb_unidad_baseController extends Controller
         $tb_unidad_base->estado='1';
         $tb_unidad_base->save();
     }
+
+    public function eliminarUnidad($id, Request $request)
+    {
+        if(!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_unidad_base = Tb_unidad_base::find($id);
+        if(!$tb_unidad_base){
+            return response()->json(['error' => 'Unidad no encontrada'], 404);
+        }
+
+        $tb_unidad_base->delete();
+        return response()->json(['message' => 'Unidad eliminada'], 200);
+    }
 }

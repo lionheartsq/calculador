@@ -33,8 +33,8 @@
                         <td v-text="producto.producto"></td>
                         <td v-text="producto.referencia"></td>
                         <td v-text="producto.cantidad"></td>
-                        <td v-text="producto.precioCosto"></td>
-                        <td v-text="producto.precioVenta"></td>
+                        <td v-text="formatCurrency(producto.precioCosto)"></td>
+                        <td v-text="formatCurrency(producto.precioVenta)"></td>
                     </tr>
                 </tbody>
             </table>
@@ -154,6 +154,14 @@
                     // handle error
                 console.log(url);
                 })
+            },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
             },
             indexChange: function(args) {
                 let newIndex = args.value

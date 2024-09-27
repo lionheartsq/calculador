@@ -47,9 +47,14 @@
                                             <button type="button" class="btn btn-danger btn-sm" @click="mostrarTiempoEstandar(tiempoestandar.id)">
                                                 <i class="icon-plus"><span>Gestionar</span></i>
                                             </button>
-                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('detalle','crear',tiempoestandar.id)">
-                                                <i class="icon-cloud-upload"><span>Calcular</span></i>
-                                            </button>
+
+                                                <template v-if="tiempoestandar.cantidad_ciclos > 0">
+                                                    <button type="button" class="btn btn-calcular btn-sm" @click="abrirModal('detalle', 'crear', tiempoestandar.id)">
+                                                        <i class="icon-cloud-upload"><span>Calcular</span></i>
+                                                    </button>
+                                                </template>
+
+                                            <span>({{ tiempoestandar.cantidad_ciclos }} ciclos)</span>
                                             </template>
                                             <template v-if="tiempoestandar.estado==0">
                                             <button type="button" class="btn btn-success btn-sm" @click="mostrarDetalle(tiempoestandar.id)">
@@ -198,7 +203,7 @@
                                     <div v-if="tipoModal==1" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Piezas por Par <br></label>
                                         <div class="col-md-9">
-                                            <input type="number" step="0.01" v-model="piezasPar" class="form-control" placeholder="Piezas por Par">
+                                            <input type="text" step="0.01" v-model="piezasPar" class="form-control" placeholder="Piezas por Par" @input="soloNumeros">
                                             <span class="help-block">(*) Ingrese las piezas por par</span>
                                         </div>
                                     </div>
@@ -218,7 +223,7 @@
                                     <div v-if="tipoModal==2" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Tiempo en Ciclos<br></label>
                                         <div class="col-md-9">
-                                            <input type="number" step="0.01" v-model="tiempo" class="form-control" placeholder="Tiempo en Ciclos">
+                                            <input type="text" step="0.01" v-model="tiempo" class="form-control" placeholder="Tiempo en Ciclos" @input="soloNumerosCiclos">
                                             <span class="help-block">(*) Ingrese el tiempo en ciclos</span>
                                         </div>
                                     </div>
@@ -226,7 +231,7 @@
                                      <div v-if="tipoModal==2" class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Piezas <br></label>
                                         <div class="col-md-9">
-                                            <input type="number" step="0.01" v-model="piezas" class="form-control" placeholder="Piezas">
+                                            <input type="text" step="0.01" v-model="piezas" class="form-control" placeholder="Piezas" @input="soloNumerosPiezas">
                                             <span class="help-block">(*) Ingrese las piezas</span>
                                         </div>
                                     </div>
@@ -372,6 +377,48 @@
                     // handle error
                     console.log(error);
                 })
+            },
+            soloNumeros(event) {
+                const input = event.target.value;
+                const regex = /^\d*$/; // Permite cualquier cantidad de dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.piezasPar = event.target.value;
+            },
+            soloNumerosCiclos(event) {
+                const input = event.target.value;
+                const regex = /^\d*$/; // Permite cualquier cantidad de dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.tiempo = event.target.value;
+            },
+            soloNumerosPiezas(event) {
+                const input = event.target.value;
+                const regex = /^\d*$/; // Permite cualquier cantidad de dígitos
+
+                if (!regex.test(input)) {
+                    event.target.value = input.slice(0, -1);
+                }
+
+                if (input.length > 0 && input.charAt(0) === '0') {
+                    event.target.value = input.slice(1); // Eliminar el primer carácter si es 0
+                }
+
+                this.piezas = event.target.value;
             },
             cambiarPagina(page,buscar,criterio){
                 let me = this;
@@ -616,5 +663,9 @@
     }
     .cursor{
         cursor: pointer;
+    }
+    .btn-calcular {
+        background-color: #ff671b; 
+        color: #ffffff;
     }
 </style>

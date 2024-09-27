@@ -42,20 +42,25 @@
 
                                     <tr v-for="area in arrayAreas" :key="area.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('area','actualizar',area)" class="btn btn-warning btn-sm">
+                                            <button type="button" @click="abrirModal('area','actualizar',area)" class="btn btn-info btn-sm">
                                             <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            </button> 
 
                                         <template v-if="area.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarArea(area.id)">
-                                                <i class="icon-trash"></i>
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarArea(area.id)">
+                                                <i class="icon-ban"></i>
                                             </button>
                                         </template>
                                         <template v-else>
                                             <button type="button" class="btn btn-success btn-sm" @click="activarArea(area.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!area.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarArea(area.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
+                                        
                                         </td>
                                         <td v-text="area.id"></td>
                                         <td v-text="area.area"></td>
@@ -64,7 +69,7 @@
                                             <span class="badge badge-success">Activo</span>
                                             </div>
                                             <div v-else>
-                                            <span class="badge badge-danger">Desactivado</span>
+                                            <span class="badge badge-warning">Desactivado</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -103,7 +108,7 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
                                         <div class="col-md-9">
-                                            <input type="text" v-model="area" class="form-control" placeholder="Nombre de área">
+                                            <input type="text" v-model="area" class="form-control" placeholder="Nombre de área" @input="validarEntrada">
                                             <span class="help-block">(*) Ingrese el nombre del área</span>
                                         </div>
                                     </div>
@@ -230,6 +235,18 @@
                     console.log(error);
                 });
             },
+            validarEntrada(event) {
+                // Al menos una letra al comienzo
+                if (!/^[a-zA-Z]/.test(event.target.value)) {
+
+                    event.target.value = '';
+                } else {
+                    // Permitir letras y números despues de una letra
+                    const regex = /[^a-zA-Z0-9\s]/g;
+                    event.target.value = event.target.value.replace(regex, '');
+                }
+                this.area = event.target.value;
+            },
             editarArea(){
                 if(this.validarArea()){
                     return;
@@ -249,7 +266,7 @@
                     console.log(error);
                 });
             },
-             desactivarArea(id){
+            desactivarArea(id){
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -259,7 +276,8 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Está seguro?',
+                title: 'Esta acción desactivará el área seleccionada',
+                text: '¿Desea continuar?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Desactivar!',
@@ -273,7 +291,7 @@
                     }).then(function (response) {
                     me.listarArea(1,'','area');
                     swalWithBootstrapButtons.fire(
-                    'Area desactivada!'
+                    'Área desactivada!'
                     )
                     }).catch(function (error) {
                         console.log(error);
@@ -296,7 +314,7 @@
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Quiere activar esta areá?',
+                title: 'Deseas activar esta areá?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '<i class="fa fa-check fa-2x"></i> Activar!',
@@ -310,7 +328,7 @@
                     }).then(function (response) {
                     me.listarArea(1,'','area');
                     swalWithBootstrapButtons.fire(
-                    'Area activada!'
+                    'Área activada!'
                     )
                     }).catch(function (error) {
                         console.log(error);
@@ -322,6 +340,54 @@
                     me.listarArea();
                 }
                 })
+            },
+            eliminarArea(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará el área. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/area/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'El área ha sido eliminada correctamente.',
+                                        'success'
+                                    );
+                                    // Actualizar la lista de áreas después de la eliminación
+                                    this.listarArea(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el área. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 500) {
+                                    console.error("Error al eliminar el área:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el área. Verifica si está asociada con otros elementos.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar el área:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar el área.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
             },
             validarArea(){
                 this.errorArea=0;
@@ -390,5 +456,12 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .btn {
+        border-radius: 8px;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

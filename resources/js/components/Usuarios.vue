@@ -46,12 +46,12 @@
 
                                     <tr v-for="usuario in arrayUsuario" :key="usuario.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('usuario','actualizar',usuario)" class="btn btn-warning btn-sm">
-                                            <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            <button type="button" @click="abrirModal('usuario','actualizar',usuario)" class="btn btn-info btn-sm">
+                                            <i class="icon-pencil" style="color: white;"></i>
+                                            </button> 
 
                                         <template v-if="usuario.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarUsuario(usuario.id)">
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarUsuario(usuario.id)">
                                                 <i class="icon-trash"></i>
                                             </button>
                                         </template>
@@ -59,7 +59,11 @@
                                             <button type="button" class="btn btn-success btn-sm" @click="activarUsuario(usuario.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!usuario.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarUsuario(usuario.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="usuario.id"></td>
@@ -96,6 +100,11 @@
                     </div>
                     <!-- Fin ejemplo de tabla Listado -->
                 </div>
+
+                <div v-if="loading" class="overlay">
+                    <div class="spinner"></div>
+                </div>
+
                 <!--Inicio del modal agregar/actualizar-->
                 <div class="modal fade" tabindex="-1" :class="{'mostrar':modal}" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true">
                     <div class="modal-dialog modal-primary modal-lg" role="document">
@@ -126,8 +135,9 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 form-control-label" for="text-input">E-mail</label>
                                         <div class="col-md-9">
-                                            <input type="email" v-model="email" class="form-control" placeholder="Correo electrónico">
+                                            <input type="email" v-model="email" class="form-control" placeholder="Correo electrónico" @input="validarEmail" :class="{ 'is-invalid': emailError }">
                                             <span class="help-block">(*) Ingrese el correo electrónico</span>
+                                            <span v-if="emailError" class="text-danger">{{ emailError }}</span>
                                         </div>
                                     </div>
                                     <div class="form-group row div-error" v-show="errorUsuario">
@@ -153,6 +163,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
     export default {
         data(){
             return{
@@ -160,6 +173,7 @@
                 id:'',
                 name:'',
                 email:'',
+                emailError: '',
                 estado:'',
                 arrayUsuario : [],
                 idRol:0,
@@ -181,7 +195,8 @@
                 },
                 offset : 3,
                 criterio : 'name',
-                buscar : ''
+                buscar : '',
+                loading: false 
             }
         },
         computed:{
@@ -227,6 +242,74 @@
                     console.log(error);
                 })
             },
+            validarEmail() {
+                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+                if (this.email && !emailPattern.test(this.email)) {
+                    this.emailError = 'Ingrese un correo electrónico válido.';
+                } else {
+                    this.emailError = '';
+                }
+            },
+            eliminarUsuario(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará el usuario y todos los roles asociados. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/usuario/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'El usuario y sus roles asociados han sido eliminados correctamente.',
+                                        'success'
+                                    );
+                                    this.listarUsuario(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el usuario.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response) {
+                                    if (error.response.status === 403 && error.response.data.error === 'No se puede eliminar un superadministrador') {
+                                        Swal.fire(
+                                            'Acción no permitida',
+                                            'No se puede eliminar un Super Administrador.',
+                                            'error'
+                                        );
+                                    } else if (error.response.status === 404) {
+                                        Swal.fire(
+                                            'Error',
+                                            'Usuario no encontrado.',
+                                            'error'
+                                        );
+                                    } else {
+                                        Swal.fire(
+                                            'Error',
+                                            'Se produjo un error al intentar eliminar el usuario.',
+                                            'error'
+                                        );
+                                    }
+                                } else {
+                                    console.error("Error al eliminar el usuario:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar el usuario.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
+            },
             indexChange: function(args) {
                 let newIndex = args.value
                 console.log('Current tab index: ' + newIndex)
@@ -253,45 +336,107 @@
                 //envia peticion para ver los valores asociados a esa pagina
                 me.listarUsuario(page,buscar,criterio);
             },
-            crearUsuario(){
-                //valido con el metodo de validacion creado
-                if(this.validarUsuario()){
-                    return;
-                }
 
-                let me=this;
-                axios.post('/usuario/store',{
-                    'name': this.name,
-                    'idRol': this.idRol,
-                    'email': this.email
-                }).then(function (response) {
-                me.cerrarModal();
-                me.listarUsuario(1,'','name');
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-            },
-            editarUsuario(){
-                if(this.validarUsuario()){
-                    return;
-                }
+                crearUsuario() {
+            // Valida los campos del usuario
+            if (this.validarUsuario()) {
+                return;
+            }
 
-                let me=this;
-                axios.put('/usuario/update',{
-                    'id': this.idUser,
-                    'name': this.name,
-                    'idRol': this.idRol,
-                    'email': this.email,
-                    'idexRol':this.idexRol
-                }).then(function (response) {
-                me.cerrarModal();
-                me.listarUsuario(1,'','name');
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-            },
+            // Modal de confirmación
+            Swal.fire({
+                title: '¿Estás seguro de crear este usuario?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, crear usuario',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.loading = true; 
+                    // Realiza la petición POST al servidor para crear el usuario
+                    axios.post('/usuario/store', {
+                        'name': this.name,
+                        'idRol': this.idRol,
+                        'email': this.email
+                    }).then((response) => {
+                        // Desactiva la pantalla de carga antes de mostrar el modal de éxito
+                        this.loading = false;
+                        // Cierra el modal y actualiza la lista de usuarios
+                        this.cerrarModal();
+                        this.listarUsuario(1, '', 'name');
+
+                        // Usuario creado correctamente
+                        Swal.fire({
+                            title: 'Éxito',
+                            text: 'Usuario creado correctamente',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    }).catch((error) => {
+                        // Desactiva la pantalla de carga antes de mostrar el modal de error
+                        this.loading = false; 
+                        console.log(error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ha ocurrido un error al crear el usuario.'
+                        });
+                    });
+                }
+            });
+        },
+
+        editarUsuario() {
+            // Valida los campos del usuario
+            if (this.validarUsuario()) {
+                return;
+            }
+
+            // Modal de confirmación
+            Swal.fire({
+                title: '¿Estás seguro de editar este usuario?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, editar usuario',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.loading = true;
+                    // Realiza la petición PUT al servidor para editar el usuario
+                    axios.put('/usuario/update', {
+                        'id': this.idUser,
+                        'name': this.name,
+                        'idRol': this.idRol,
+                        'email': this.email,
+                        'idexRol': this.idexRol
+                    }).then((response) => {
+                        // Desactiva la pantalla de carga antes de mostrar el modal de éxito
+                        this.loading = false;
+                        // Cierra el modal y actualiza la lista de usuarios
+                        this.cerrarModal();
+                        this.listarUsuario(1, '', 'name');
+
+                        // Usuario actualizado correctamente
+                        Swal.fire({
+                            title: 'Éxito',
+                            text: 'Usuario actualizado correctamente',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    }).catch((error) => {
+                        // Desactiva la pantalla de carga antes de mostrar el modal de error
+                        this.loading = false;
+                        console.log(error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ha ocurrido un error al actualizar el usuario.'
+                        });
+                    });
+                }
+            });
+        },
+
             desactivarUsuario(id){
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
@@ -426,22 +571,55 @@
     }
 </script>
 <style>
-    .modal-content{
-        width: 100% !important;
-        position: absolute !important;
+.modal-content {
+    width: 100% !important;
+    position: absolute !important;
+}
+.mostrar {
+    display: list-item !important;
+    opacity: 1 !important;
+    position: absolute !important;
+    background-color: #3c29297a !important;
+}
+.div-error {
+    display: flex;
+    justify-content: center;
+}
+.text-error {
+    color: red !important;
+    font-weight: bold;
+}
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #09f;
+    animation: spin 1s ease infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
     }
-    .mostrar{
-        display: list-item !important;
-        opacity: 1 !important;
-        position: absolute !important;
-        background-color: #3c29297a !important;
+    100% {
+        transform: rotate(360deg);
     }
-    .div-error{
-        display: flex;
-        justify-content: center;
-    }
-    .text-error{
-        color: red !important;
-        font-weight: bold;
+}
+.custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

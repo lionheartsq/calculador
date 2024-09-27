@@ -14,67 +14,67 @@
                             <table class="table table-bordered table-striped table-sm">
                                 <tbody>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Extra Diurna
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="extraDiurna"  step="0.01" class="form-control" placeholder="Extra Diurna">
+                                        <td class="col-6">
+                                            <input type="text" v-model="extraDiurna"  @input="ingresoPorcentaje('extraDiurna')" class="form-control" placeholder="Extra Diurna">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Extra Nocturna
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="extraNocturna" step="0.01" class="form-control" placeholder="Extra Nocturna">
+                                        <td class="col-6">
+                                            <input type="text" v-model="extraNocturna" @input="ingresoPorcentaje('extraNocturna')" class="form-control" placeholder="Extra Nocturna">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Hora Dominical
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="horaDominical" step="0.01" class="form-control" placeholder="Hora Dominical">
+                                        <td class="col-6">
+                                            <input type="text" v-model="horaDominical" @input="ingresoPorcentaje('horaDominical')" class="form-control" placeholder="Hora Dominical">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Festiva Diurna
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="festivaDiurna" step="0.01" class="form-control" placeholder="Festiva Diurna">
+                                        <td class="col-6">
+                                            <input type="text" v-model="festivaDiurna" @input="ingresoPorcentaje('festivaDiurna')" class="form-control" placeholder="Festiva Diurna">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Festiva Nocturna
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="festivaNocturna" step="0.01" class="form-control" placeholder="Festiva Nocturna">
+                                        <td class="col-6">
+                                            <input type="text" v-model="festivaNocturna" @input="ingresoPorcentaje('festivaNocturna')" class="form-control" placeholder="Festiva Nocturna">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Recargos
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="recargos" step="0.01" class="form-control" placeholder="Recargos">
+                                        <td class="col-6">
+                                            <input type="text" v-model="recargos" @input="ingresoPorcentaje('recargos')" class="form-control" placeholder="Recargos">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Salario mínimo mensual legal vigente
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="minimolegal" step="0.01" class="form-control" placeholder="SMMLV">
+                                        <td class="col-6">
+                                            <input type="text" v-model="minimolegal" @input="formatMoney" class="form-control" placeholder="SMMLV">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Auxilio de transporte
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="auxilio" step="0.01" class="form-control" placeholder="Auxilio">
+                                        <td class="col-6">
+                                            <input type="text" v-model="auxilio" @input="formatMoneyAuxilio" class="form-control" placeholder="Auxilio">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -94,6 +94,8 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+
     export default {
          props: {
             identificador: {
@@ -127,8 +129,16 @@
                 me.festivaDiurna=respuesta.festivaDiurna;
                 me.festivaNocturna=respuesta.festivaNocturna;
                 me.recargos=respuesta.recargos;
-                me.minimolegal=respuesta.minimolegal;
-                me.auxilio=respuesta.auxilio;
+                me.minimolegal = parseFloat(respuesta.minimolegal).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
+                me.auxilio= parseFloat(respuesta.auxilio).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
                 })
                 .catch(function (error) {
                     // handle error
@@ -146,8 +156,8 @@
                     'festivaDiurna' : this.festivaDiurna,
                     'festivaNocturna' : this.festivaNocturna,
                     'recargos' : this.recargos,
-                    'minimolegal' : this.minimolegal,
-                    'auxilio' : this.auxilio
+                    'minimolegal' : this.minimolegal.replace(/\D/g, ""), 
+                    'auxilio' : this.auxilio.replace(/\D/g, ""), 
                 }).then(function (response) {
                 me.listarFactorNomina();
                 })
@@ -155,7 +165,35 @@
                     console.log(error);
                 });
             },
+            ingresoPorcentaje(campo) {
+                let valor = this[campo];
+
+                valor = valor.replace(/[^0-9.,]/g, '');
+
+                valor = valor.replace(/,/g, '.');
+
+                if (/^-?\d+(\.\d{0,2})?$/.test(valor)) {
+
+                    if (!/\./.test(valor)) {
+                    valor = valor.substring(0, 6);
+                    }
+                    this[campo] = valor; 
+                } else {                  
+                    this[campo] = this[campo].slice(0, -1);
+                }
+            },
             actualizarDatos(extraDiurna,extraNocturna,horaDominical,festivaDiurna,festivaNocturna,recargos){
+                
+                if (!extraDiurna || !extraNocturna || !horaDominical || !festivaDiurna || !festivaNocturna || !recargos) {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Por favor, completa todos los campos del formulario.',
+                });
+                return; 
+                }
+                
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success'
@@ -171,8 +209,8 @@
                     'festivaDiurna' : this.festivaDiurna,
                     'festivaNocturna' : this.festivaNocturna,
                     'recargos' : this.recargos,
-                    'minimolegal' : this.minimolegal,
-                    'auxilio' : this.auxilio
+                    'minimolegal' : this.minimolegal.replace(/\D/g, ""), 
+                    'auxilio' : this.auxilio.replace(/\D/g, ""), 
                 }).then(function (response) {
                 swalWithBootstrapButtons.fire('Registro actualizado');
                 me.listarFactorNomina()
@@ -180,7 +218,39 @@
                 .catch(function (error) {
                     console.log(error);
                 });
-            }
+            },
+
+            formatMoney(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 8) { 
+                    value = value.slice(0, 8);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.minimolegal = value;
+                },
+
+                formatMoneyAuxilio(event) {
+                let value = event.target.value.replace(/\D/g, ""); 
+                if (value.length > 8) { 
+                    value = value.slice(0, 8);
+                }
+                if (value !== "") {
+                    value = parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                    });
+                }
+                event.target.value = value;
+                this.auxilio = value;
+                }
         },
         mounted() {
             this.listarFactorNomina()

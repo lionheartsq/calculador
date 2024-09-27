@@ -1,6 +1,8 @@
 <template>
         <!-- Ejemplo de tabla Listado -->
         <div>
+            <div class="card">
+                <div class="card-body">
 
             <div class="table-responsive">
             <table class="table table-bordered table-striped table-sm">
@@ -18,8 +20,8 @@
                         <td v-text="producto.producto"></td>
                         <td v-text="producto.referencia"></td>
                         <td v-text="producto.cantidad"></td>
-                        <td v-text="producto.valor"></td>
-                        <td v-text="producto.precioVenta"></td>
+                        <td v-text="formatCurrency(producto.valor)"></td>
+                        <td v-text="formatCurrency(producto.precioVenta)"></td>
                     </tr>
                 </tbody>
             </table>
@@ -38,6 +40,8 @@
                 </ul>
             </nav>
                     <!-- Fin ejemplo de tabla Listado -->
+                </div>
+            </div>
         </div>
 </template>
 
@@ -112,6 +116,14 @@
                     console.log(error);
                 })
             },
+            formatCurrency(value) {
+                if (!value) return '';
+                return parseInt(value).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                });
+            },
             cambiarPagina(page,buscar,criterio){
                 let me = this;
                 //Actualiza la pagina actual
@@ -145,5 +157,12 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .card {
+        border: none;
+    }
+    .card-body{
+        padding: 30px;
+        border: none;
     }
 </style>

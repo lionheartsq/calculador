@@ -74,4 +74,25 @@ class Tb_rolController extends Controller
         $tb_rol->estado='1';
         $tb_rol->save();
     }
+
+    public function eliminarRol($id, Request $request)
+    {
+        if (!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_rol = Tb_rol::find($id);
+        if (!$tb_rol) {
+            return response()->json(['error' => 'Rol no encontrado'], 404);
+        }
+
+        // Verifica si el rol está asociado a algún usuario
+        $rolAsociado = \DB::table('tb_usuario_tiene_rol')->where('idRol', $id)->exists();
+        if ($rolAsociado) {
+            return response()->json(['error' => 'El rol está asociado a usuarios y no puede ser eliminado'], 400);
+        }
+
+        $tb_rol->delete();
+        return response()->json(['message' => 'Rol eliminado'], 200);
+    }
 }

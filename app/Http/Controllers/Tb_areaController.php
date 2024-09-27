@@ -100,4 +100,19 @@ class Tb_areaController extends Controller
         $tb_area->estado='1';
         $tb_area->save();
     }
+
+    public function eliminarArea($id, Request $request)
+    {
+        if(!$request->ajax()) {
+            return response()->json(['error' => 'Acción no permitida'], 403);
+        }
+
+        $tb_area = Tb_area::find($id);
+        if(!$tb_area){
+            return response()->json(['error' => 'Área no encontrada'], 404);
+        }
+
+        $tb_area->delete();
+        return response()->json(['message' => 'Área eliminada'], 200);
+    }
 }

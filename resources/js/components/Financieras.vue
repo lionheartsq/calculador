@@ -14,67 +14,67 @@
                             <table class="table table-bordered table-striped table-sm">
                                 <tbody>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Vacaciones
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="vacaciones" step="0.01">
+                                        <td class="col-6">
+                                            <input type="text" v-model="vacaciones" @input="ingresoPorcentaje('vacaciones')" class="form-control" placeholder="Vacaciones">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Prima
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="prima" step="0.01">
+                                        <td class="col-6">
+                                            <input type="text" v-model="prima" @input="ingresoPorcentaje('prima')" class="form-control" placeholder="Prima">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Cesantías
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="cesantias" step="0.01">
+                                        <td class="col-6">
+                                            <input type="text" v-model="cesantias" @input="ingresoPorcentaje('cesantias')" class="form-control" placeholder="Cesantías">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Intereses a las cesantías
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="intereses" step="0.01">
+                                        <td class="col-6">
+                                            <input type="text" v-model="intereses" @input="ingresoPorcentaje('intereses')" class="form-control" placeholder="Intereses a las cesantías">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Salud
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="salud" step="0.01">
+                                        <td class="col-6">
+                                            <input type="text" v-model="salud" @input="ingresoPorcentaje('salud')" class="form-control" placeholder="Salud">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Pensión
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="pension" step="0.01">
+                                        <td class="col-6">
+                                            <input type="text" v-model="pension" @input="ingresoPorcentaje('pension')" class="form-control" placeholder="Pensión">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             ARL
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="arl" step="0.01">
+                                        <td class="col-6">
+                                            <input type="text" v-model="arl" @input="ingresoPorcentaje('arl')" class="form-control" placeholder="ARL">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
+                                        <td class="col-6">
                                             Caja de compensación
                                         </td>
-                                        <td>
-                                            <input type="number" v-model="caja" step="0.01">
+                                        <td class="col-6">
+                                            <input type="text" v-model="caja" @input="ingresoPorcentaje('caja')" class="form-control" placeholder="Caja de compensación">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -93,6 +93,8 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+
     export default {
         data(){
             return{
@@ -114,21 +116,49 @@
                 // Make a request for a user with a given ID
                 axios.get(url).then(function (response) {
                 var respuesta=response.data;
-                me.vacaciones=respuesta.vacaciones;
-                me.prima=respuesta.prima;
-                me.cesantias=respuesta.cesantias;
-                me.intereses=respuesta.intereses;
-                me.salud=respuesta.salud;
-                me.pension=respuesta.pension;
-                me.arl=respuesta.arl;
-                me.caja=respuesta.caja;
+                me.vacaciones = respuesta.vacaciones.toString().replace(/\./g, ',');
+                me.prima=respuesta.prima.toString().replace(/\./g, ',');
+                me.cesantias=respuesta.cesantias.toString().replace(/\./g, ',');
+                me.intereses=respuesta.intereses.toString().replace(/\./g, ',');
+                me.salud=respuesta.salud.toString().replace(/\./g, ',');
+                me.pension=respuesta.pension.toString().replace(/\./g, ',');
+                me.arl=respuesta.arl.toString().replace(/\./g, ',');
+                me.caja=respuesta.caja.toString().replace(/\./g, ',');
                 })
                 .catch(function (error) {
                     // handle error
                     console.log(error);
                 })
             },
+            ingresoPorcentaje(campo) {
+                let valor = this[campo];
+
+                valor = valor.replace(/[^0-9.,]/g, '');
+
+                valor = valor.replace(/,/g, '.');
+
+                if (/^-?\d+(\.\d{0,2})?$/.test(valor)) {
+
+                    if (!/\./.test(valor)) {
+                    valor = valor.substring(0, 6);
+                    }
+                    this[campo] = valor; 
+                } else {                  
+                    this[campo] = this[campo].slice(0, -1);
+                }
+            },
             actualizarDatos(vacaciones,prima,cesantias,intereses,salud,pension,arl,caja){
+                
+                if (!vacaciones || !prima || !cesantias || !intereses || !salud || !pension || !arl || !caja) {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Por favor, completa todos los campos del formulario.',
+                });
+                return; 
+                }
+            
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success'
@@ -138,14 +168,14 @@
                 let me=this;
                 axios.post('/financiera/actualizar',{
                     'id': 1,
-                    'vacaciones' : this.vacaciones,
-                    'prima' : this.prima,
-                    'cesantias' : this.cesantias,
-                    'intereses' : this.intereses,
-                    'salud' : this.salud,
-                    'pension' : this.pension,
-                    'arl' : this.arl,
-                    'caja' : this.caja
+                    'vacaciones' : this.vacaciones.replace(/,/g, '.'),
+                    'prima' : this.prima.replace(/,/g, '.'),
+                    'cesantias' : this.cesantias.replace(/,/g, '.'),
+                    'intereses' : this.intereses.replace(/,/g, '.'),
+                    'salud' : this.salud.replace(/,/g, '.'),
+                    'pension' : this.pension.replace(/,/g, '.'),
+                    'arl' : this.arl.replace(/,/g, '.'),
+                    'caja' : this.caja.replace(/,/g, '.')
                 }).then(function (response) {
                 swalWithBootstrapButtons.fire('Registro actualizado');
                 me.listarVariables()

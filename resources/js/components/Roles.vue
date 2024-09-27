@@ -42,12 +42,12 @@
 
                                     <tr v-for="rol in arrayRoles" :key="rol.id">
                                         <td>
-                                            <button type="button" @click="abrirModal('rol','actualizar',rol)" class="btn btn-warning btn-sm">
-                                            <i class="icon-pencil"></i>
-                                            </button> &nbsp;
+                                            <button type="button" @click="abrirModal('rol','actualizar',rol)" class="btn btn-info btn-sm">
+                                            <i class="icon-pencil" style="color: white;"></i>
+                                            </button> 
 
                                         <template v-if="rol.estado">
-                                            <button type="button" class="btn btn-danger btn-sm" @click="desactivarRol(rol.id)">
+                                            <button type="button" class="btn custom-button btn-sm" @click="desactivarRol(rol.id)">
                                                 <i class="icon-trash"></i>
                                             </button>
                                         </template>
@@ -55,7 +55,11 @@
                                             <button type="button" class="btn btn-success btn-sm" @click="activarRol(rol.id)">
                                                 <i class="icon-check"></i>
                                             </button>
-                                        </template>
+                                        </template>&nbsp;
+
+                                        <button v-if="!rol.estado" type="button" class="btn btn-danger btn-sm" @click="eliminarRol(rol.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
 
                                         </td>
                                         <td v-text="rol.id"></td>
@@ -343,6 +347,53 @@
                 }
                 })
             },
+            eliminarRol(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción eliminará el rol. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete(`/rol/delete/${id}`)
+                            .then(response => {
+                                if (response.status === 200) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'El rol ha sido eliminado correctamente.',
+                                        'success'
+                                    );
+                                    
+                                    this.listarRol(this.pagination.currentPage, this.buscar, this.criterio);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar el rol. Verifica si está asociado a usuarios.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.status === 400) {
+                                    Swal.fire(
+                                        'Error',
+                                        'El rol está asociado a usuarios y no puede ser eliminado.',
+                                        'error'
+                                    );
+                                } else {
+                                    console.error("Error al eliminar el rol:", error);
+                                    Swal.fire(
+                                        'Error',
+                                        'Se produjo un error al intentar eliminar el rol.',
+                                        'error'
+                                    );
+                                }
+                            });
+                    }
+                });
+            },
            validarRol(){
                 this.errorRol=0;
                 this.errorMensaje=[];
@@ -410,5 +461,9 @@
     .text-error{
         color: red !important;
         font-weight: bold;
+    }
+    .custom-button {
+        background-color: #ff9900; 
+        color: #ffffff; 
     }
 </style>

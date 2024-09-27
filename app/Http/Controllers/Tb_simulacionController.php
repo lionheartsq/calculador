@@ -28,32 +28,39 @@ class Tb_simulacionController extends Controller
         //cambios multiempresa
         foreach (Auth::user()->empresas as $empresa){
             $idEmpresa=$empresa['id'];
-         }
+        }
         //cambios multiempresa
 
-        //if(!$request->ajax()) return redirect('/');
         $buscar= $request->buscar;
         $criterio= $request->criterio;
 
-        if ($buscar=='') {
-            $simulaciones = Tb_simulacion::where('tb_simulacion.idEmpresa','=',$idEmpresa)
-            ->orderBy('id','desc')->paginate(5);
+        $query = Tb_simulacion::where('tb_simulacion.idEmpresa', '=', $idEmpresa);
+
+        if ($buscar != '') {
+            $query->where($criterio, 'like', '%'. $buscar . '%');
         }
-        else {
-            $simulaciones = Tb_simulacion::where('tb_simulacion.idEmpresa','=',$idEmpresa)
-            ->where($criterio, 'like', '%'. $buscar . '%')->orderBy('id','desc')->paginate(5);
-        }
+
+        $simulaciones = $query->orderBy('id', 'desc')->paginate(5);
+
+        // Obtiene la cantidad de productos asociados a cada simulación
+        $simulaciones->transform(function ($simulacion) {
+            $simulacion->cantidad_productos = Tb_mano_de_obra_producto_simula::where('idSimulacion', $simulacion->id)->count() +
+                                            Tb_materia_prima_producto_simula::where('idSimulacion', $simulacion->id)->count() +
+                                            Tb_concepto_cif_simula::where('idSimulacion', $simulacion->id)->count() +
+                                            Tb_rela_simulacion::where('idSimulacion', $simulacion->id)->count();
+            return $simulacion;
+        });
 
         return [
             'pagination' => [
-                'total'         =>$simulaciones->total(),
-                'current_page'  =>$simulaciones->currentPage(),
-                'per_page'      =>$simulaciones->perPage(),
-                'last_page'     =>$simulaciones->lastPage(),
-                'from'          =>$simulaciones->firstItem(),
-                'to'            =>$simulaciones->lastItem(),
+                'total'         => $simulaciones->total(),
+                'current_page'  => $simulaciones->currentPage(),
+                'per_page'      => $simulaciones->perPage(),
+                'last_page'     => $simulaciones->lastPage(),
+                'from'          => $simulaciones->firstItem(),
+                'to'            => $simulaciones->lastItem(),
             ],
-                'simulaciones' => $simulaciones
+            'simulaciones' => $simulaciones
         ];
     }
 
@@ -80,6 +87,21 @@ class Tb_simulacionController extends Controller
         $tb_simulacion=Tb_simulacion::findOrFail($request->id);
         $tb_simulacion->estado=1;
         $tb_simulacion->save();
+    }
+
+    public function destroy($id)
+    {
+        $simulacion = Tb_simulacion::findOrFail($id);
+
+        // Elimina las relaciones asociadas a la simulación
+        Tb_mano_de_obra_producto_simula::where('idSimulacion', $id)->delete();
+        Tb_materia_prima_producto_simula::where('idSimulacion', $id)->delete();
+        Tb_concepto_cif_simula::where('idSimulacion', $id)->delete();
+        Tb_rela_simulacion::where('idSimulacion', $id)->delete();
+
+        $simulacion->delete();
+
+        return response()->json(['message' => 'Simulación eliminada con éxito.']);
     }
 
 //---------------------Funcion para generar las relaciones en las tablas que quedan con los datos-----------------------------------//
